@@ -142,7 +142,7 @@ tr:hover td{background:#fafaf8}
     </div>
     <button class="btn btn-primary btn-block" onclick="doLogin()"><i class="bi bi-box-arrow-in-right"></i> เข้าสู่ระบบ</button>
     <div id="loginError" class="error-text hidden"></div>
-    <div class="hint-box"><i class="bi bi-info-circle"></i> ยังไม่ได้ตั้งค่า URL ของระบบ (APPS_SCRIPT_URL) — ดูวิธีตั้งค่าใน README.md</div>
+    <div id="urlHintBox" class="hint-box hidden"><i class="bi bi-info-circle"></i> ยังไม่ได้ตั้งค่า URL ของระบบ (APPS_SCRIPT_URL) — ดูวิธีตั้งค่าใน README.md</div>
   </div>
 </div>
 
@@ -359,6 +359,11 @@ tr:hover td{background:#fafaf8}
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrPcJkVwgDn0o6zasOM31LdE0B5hgrmNiGwQbaXTOOvbKmsJw4GhZUtrzwBw5NiCM/exec';
 
 let state = { token: null, name: '', role: '' };
+
+// แสดงกล่องเตือนเฉพาะกรณีที่ยังไม่ได้แก้ URL จริง (ยังเป็นค่า placeholder เดิม)
+if (APPS_SCRIPT_URL.indexOf('ใส่รหัสของท่าน') !== -1) {
+  document.getElementById('urlHintBox').classList.remove('hidden');
+}
 
 /* ---------- API helper ---------- */
 async function apiGet(action, params) {
