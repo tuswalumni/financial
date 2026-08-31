@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบการเงินและบัญชี | สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ.</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+:root{
+  --tu-maroon-dark:#6c1830;
+  --tu-maroon:#9a2245;
+  --tu-gold:#c9a227;
+  --tu-gold-light:#e6c65c;
+  --ink:#1e293b;
+  --muted:#64748b;
+  --bg:#f6f7f5;
+  --card:#ffffff;
+  --line:#e2e8f0;
+  --danger:#dc2626;
+  --warn:#d97706;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;}
+h1,h2,h3,.brand,.nav-label{font-family:'Prompt',sans-serif;}
+a{text-decoration:none;color:inherit}
+
+/* ---------- Login ---------- */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--tu-maroon) 0%,var(--tu-maroon-dark) 100%);
+  padding:20px;
+}
+.login-card{
+  background:var(--card);border-radius:18px;max-width:380px;width:100%;
+  padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.25);
+  border-top:5px solid var(--tu-gold);
+}
+.login-card .brand{font-size:15px;color:var(--tu-maroon-dark);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.login-card .sub{font-size:12px;color:var(--muted);margin-bottom:22px;text-transform:uppercase;letter-spacing:1px}
+.login-logo{display:block;width:76px;height:76px;margin:0 auto 16px;object-fit:contain}
+.login-card .brand,.login-card .sub{text-align:center}
+.sidebar-logo{width:44px;height:44px;object-fit:contain;flex:0 0 44px;background:#fff;border-radius:50%;padding:4px}
+.sidebar-brand-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.form-group{margin-bottom:14px}
+label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:5px}
+input,select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
+  font-family:'Sarabun',sans-serif;font-size:14px;background:#fbfbfa;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--tu-gold-light);border-color:var(--tu-gold)}
+.btn{
+  border:none;border-radius:9px;padding:10px 18px;font-weight:600;font-size:14px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--tu-maroon-dark);color:#fff}
+.btn-primary:hover{background:var(--tu-maroon)}
+.btn-gold{background:var(--tu-gold);color:#3a2f00}
+.btn-gold:hover{background:var(--tu-gold-light)}
+.btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-block{width:100%;justify-content:center}
+.error-text{color:var(--danger);font-size:13px;margin-top:10px}
+.hint-box{margin-top:18px;padding:10px 12px;background:#fef9ec;border:1px solid #f3e3b0;border-radius:9px;font-size:12px;color:#7a5b00}
+
+/* ---------- App shell ---------- */
+#app{display:none}
+.shell{display:flex;min-height:100vh}
+.sidebar{
+  width:230px;flex:0 0 230px;background:var(--tu-maroon-dark);color:#fff;
+  padding:22px 16px;display:flex;flex-direction:column;
+}
+.sidebar .brand{color:#fff;font-size:15px;line-height:1.4;margin-bottom:4px}
+.sidebar .sub{color:rgba(255,255,255,.55);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:26px}
+.nav-item{
+  padding:10px 12px;border-radius:9px;display:flex;align-items:center;gap:10px;
+  color:rgba(255,255,255,.8);font-size:14px;cursor:pointer;margin-bottom:2px;
+}
+.nav-item:hover{background:rgba(255,255,255,.08)}
+.nav-item.active{background:var(--tu-gold);color:#3a2f00;font-weight:600}
+.sidebar .spacer{flex:1}
+.user-box{border-top:1px solid rgba(255,255,255,.15);padding-top:14px;font-size:12px;color:rgba(255,255,255,.7)}
+.user-box b{color:#fff;display:block;font-size:13px}
+
+.main{flex:1;padding:26px 30px;max-width:1100px}
+.page-title{font-size:20px;font-weight:700;margin:0 0 4px}
+.page-sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:26px}
+.kpi-card{background:var(--card);border-radius:14px;padding:18px 20px;border:1px solid var(--line);border-left:4px solid var(--tu-maroon)}
+.kpi-card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi-card .value{font-size:24px;font-weight:700;color:var(--tu-maroon-dark);margin-top:6px;font-family:'Prompt',sans-serif}
+.kpi-card.warn{border-left-color:var(--warn)}
+.kpi-card.warn .value{color:var(--warn)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
+.card h3{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+tr:hover td{background:#fafaf8}
+.badge{padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;display:inline-block}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-approved{background:#d1fae5;color:#065f46}
+.badge-paid{background:#dbeafe;color:#1e40af}
+.badge-rejected{background:#fee2e2;color:#991b1b}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;top:18px;right:18px;background:var(--tu-maroon-dark);color:#fff;padding:12px 18px;border-radius:10px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;display:none}
+.toast.error{background:var(--danger)}
+.empty{color:var(--muted);font-size:13.5px;padding:16px 0;text-align:center}
+.hidden{display:none !important}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,15,15,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal-box{background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);border-top:4px solid var(--tu-gold)}
+.modal-box h3{margin:0 0 4px}
+@media(max-width:800px){
+  .shell{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px}
+  .sidebar .spacer{display:none}
+  .user-box{display:none}
+  .main{padding:18px}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="assets/logo.png" alt="ตราสมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ." class="login-logo">
+    <div class="brand">สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์</div>
+    <div class="sub">ระบบการเงินและบัญชี · มธ.</div>
+    <div class="form-group">
+      <label>ชื่อผู้ใช้</label>
+      <input id="loginUsername" placeholder="username">
+    </div>
+    <div class="form-group">
+      <label>รหัสผ่าน</label>
+      <input id="loginPassword" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="doLogin()"><i class="bi bi-box-arrow-in-right"></i> เข้าสู่ระบบ</button>
+    <div id="loginError" class="error-text hidden"></div>
+    <div class="hint-box"><i class="bi bi-info-circle"></i> ยังไม่ได้ตั้งค่า URL ของระบบ (APPS_SCRIPT_URL) — ดูวิธีตั้งค่าใน README.md</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="sidebar-brand-row">
+        <img src="assets/logo.png" alt="ตราสมาคมฯ" class="sidebar-logo">
+        <div class="brand">สมาคมนักศึกษาเก่า<br>สังคมสงเคราะห์ศาสตร์</div>
+      </div>
+      <div class="sub">ระบบการเงินและบัญชี</div>
+
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> แดชบอร์ด</div>
+      <div class="nav-item" data-page="income" onclick="showPage('income')"><i class="bi bi-cash-coin"></i> รายรับ</div>
+      <div class="nav-item" data-page="expense" onclick="showPage('expense')"><i class="bi bi-receipt-cutoff"></i> คำขอเบิกจ่าย</div>
+      <div class="nav-item" data-page="projects" onclick="showPage('projects')"><i class="bi bi-kanban"></i> โครงการ/งบประมาณ</div>
+      <div class="nav-item" data-page="assets" onclick="showPage('assets')"><i class="bi bi-building"></i> ทรัพย์สิน</div>
+      <div class="nav-item" data-page="reports" onclick="showPage('reports')"><i class="bi bi-bar-chart-line"></i> รายงาน</div>
+      <div class="nav-item admin-only hidden" data-page="users" onclick="showPage('users')"><i class="bi bi-people"></i> ผู้ใช้งาน</div>
+
+      <div class="spacer"></div>
+      <div class="user-box">
+        <b id="sbUserName">-</b>
+        <span id="sbUserRole">-</span>
+        <div style="margin-top:10px"><a href="#" onclick="doLogout()" style="color:rgba(255,255,255,.75)"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></div>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page">
+        <h1 class="page-title">แดชบอร์ด</h1>
+        <p class="page-sub">ภาพรวมการเงินของสมาคมฯ</p>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="card">
+          <h3><i class="bi bi-list-check"></i> คำขอเบิกจ่ายล่าสุด</h3>
+          <div id="dashRecentExpense"></div>
+        </div>
+      </div>
+
+      <!-- INCOME -->
+      <div id="page-income" class="page hidden">
+        <h1 class="page-title">รายรับ</h1>
+        <p class="page-sub">ค่าบำรุงสมาชิก (sync อัตโนมัติ), เงินบริจาค, รายรับกิจกรรม และรายรับอื่น</p>
+        <div class="card" id="bankInfoCard" style="display:none">
+          <h3><i class="bi bi-bank"></i> บัญชีธนาคารของสมาคมฯ</h3>
+          <div id="bankInfoWrap" style="font-size:13.5px;line-height:1.9"></div>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-plus-circle"></i> บันทึกรายรับใหม่</h3>
+          <div class="form-row">
+            <div class="form-group"><label>วันที่</label><input type="date" id="incDate"></div>
+            <div class="form-group"><label>หมวด</label>
+              <select id="incCategory">
+                <option>เงินบริจาค</option><option>ค่าลงทะเบียนกิจกรรม</option>
+                <option>สปอนเซอร์</option><option>ดอกเบี้ยรับ</option><option>รายรับอื่น</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>จำนวนเงิน (บาท)</label><input type="number" id="incAmount"></div>
+            <div class="form-group"><label>แหล่งที่มา / ผู้ชำระ</label><input id="incSource"></div>
+          </div>
+          <div class="form-group"><label>หมายเหตุ</label><input id="incNote"></div>
+          <div class="form-group"><label>แนบหลักฐาน (ใบเสร็จ/สลิปโอน)</label><input type="file" id="incEvidence" accept="image/*,.pdf"></div>
+          <button class="btn btn-primary" onclick="submitIncome()"><i class="bi bi-check2"></i> บันทึกรายรับ</button>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-table"></i> รายการรายรับ</h3>
+          <div id="incomeTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- EXPENSE -->
+      <div id="page-expense" class="page hidden">
+        <h1 class="page-title">คำขอเบิกจ่าย</h1>
+        <p class="page-sub">ยื่นคำขอ → เหรัญญิกตรวจสอบ → (กรรมการ หากวงเงินสูง) → นายกสมาคมอนุมัติ → บันทึกจ่ายจริง</p>
+        <div class="card">
+          <h3><i class="bi bi-plus-circle"></i> ยื่นคำขอเบิกจ่ายใหม่</h3>
+          <div class="form-row">
+            <div class="form-group"><label>โครงการ</label><select id="expProject"><option value="">- ไม่ระบุโครงการ -</option></select></div>
+            <div class="form-group"><label>หมวด</label>
+              <select id="expCategory">
+                <option>ค่าใช้จ่ายกิจกรรม</option><option>ค่าสวัสดิการสมาชิก</option>
+                <option>ค่าบริหารสำนักงาน</option><option>ค่าธรรมเนียมธนาคาร</option><option>ค่าใช้จ่ายอื่น</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>จำนวนเงิน (บาท)</label><input type="number" id="expAmount"></div>
+            <div class="form-group"><label>รายละเอียด</label><input id="expDescription"></div>
+          </div>
+          <button class="btn btn-primary" onclick="submitExpenseRequest()"><i class="bi bi-send"></i> ยื่นคำขอ</button>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-table"></i> รายการคำขอเบิกจ่ายทั้งหมด</h3>
+          <div id="expenseTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div id="page-projects" class="page hidden">
+        <h1 class="page-title">โครงการ / งบประมาณ</h1>
+        <p class="page-sub">ตั้งงบประมาณและติดตามการใช้จ่ายเทียบกับวงเงินที่อนุมัติ</p>
+        <div class="card">
+          <h3><i class="bi bi-plus-circle"></i> ตั้งโครงการใหม่</h3>
+          <div class="form-row">
+            <div class="form-group"><label>ชื่อโครงการ</label><input id="prjName"></div>
+            <div class="form-group"><label>งบประมาณ (บาท)</label><input type="number" id="prjBudget"></div>
+          </div>
+          <button class="btn btn-primary" onclick="submitProject()"><i class="bi bi-check2"></i> บันทึกโครงการ</button>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-kanban"></i> งบประมาณ vs ใช้จริง</h3>
+          <div id="projectsTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- ASSETS -->
+      <div id="page-assets" class="page hidden">
+        <h1 class="page-title">บัญชีทรัพย์สินของสมาคม</h1>
+        <p class="page-sub">ตามข้อบังคับ ข้อ 33 สมาคมต้องจัดให้มีบัญชีทรัพย์สินแยกจากบัญชีรายรับ-รายจ่าย</p>
+        <div class="card">
+          <h3><i class="bi bi-plus-circle"></i> เพิ่มรายการทรัพย์สิน</h3>
+          <div class="form-row">
+            <div class="form-group"><label>ชื่อทรัพย์สิน</label><input id="astName"></div>
+            <div class="form-group"><label>หมวดหมู่</label><input id="astCategory" placeholder="เช่น ครุภัณฑ์สำนักงาน, อุปกรณ์กิจกรรม"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>มูลค่า (บาท)</label><input type="number" id="astValue"></div>
+            <div class="form-group"><label>สถานที่เก็บ</label><input id="astLocation"></div>
+          </div>
+          <div class="form-group"><label>หมายเหตุ</label><input id="astNote"></div>
+          <button class="btn btn-primary" onclick="submitAsset()"><i class="bi bi-check2"></i> บันทึกทรัพย์สิน</button>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-list-ul"></i> รายการทรัพย์สินทั้งหมด</h3>
+          <div id="assetsTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="page-reports" class="page hidden">
+        <h1 class="page-title">รายงาน</h1>
+        <p class="page-sub">สรุปรายรับ-รายจ่ายรายเดือน สำหรับที่ประชุมกรรมการ/ AGM</p>
+        <div class="card">
+          <h3><i class="bi bi-calendar3"></i> สรุปรายเดือน — ปี พ.ศ. <input type="number" id="reportYear" style="width:90px;display:inline-block" value=""> <button class="btn btn-outline" onclick="loadReport()">ดูรายงาน</button></h3>
+          <div id="reportTableWrap"></div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-gold" onclick="exportReport('pdf')"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button>
+            <button class="btn btn-outline" onclick="exportReport('xlsx')"><i class="bi bi-file-earmark-excel"></i> Export Excel</button>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px">ใช้สำหรับส่งให้สมาชิกก่อนวันประชุมใหญ่สามัญประจำปี ตามข้อบังคับ ข้อ 30 (ไม่น้อยกว่า 7 วัน)</p>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div id="page-users" class="page hidden">
+        <h1 class="page-title">ผู้ใช้งาน</h1>
+        <p class="page-sub">จัดการสิทธิ์การเข้าถึงระบบ (เฉพาะผู้ดูแลระบบ)</p>
+        <div class="card">
+          <h3><i class="bi bi-person-plus"></i> เพิ่มผู้ใช้ใหม่</h3>
+          <div class="form-row">
+            <div class="form-group"><label>ชื่อ-สกุล</label><input id="usrName"></div>
+            <div class="form-group"><label>Username</label><input id="usrUsername"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>รหัสผ่านตั้งต้น</label><input id="usrPassword"></div>
+            <div class="form-group"><label>บทบาท</label>
+              <select id="usrRole">
+                <option value="treasurer">เหรัญญิก (treasurer)</option>
+                <option value="president">นายกสมาคม (president)</option>
+                <option value="committee">กรรมการ (committee)</option>
+                <option value="auditor">ผู้ตรวจสอบ (auditor)</option>
+                <option value="admin">แอดมิน (admin)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="submitUser()"><i class="bi bi-check2"></i> เพิ่มผู้ใช้</button>
+        </div>
+        <div class="card"><h3><i class="bi bi-people"></i> รายชื่อผู้ใช้งาน</h3><div id="usersTableWrap"></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: บันทึกจ่ายเงิน (ผู้ลงนาม 2 ฝ่าย + หลักฐาน) -->
+<div id="payModalOverlay" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3><i class="bi bi-cash-stack"></i> บันทึกจ่ายเงิน</h3>
+    <p class="page-sub" style="margin-bottom:16px">ตามข้อบังคับข้อ 31 ต้องระบุผู้ลงนามสั่งจ่าย 2 ฝ่าย</p>
+    <div class="form-group"><label>วิธีจ่ายเงิน</label>
+      <select id="payMethod"><option>โอนธนาคาร</option><option>เช็ค</option><option>เงินสด</option></select>
+    </div>
+    <div class="form-group"><label>ผู้ลงนามฝ่ายที่ 1 (นายกสมาคม/อุปนายก)</label><input id="paySigned1"></div>
+    <div class="form-group"><label>ผู้ลงนามฝ่ายที่ 2 (เลขานุการ/เหรัญญิก)</label><input id="paySigned2"></div>
+    <div class="form-group"><label>แนบหลักฐานการโอน/สำเนาเช็ค</label><input type="file" id="payEvidence" accept="image/*,.pdf"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-primary" onclick="confirmPayment()"><i class="bi bi-check2"></i> ยืนยันบันทึกจ่ายเงิน</button>
+      <button class="btn btn-outline" onclick="closePayModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   ตั้งค่า: ใส่ URL ของ Web App (Google Apps Script Deployment)
+   ============================================================ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrPcJkVwgDn0o6zasOM31LdE0B5hgrmNiGwQbaXTOOvbKmsJw4GhZUtrzwBw5NiCM/exec';
+
+let state = { token: null, name: '', role: '' };
+
+/* ---------- API helper ---------- */
+async function apiGet(action, params) {
+  const qs = new URLSearchParams(Object.assign({ action, token: state.token }, params || {}));
+  const res = await fetch(APPS_SCRIPT_URL + '?' + qs.toString());
+  return res.json();
+}
+async function apiPost(action, payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // เลี่ยง CORS preflight ของ Apps Script
+    body: JSON.stringify({ action, token: state.token, payload })
+  });
+  return res.json();
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3200);
+}
+function money(n){ return Number(n||0).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function fileToBase64(fileInputEl){
+  return new Promise((resolve, reject) => {
+    const file = fileInputEl.files[0];
+    if(!file){ resolve(null); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result; // data:<mime>;base64,XXXX
+      const base64Data = result.split(',')[1];
+      resolve({ fileName: file.name, mimeType: file.type || 'application/octet-stream', base64Data });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+async function uploadIfSelected(fileInputEl){
+  const fileInfo = await fileToBase64(fileInputEl);
+  if(!fileInfo) return '';
+  const res = await apiPost('uploadFile', fileInfo);
+  if(!res.ok){ showToast('อัปโหลดไฟล์ไม่สำเร็จ: ' + (res.message||''), true); return ''; }
+  return res.url;
+}
+
+/* ---------- Login / Logout ---------- */
+async function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errBox = document.getElementById('loginError');
+  errBox.classList.add('hidden');
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'login', username, password })
+    });
+    const data = await res.json();
+    if (!data.ok) { errBox.textContent = data.message; errBox.classList.remove('hidden'); return; }
+
+    state.token = data.token; state.name = data.name; state.role = data.role;
+    document.getElementById('sbUserName').textContent = data.name;
+    document.getElementById('sbUserRole').textContent = roleLabel(data.role);
+    if (data.role === 'admin') document.querySelector('.admin-only').classList.remove('hidden');
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } catch (e) {
+    errBox.textContent = 'เชื่อมต่อระบบไม่สำเร็จ ตรวจสอบ APPS_SCRIPT_URL ในไฟล์นี้ / ' + e.toString();
+    errBox.classList.remove('hidden');
+  }
+}
+function doLogout(){ state = { token:null, name:'', role:'' }; document.getElementById('app').style.display='none'; document.getElementById('loginScreen').style.display='flex'; }
+function roleLabel(r){
+  return {admin:'ผู้ดูแลระบบ', treasurer:'เหรัญญิก', president:'นายกสมาคม', committee:'กรรมการ', auditor:'ผู้ตรวจสอบบัญชี'}[r] || r;
+}
+
+/* ---------- Navigation ---------- */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('page-'+name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('.nav-item[data-page="'+name+'"]').classList.add('active');
+  if(name==='dashboard') loadDashboard();
+  if(name==='income') { loadIncome(); loadBankInfo(); }
+  if(name==='expense') loadExpense();
+  if(name==='projects') loadProjects();
+  if(name==='assets') loadAssets();
+  if(name==='reports') { document.getElementById('reportYear').value = new Date().getFullYear()+543; loadReport(); }
+  if(name==='users') loadUsers();
+}
+
+async function initApp(){
+  document.getElementById('incDate').value = new Date().toISOString().substring(0,10);
+  await loadProjectsIntoSelect();
+  showPage('dashboard');
+}
+
+/* ---------- Dashboard ---------- */
+async function loadDashboard(){
+  const res = await apiGet('getDashboard');
+  if(!res.ok) return showToast(res.message, true);
+  const d = res.data;
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="label">ยอดเงินคงเหลือ</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
+    <div class="kpi-card"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
+    <div class="kpi-card"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
+    <div class="kpi-card warn"><div class="label">รออนุมัติ</div><div class="value">${d.pendingApprovals} รายการ</div></div>
+    <div class="kpi-card"><div class="label">เงินบำรุงตลอดชีพสะสม<br><span style="font-size:10px;font-weight:400">(ห้ามถอนเงินต้น ข้อ 32)</span></div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div></div>
+  `;
+  const exp = await apiGet('getExpenseRequests');
+  const rows = (exp.data||[]).slice(0,6);
+  document.getElementById('dashRecentExpense').innerHTML = rows.length ? renderExpenseTable(rows, false) : '<div class="empty">ยังไม่มีรายการ</div>';
+}
+
+/* ---------- Income ---------- */
+let bankInfoLoaded = false;
+async function loadBankInfo(){
+  if(bankInfoLoaded) return;
+  const res = await apiGet('getConfig');
+  if(!res.ok || !res.data) return;
+  const c = res.data;
+  if(!c.bank_name) return;
+  document.getElementById('bankInfoWrap').innerHTML = `
+    <div><b>${c.bank_name}</b></div>
+    <div>บัญชีออมทรัพย์: <b>${c.savings_account_no||'-'}</b> — ${c.savings_account_name||''}</div>
+    <div>บัญชีฝากประจำ (เงินบำรุงตลอดชีพ): <b>${c.fixed_deposit_account_no||'-'}</b></div>
+  `;
+  document.getElementById('bankInfoCard').style.display = 'block';
+  bankInfoLoaded = true;
+}
+async function submitIncome(){
+  const evidenceUrl = await uploadIfSelected(document.getElementById('incEvidence'));
+  const payload = {
+    date: document.getElementById('incDate').value,
+    category: document.getElementById('incCategory').value,
+    amount: document.getElementById('incAmount').value,
+    source: document.getElementById('incSource').value,
+    note: document.getElementById('incNote').value,
+    evidenceUrl: evidenceUrl
+  };
+  const res = await apiPost('addIncome', payload);
+  if(res.ok===false) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+  showToast('บันทึกรายรับสำเร็จ');
+  document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';
+  loadIncome();
+}
+async function loadIncome(){
+  const res = await apiGet('getIncomeList');
+  const rows = res.data||[];
+  if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
+  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th></tr>';
+  rows.forEach(r=>{
+    html += `<tr><td>${r.date}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('incomeTableWrap').innerHTML = html;
+}
+
+/* ---------- Expense ---------- */
+async function loadProjectsIntoSelect(){
+  const res = await apiGet('getProjects');
+  const sel = document.getElementById('expProject');
+  (res.data||[]).forEach(p=>{
+    const opt = document.createElement('option'); opt.value=p.project_id; opt.textContent = p.name + ' (คงเหลือ ฿'+money(p.remaining_amount)+')';
+    sel.appendChild(opt);
+  });
+}
+async function submitExpenseRequest(){
+  const payload = {
+    projectId: document.getElementById('expProject').value,
+    category: document.getElementById('expCategory').value,
+    amount: document.getElementById('expAmount').value,
+    description: document.getElementById('expDescription').value
+  };
+  const res = await apiPost('addExpenseRequest', payload);
+  if(!res.ok) return showToast(res.message||'ยื่นคำขอไม่สำเร็จ', true);
+  showToast(res.message);
+  document.getElementById('expAmount').value='';document.getElementById('expDescription').value='';
+  loadExpense();
+}
+function statusBadge(status){
+  const map = {
+    pending_treasurer:['badge-pending','รอเหรัญญิกตรวจสอบ'], pending_committee:['badge-pending','รอมติกรรมการ'],
+    pending_president:['badge-pending','รอนายกสมาคมอนุมัติ'], approved:['badge-approved','อนุมัติแล้ว รอจ่ายเงิน'],
+    paid:['badge-paid','จ่ายเงินแล้ว'], rejected:['badge-rejected','ถูกปฏิเสธ']
+  };
+  const m = map[status] || ['badge-pending', status];
+  return `<span class="badge ${m[0]}">${m[1]}</span>`;
+}
+function renderExpenseTable(rows, withActions){
+  let html = '<table><tr><th>วันที่</th><th>ผู้ยื่น</th><th>หมวด</th><th style="text-align:right">จำนวนเงิน</th><th>สถานะ</th>'+(withActions?'<th>ดำเนินการ</th>':'')+'</tr>';
+  rows.forEach(r=>{
+    html += `<tr><td>${r.date}</td><td>${r.requested_by}</td><td>${r.category}</td><td style="text-align:right">${money(r.amount)}</td><td>${statusBadge(r.status)}</td>`;
+    if(withActions){
+      html += `<td>${expenseActionButtons(r)}</td>`;
+    }
+    html += '</tr>';
+  });
+  return html + '</table>';
+}
+function expenseActionButtons(r){
+  const stepRole = {pending_treasurer:'treasurer', pending_committee:'committee', pending_president:'president'}[r.status];
+  let btns = '';
+  if (stepRole && (state.role===stepRole || state.role==='admin')) {
+    btns += `<button class="btn btn-primary" style="padding:5px 10px;font-size:12px" onclick="doApprove('${r.request_id}','approve')">อนุมัติ</button> `;
+    btns += `<button class="btn btn-outline" style="padding:5px 10px;font-size:12px" onclick="doApprove('${r.request_id}','reject')">ปฏิเสธ</button>`;
+  }
+  if (r.status==='approved' && (state.role==='treasurer'||state.role==='admin')) {
+    btns += `<button class="btn btn-gold" style="padding:5px 10px;font-size:12px" onclick="doPay('${r.request_id}')">บันทึกจ่ายเงิน</button>`;
+  }
+  return btns || '-';
+}
+async function doApprove(requestId, decision){
+  const res = await apiPost('approveExpense', { requestId, decision });
+  if(!res.ok) return showToast(res.message, true);
+  showToast(res.message); loadExpense(); loadDashboard();
+}
+let payModalRequestId = null;
+function doPay(requestId){
+  payModalRequestId = requestId;
+  document.getElementById('paySigned1').value='';
+  document.getElementById('paySigned2').value='';
+  document.getElementById('payEvidence').value='';
+  document.getElementById('payModalOverlay').classList.remove('hidden');
+}
+function closePayModal(){ document.getElementById('payModalOverlay').classList.add('hidden'); payModalRequestId=null; }
+
+async function confirmPayment(){
+  const signedBy1 = document.getElementById('paySigned1').value.trim();
+  const signedBy2 = document.getElementById('paySigned2').value.trim();
+  if(!signedBy1 || !signedBy2){ showToast('กรุณาระบุผู้ลงนามทั้ง 2 ฝ่าย ตามข้อบังคับข้อ 31', true); return; }
+
+  const evidenceUrl = await uploadIfSelected(document.getElementById('payEvidence'));
+  const res = await apiPost('recordPayment', {
+    requestId: payModalRequestId,
+    method: document.getElementById('payMethod').value,
+    signedBy1, signedBy2, evidenceUrl
+  });
+  if(!res.ok) return showToast(res.message, true);
+  showToast(res.message);
+  closePayModal();
+  loadExpense(); loadProjects(); loadDashboard();
+}
+async function loadExpense(){
+  const res = await apiGet('getExpenseRequests');
+  const rows = res.data||[];
+  document.getElementById('expenseTableWrap').innerHTML = rows.length ? renderExpenseTable(rows, true) : '<div class="empty">ยังไม่มีคำขอเบิกจ่าย</div>';
+}
+
+/* ---------- Projects ---------- */
+async function submitProject(){
+  const payload = { name: document.getElementById('prjName').value, budgetAmount: document.getElementById('prjBudget').value };
+  const res = await apiPost('addProject', payload);
+  if(!res.ok) return showToast(res.message, true);
+  showToast('บันทึกโครงการสำเร็จ');
+  document.getElementById('prjName').value='';document.getElementById('prjBudget').value='';
+  loadProjects();
+}
+async function loadProjects(){
+  const res = await apiGet('getProjects');
+  const rows = res.data||[];
+  if(!rows.length){ document.getElementById('projectsTableWrap').innerHTML = '<div class="empty">ยังไม่มีโครงการ</div>'; return; }
+  let html = '<table><tr><th>โครงการ</th><th style="text-align:right">งบประมาณ</th><th style="text-align:right">ใช้ไปแล้ว</th><th style="text-align:right">คงเหลือ</th></tr>';
+  rows.forEach(p=>{
+    html += `<tr><td>${p.name}</td><td style="text-align:right">${money(p.budget_amount)}</td><td style="text-align:right">${money(p.used_amount)}</td><td style="text-align:right">${money(p.remaining_amount)}</td></tr>`;
+  });
+  document.getElementById('projectsTableWrap').innerHTML = html + '</table>';
+}
+
+/* ---------- Assets (บัญชีทรัพย์สินของสมาคม ข้อ 33) ---------- */
+async function submitAsset(){
+  const payload = {
+    name: document.getElementById('astName').value,
+    category: document.getElementById('astCategory').value,
+    value: document.getElementById('astValue').value,
+    location: document.getElementById('astLocation').value,
+    note: document.getElementById('astNote').value
+  };
+  const res = await apiPost('addAsset', payload);
+  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+  showToast('บันทึกทรัพย์สินสำเร็จ');
+  ['astName','astCategory','astValue','astLocation','astNote'].forEach(id=>document.getElementById(id).value='');
+  loadAssets();
+}
+async function loadAssets(){
+  const res = await apiGet('getAssets');
+  const rows = res.data||[];
+  if(!rows.length){ document.getElementById('assetsTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการทรัพย์สิน</div>'; return; }
+  let html = '<table><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th style="text-align:right">มูลค่า</th><th>สถานที่เก็บ</th></tr>';
+  rows.forEach(a=>{
+    html += `<tr><td>${a.name}</td><td>${a.category}</td><td>${a.acquired_date}</td><td style="text-align:right">${money(a.value)}</td><td>${a.location||'-'}</td></tr>`;
+  });
+  document.getElementById('assetsTableWrap').innerHTML = html + '</table>';
+}
+
+/* ---------- Reports ---------- */
+async function loadReport(){
+  const year = document.getElementById('reportYear').value;
+  const res = await apiGet('getReport', { type:'income_expense_summary', fiscalYear: year });
+  const rows = res.data||[];
+  let html = '<table><tr><th>เดือน</th><th style="text-align:right">รายรับ</th><th style="text-align:right">รายจ่าย</th><th style="text-align:right">สุทธิ</th></tr>';
+  const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  rows.forEach((r,i)=>{
+    html += `<tr><td>${thMonths[i]}</td><td style="text-align:right">${money(r.income)}</td><td style="text-align:right">${money(r.expense)}</td><td style="text-align:right">${money(r.net)}</td></tr>`;
+  });
+  document.getElementById('reportTableWrap').innerHTML = html + '</table>';
+}
+
+async function exportReport(format){
+  showToast('กำลังสร้างรายงาน... กรุณารอสักครู่');
+  const year = document.getElementById('reportYear').value;
+  const res = await apiPost('exportReport', { reportType:'income_expense_summary', fiscalYear: year, format });
+  if(!res.ok) return showToast(res.message||'สร้างรายงานไม่สำเร็จ', true);
+
+  const byteChars = atob(res.base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i=0;i<byteChars.length;i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: res.mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = res.fileName; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('ดาวน์โหลดรายงานสำเร็จ');
+}
+
+/* ---------- Users ---------- */
+async function submitUser(){
+  const payload = {
+    name: document.getElementById('usrName').value, username: document.getElementById('usrUsername').value,
+    password: document.getElementById('usrPassword').value, role: document.getElementById('usrRole').value
+  };
+  const res = await apiPost('addUser', payload);
+  if(!res.ok) return showToast(res.message, true);
+  showToast('เพิ่มผู้ใช้สำเร็จ');
+  document.getElementById('usrName').value='';document.getElementById('usrUsername').value='';document.getElementById('usrPassword').value='';
+  loadUsers();
+}
+async function loadUsers(){
+  const res = await apiGet('getUsers');
+  if(!res.ok) return showToast(res.message, true);
+  const rows = res.data||[];
+  let html = '<table><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th></tr>';
+  rows.forEach(u=>{ html += `<tr><td>${u.name}</td><td>${u.username}</td><td>${roleLabel(u.role)}</td></tr>`; });
+  document.getElementById('usersTableWrap').innerHTML = html + '</table>';
+}
+</script>
+</body>
+</html>
