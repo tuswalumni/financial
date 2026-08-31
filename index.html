@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ระบบการเงินและบัญชี | สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ.</title><link rel="icon" type="image/png" href="logo.png">
-<link rel="icon" type="image/png" href="logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -93,6 +93,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--tu-gold-light);b
 .kpi-card .value{font-size:24px;font-weight:700;color:var(--tu-maroon-dark);margin-top:6px;font-family:'Prompt',sans-serif}
 .kpi-card.warn{border-left-color:var(--warn)}
 .kpi-card.warn .value{color:var(--warn)}
+.kpi-card.expense{border-left-color:var(--danger)}
+.kpi-card.expense .value{color:var(--danger)}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
 .card h3{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
@@ -129,7 +131,7 @@ tr:hover td{background:#fafaf8}
 <!-- ================= LOGIN ================= -->
 <div id="loginScreen">
   <div class="login-card">
-    <img src="logo.png" alt="ตราสมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ." class="login-logo">
+    <img src="assets/logo.png" alt="ตราสมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ." class="login-logo">
     <div class="brand">สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์</div>
     <div class="sub">ระบบการเงินและบัญชี · มธ.</div>
     <div class="form-group">
@@ -151,7 +153,7 @@ tr:hover td{background:#fafaf8}
   <div class="shell">
     <div class="sidebar">
       <div class="sidebar-brand-row">
-        <img src="logo.png" alt="ตราสมาคมฯ" class="sidebar-logo">
+        <img src="assets/logo.png" alt="ตราสมาคมฯ" class="sidebar-logo">
         <div class="brand">สมาคมนักศึกษาเก่า<br>สังคมสงเคราะห์ศาสตร์</div>
       </div>
       <div class="sub">ระบบการเงินและบัญชี</div>
@@ -163,6 +165,7 @@ tr:hover td{background:#fafaf8}
       <div class="nav-item" data-page="assets" onclick="showPage('assets')"><i class="bi bi-building"></i> ทรัพย์สิน</div>
       <div class="nav-item" data-page="reports" onclick="showPage('reports')"><i class="bi bi-bar-chart-line"></i> รายงาน</div>
       <div class="nav-item admin-only hidden" data-page="users" onclick="showPage('users')"><i class="bi bi-people"></i> ผู้ใช้งาน</div>
+      <div class="nav-item settings-only hidden" data-page="settings" onclick="showPage('settings')"><i class="bi bi-gear"></i> ตั้งค่า</div>
 
       <div class="spacer"></div>
       <div class="user-box">
@@ -213,6 +216,7 @@ tr:hover td{background:#fafaf8}
           <div class="form-group"><label>แนบหลักฐาน (ใบเสร็จ/สลิปโอน)</label><input type="file" id="incEvidence" accept="image/*,.pdf"></div>
           <button class="btn btn-primary" onclick="submitIncome()"><i class="bi bi-check2"></i> บันทึกรายรับ</button>
         </div>
+        <div class="kpi-grid" id="incomeKpiGrid" style="margin-bottom:20px"></div>
         <div class="card">
           <h3><i class="bi bi-table"></i> รายการรายรับ</h3>
           <div id="incomeTableWrap"></div>
@@ -240,6 +244,7 @@ tr:hover td{background:#fafaf8}
           </div>
           <button class="btn btn-primary" onclick="submitExpenseRequest()"><i class="bi bi-send"></i> ยื่นคำขอ</button>
         </div>
+        <div class="kpi-grid" id="expenseKpiGrid" style="margin-bottom:20px"></div>
         <div class="card">
           <h3><i class="bi bi-table"></i> รายการคำขอเบิกจ่ายทั้งหมด</h3>
           <div id="expenseTableWrap"></div>
@@ -281,6 +286,7 @@ tr:hover td{background:#fafaf8}
           <div class="form-group"><label>หมายเหตุ</label><input id="astNote"></div>
           <button class="btn btn-primary" onclick="submitAsset()"><i class="bi bi-check2"></i> บันทึกทรัพย์สิน</button>
         </div>
+        <div class="kpi-grid" id="assetsKpiGrid" style="margin-bottom:20px"></div>
         <div class="card">
           <h3><i class="bi bi-list-ul"></i> รายการทรัพย์สินทั้งหมด</h3>
           <div id="assetsTableWrap"></div>
@@ -327,6 +333,23 @@ tr:hover td{background:#fafaf8}
           <button class="btn btn-primary" onclick="submitUser()"><i class="bi bi-check2"></i> เพิ่มผู้ใช้</button>
         </div>
         <div class="card"><h3><i class="bi bi-people"></i> รายชื่อผู้ใช้งาน</h3><div id="usersTableWrap"></div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="page-settings" class="page hidden">
+        <h1 class="page-title">ตั้งค่า</h1>
+        <p class="page-sub">ตั้งค่าบัญชีธนาคารของสมาคมฯ ที่แสดงในหน้ารายรับและใบเสร็จ</p>
+        <div class="card">
+          <h3><i class="bi bi-bank"></i> บัญชีธนาคาร</h3>
+          <div class="form-group"><label>ชื่อธนาคาร / สาขา</label><input id="cfgBankName" placeholder="เช่น ธนาคารกรุงไทย (Krungthai Bank) สาขาสะพานขาว"></div>
+          <div class="form-row">
+            <div class="form-group"><label>เลขที่บัญชีออมทรัพย์</label><input id="cfgSavingsNo" placeholder="เช่น 021-1-05188-8"></div>
+            <div class="form-group"><label>ชื่อบัญชีออมทรัพย์</label><input id="cfgSavingsName" placeholder="ชื่อบัญชีตามสมุดบัญชี"></div>
+          </div>
+          <div class="form-group"><label>เลขที่บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</label><input id="cfgFixedDeposit" placeholder="เช่น 021-2-14864-8 (เงินบำรุงตลอดชีพ — ห้ามถอนเงินต้น ข้อ 32)"></div>
+          <button class="btn btn-primary" onclick="submitSettings()"><i class="bi bi-check2"></i> บันทึกการตั้งค่า</button>
+          <p style="font-size:12px;color:var(--muted);margin-top:12px">ข้อมูลนี้จะแสดงในหน้า "รายรับ" ให้เหรัญญิกอ้างอิงตอนบันทึกรายการ — สลับบัญชีออมทรัพย์/ฝากประจำได้ในอนาคตโดยไม่ต้องแก้โค้ด</p>
+        </div>
       </div>
 
     </div>
@@ -432,6 +455,7 @@ async function doLogin() {
     document.getElementById('sbUserName').textContent = data.name;
     document.getElementById('sbUserRole').textContent = roleLabel(data.role);
     if (data.role === 'admin') document.querySelector('.admin-only').classList.remove('hidden');
+    if (data.role === 'admin' || data.role === 'treasurer') document.querySelector('.settings-only').classList.remove('hidden');
 
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -459,6 +483,7 @@ function showPage(name){
   if(name==='assets') loadAssets();
   if(name==='reports') { document.getElementById('reportYear').value = new Date().getFullYear()+543; loadReport(); }
   if(name==='users') loadUsers();
+  if(name==='settings') loadSettings();
 }
 
 async function initApp(){
@@ -476,6 +501,8 @@ async function loadDashboard(){
     <div class="kpi-card"><div class="label">ยอดเงินคงเหลือ</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
     <div class="kpi-card"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
     <div class="kpi-card"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
+    <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
+    <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
     <div class="kpi-card warn"><div class="label">รออนุมัติ</div><div class="value">${d.pendingApprovals} รายการ</div></div>
     <div class="kpi-card"><div class="label">เงินบำรุงตลอดชีพสะสม<br><span style="font-size:10px;font-weight:400">(ห้ามถอนเงินต้น ข้อ 32)</span></div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div></div>
   `;
@@ -517,14 +544,32 @@ async function submitIncome(){
   document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';document.getElementById('incPayerEmail').value='';
   loadIncome();
 }
+function dateOnly(v){ return v ? String(v).slice(0,10) : '-'; }
+function monthYearKeys(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return { monthKey: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, yearKey: `${now.getFullYear()}` };
+}
+
 async function loadIncome(){
   const res = await apiGet('getIncomeList');
   const rows = res.data||[];
+
+  const { monthKey, yearKey } = monthYearKeys();
+  const totalAll = rows.reduce((s,r)=>s+Number(r.amount||0),0);
+  const totalMonth = rows.filter(r=>String(r.date).startsWith(monthKey)).reduce((s,r)=>s+Number(r.amount||0),0);
+  const totalYear = rows.filter(r=>String(r.date).startsWith(yearKey)).reduce((s,r)=>s+Number(r.amount||0),0);
+  document.getElementById('incomeKpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div></div>
+    <div class="kpi-card"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(totalMonth)}</div></div>
+    <div class="kpi-card"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(totalYear)}</div></div>
+  `;
+
   if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
   let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
   rows.forEach(r=>{
     const receiptBtnLabel = r.is_synced_from_membership ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
-    html += `<tr><td>${r.date}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
+    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
   });
   html += '</table>';
   document.getElementById('incomeTableWrap').innerHTML = html;
@@ -564,7 +609,7 @@ function statusBadge(status){
 function renderExpenseTable(rows, withActions){
   let html = '<table><tr><th>วันที่</th><th>ผู้ยื่น</th><th>หมวด</th><th style="text-align:right">จำนวนเงิน</th><th>สถานะ</th>'+(withActions?'<th>ดำเนินการ</th>':'')+'</tr>';
   rows.forEach(r=>{
-    html += `<tr><td>${r.date}</td><td>${r.requested_by}</td><td>${r.category}</td><td style="text-align:right">${money(r.amount)}</td><td>${statusBadge(r.status)}</td>`;
+    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.requested_by}</td><td>${r.category}</td><td style="text-align:right">${money(r.amount)}</td><td>${statusBadge(r.status)}</td>`;
     if(withActions){
       html += `<td>${expenseActionButtons(r)}</td>`;
     }
@@ -618,6 +663,16 @@ async function confirmPayment(){
 async function loadExpense(){
   const res = await apiGet('getExpenseRequests');
   const rows = res.data||[];
+
+  const paid = rows.filter(r=>r.status==='paid').reduce((s,r)=>s+Number(r.amount||0),0);
+  const pending = rows.filter(r=>['pending_treasurer','pending_committee','pending_president','approved'].indexOf(r.status)!==-1).reduce((s,r)=>s+Number(r.amount||0),0);
+  const rejected = rows.filter(r=>r.status==='rejected').reduce((s,r)=>s+Number(r.amount||0),0);
+  document.getElementById('expenseKpiGrid').innerHTML = `
+    <div class="kpi-card expense"><div class="label">รวมจ่ายเงินแล้ว</div><div class="value">฿ ${money(paid)}</div></div>
+    <div class="kpi-card warn"><div class="label">รวมรออนุมัติ/รอจ่าย</div><div class="value">฿ ${money(pending)}</div></div>
+    <div class="kpi-card"><div class="label">รวมถูกปฏิเสธ</div><div class="value">฿ ${money(rejected)}</div></div>
+  `;
+
   document.getElementById('expenseTableWrap').innerHTML = rows.length ? renderExpenseTable(rows, true) : '<div class="empty">ยังไม่มีคำขอเบิกจ่าย</div>';
 }
 
@@ -673,10 +728,17 @@ async function submitAsset(){
 async function loadAssets(){
   const res = await apiGet('getAssets');
   const rows = res.data||[];
+
+  const totalValue = rows.reduce((s,a)=>s+Number(a.value||0),0);
+  document.getElementById('assetsKpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="label">มูลค่าทรัพย์สินรวม</div><div class="value">฿ ${money(totalValue)}</div></div>
+    <div class="kpi-card"><div class="label">จำนวนรายการ</div><div class="value">${rows.length} รายการ</div></div>
+  `;
+
   if(!rows.length){ document.getElementById('assetsTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการทรัพย์สิน</div>'; return; }
   let html = '<table><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th style="text-align:right">มูลค่า</th><th>สถานที่เก็บ</th></tr>';
   rows.forEach(a=>{
-    html += `<tr><td>${a.name}</td><td>${a.category}</td><td>${a.acquired_date}</td><td style="text-align:right">${money(a.value)}</td><td>${a.location||'-'}</td></tr>`;
+    html += `<tr><td>${a.name}</td><td>${a.category}</td><td>${dateOnly(a.acquired_date)}</td><td style="text-align:right">${money(a.value)}</td><td>${a.location||'-'}</td></tr>`;
   });
   document.getElementById('assetsTableWrap').innerHTML = html + '</table>';
 }
@@ -733,6 +795,29 @@ async function loadUsers(){
   let html = '<table><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th></tr>';
   rows.forEach(u=>{ html += `<tr><td>${u.name}</td><td>${u.username}</td><td>${roleLabel(u.role)}</td></tr>`; });
   document.getElementById('usersTableWrap').innerHTML = html + '</table>';
+}
+
+/* ---------- Settings (บัญชีธนาคาร) ---------- */
+async function loadSettings(){
+  const res = await apiGet('getConfig');
+  if(!res.ok || !res.data) return;
+  const c = res.data;
+  document.getElementById('cfgBankName').value = c.bank_name || '';
+  document.getElementById('cfgSavingsNo').value = c.savings_account_no || '';
+  document.getElementById('cfgSavingsName').value = c.savings_account_name || '';
+  document.getElementById('cfgFixedDeposit').value = c.fixed_deposit_account_no || '';
+}
+async function submitSettings(){
+  const payload = {
+    bank_name: document.getElementById('cfgBankName').value,
+    savings_account_no: document.getElementById('cfgSavingsNo').value,
+    savings_account_name: document.getElementById('cfgSavingsName').value,
+    fixed_deposit_account_no: document.getElementById('cfgFixedDeposit').value
+  };
+  const res = await apiPost('updateConfig', payload);
+  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+  showToast('บันทึกการตั้งค่าสำเร็จ');
+  bankInfoLoaded = false; // ให้หน้ารายรับโหลดข้อมูลใหม่ครั้งถัดไป
 }
 </script>
 </body>
