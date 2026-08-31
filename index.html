@@ -209,6 +209,7 @@ tr:hover td{background:#fafaf8}
             <div class="form-group"><label>แหล่งที่มา / ผู้ชำระ</label><input id="incSource"></div>
           </div>
           <div class="form-group"><label>หมายเหตุ</label><input id="incNote"></div>
+          <div class="form-group"><label>อีเมลผู้ชำระ (ถ้าต้องการส่งใบเสร็จทางอีเมล — ไม่บังคับ)</label><input type="email" id="incPayerEmail" placeholder="name@example.com"></div>
           <div class="form-group"><label>แนบหลักฐาน (ใบเสร็จ/สลิปโอน)</label><input type="file" id="incEvidence" accept="image/*,.pdf"></div>
           <button class="btn btn-primary" onclick="submitIncome()"><i class="bi bi-check2"></i> บันทึกรายรับ</button>
         </div>
@@ -356,7 +357,7 @@ tr:hover td{background:#fafaf8}
 /* ============================================================
    ตั้งค่า: ใส่ URL ของ Web App (Google Apps Script Deployment)
    ============================================================ */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrPcJkVwgDn0o6zasOM31LdE0B5hgrmNiGwQbaXTOOvbKmsJw4GhZUtrzwBw5NiCM/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/ใส่รหัสของท่าน/exec';
 
 let state = { token: null, name: '', role: '' };
 
@@ -507,21 +508,22 @@ async function submitIncome(){
     amount: document.getElementById('incAmount').value,
     source: document.getElementById('incSource').value,
     note: document.getElementById('incNote').value,
+    payerEmail: document.getElementById('incPayerEmail').value,
     evidenceUrl: evidenceUrl
   };
   const res = await apiPost('addIncome', payload);
   if(res.ok===false) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
   showToast('บันทึกรายรับสำเร็จ');
-  document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';
+  document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';document.getElementById('incPayerEmail').value='';
   loadIncome();
 }
 async function loadIncome(){
   const res = await apiGet('getIncomeList');
   const rows = res.data||[];
   if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
-  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th></tr>';
+  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
   rows.forEach(r=>{
-    html += `<tr><td>${r.date}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td></tr>`;
+    html += `<tr><td>${r.date}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ออกใบเสร็จ</button></td></tr>`;
   });
   html += '</table>';
   document.getElementById('incomeTableWrap').innerHTML = html;
@@ -618,6 +620,15 @@ async function loadExpense(){
   document.getElementById('expenseTableWrap').innerHTML = rows.length ? renderExpenseTable(rows, true) : '<div class="empty">ยังไม่มีคำขอเบิกจ่าย</div>';
 }
 
+async function issueReceipt(incomeId){
+  showToast('กำลังออกใบเสร็จ... กรุณารอสักครู่');
+  const res = await apiPost('generateReceipt', { incomeId });
+  if(!res.ok) return showToast(res.message||'ออกใบเสร็จไม่สำเร็จ', true);
+  downloadBase64File(res.base64, res.mimeType, res.fileName);
+  showToast('ออกใบเสร็จสำเร็จ' + (res.url ? ' (บันทึกสำเนาไว้ใน Drive แล้ว)' : ''));
+  loadIncome();
+}
+
 /* ---------- Projects ---------- */
 async function submitProject(){
   const payload = { name: document.getElementById('prjName').value, budgetAmount: document.getElementById('prjBudget').value };
@@ -677,20 +688,23 @@ async function loadReport(){
   document.getElementById('reportTableWrap').innerHTML = html + '</table>';
 }
 
+function downloadBase64File(base64, mimeType, fileName){
+  const byteChars = atob(base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i=0;i<byteChars.length;i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
 async function exportReport(format){
   showToast('กำลังสร้างรายงาน... กรุณารอสักครู่');
   const year = document.getElementById('reportYear').value;
   const res = await apiPost('exportReport', { reportType:'income_expense_summary', fiscalYear: year, format });
   if(!res.ok) return showToast(res.message||'สร้างรายงานไม่สำเร็จ', true);
-
-  const byteChars = atob(res.base64);
-  const byteNumbers = new Array(byteChars.length);
-  for (let i=0;i<byteChars.length;i++) byteNumbers[i] = byteChars.charCodeAt(i);
-  const blob = new Blob([new Uint8Array(byteNumbers)], { type: res.mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = res.fileName; document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
+  downloadBase64File(res.base64, res.mimeType, res.fileName);
   showToast('ดาวน์โหลดรายงานสำเร็จ');
 }
 
