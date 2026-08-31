@@ -21,6 +21,7 @@
   --line:#e2e8f0;
   --danger:#dc2626;
   --warn:#d97706;
+  --tu-income-green:#059669;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;}
@@ -95,6 +96,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--tu-gold-light);b
 .kpi-card.warn .value{color:var(--warn)}
 .kpi-card.expense{border-left-color:var(--danger)}
 .kpi-card.expense .value{color:var(--danger)}
+.kpi-card.income{border-left-color:var(--tu-income-green)}
+.kpi-card.income .value{color:var(--tu-income-green)}
+.kpi-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:22px 0 10px}
+.kpi-section-title:first-child{margin-top:0}
+.kpi-section-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.kpi-section-dot.income{background:var(--tu-income-green)}
+.kpi-section-dot.expense{background:var(--danger)}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
 .card h3{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
@@ -201,15 +209,22 @@ tr:hover td{background:#fafaf8}
           <div class="form-row">
             <div class="form-group"><label>วันที่</label><input type="date" id="incDate"></div>
             <div class="form-group"><label>หมวด</label>
-              <select id="incCategory">
+              <select id="incCategory" onchange="onIncomeCategoryChange()">
                 <option>เงินบริจาค</option><option>ค่าลงทะเบียนกิจกรรม</option>
-                <option>สปอนเซอร์</option><option>ดอกเบี้ยรับ</option><option>รายรับอื่น</option>
+                <option>สปอนเซอร์</option><option>ดอกเบี้ยรับ</option>
+                <option>ค่าบำรุงตลอดชีพ</option><option>รายรับอื่น</option>
               </select>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>จำนวนเงิน (บาท)</label><input type="number" id="incAmount"></div>
             <div class="form-group"><label>แหล่งที่มา / ผู้ชำระ</label><input id="incSource"></div>
+          </div>
+          <div class="form-group"><label>เข้าบัญชี</label>
+            <select id="incTargetAccount">
+              <option value="savings">บัญชีออมทรัพย์</option>
+              <option value="fixed_deposit">บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</option>
+            </select>
           </div>
           <div class="form-group"><label>หมายเหตุ</label><input id="incNote"></div>
           <div class="form-group"><label>อีเมลผู้ชำระ (ถ้าต้องการส่งใบเสร็จทางอีเมล — ไม่บังคับ)</label><input type="email" id="incPayerEmail" placeholder="name@example.com"></div>
@@ -349,6 +364,16 @@ tr:hover td{background:#fafaf8}
           <div class="form-group"><label>เลขที่บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</label><input id="cfgFixedDeposit" placeholder="เช่น 021-2-14864-8 (เงินบำรุงตลอดชีพ — ห้ามถอนเงินต้น ข้อ 32)"></div>
           <button class="btn btn-primary" onclick="submitSettings()"><i class="bi bi-check2"></i> บันทึกการตั้งค่า</button>
           <p style="font-size:12px;color:var(--muted);margin-top:12px">ข้อมูลนี้จะแสดงในหน้า "รายรับ" ให้เหรัญญิกอ้างอิงตอนบันทึกรายการ — สลับบัญชีออมทรัพย์/ฝากประจำได้ในอนาคตโดยไม่ต้องแก้โค้ด</p>
+        </div>
+        <div class="card">
+          <h3><i class="bi bi-piggy-bank"></i> เงินบำรุงตลอดชีพสะสม (ข้อ 32)</h3>
+          <p class="page-sub" style="margin-bottom:14px">ใช้กรอกยอดยกมาตอนเริ่มใช้ระบบ หรือปรับยอดให้ตรงกับความเป็นจริง ระบบจะลงบัญชีคู่ให้อัตโนมัติ</p>
+          <div class="form-row">
+            <div class="form-group"><label>ยอดปัจจุบันในระบบ</label><input id="cfgLifetimeCurrentDisplay" disabled style="background:#f1f5f9"></div>
+            <div class="form-group"><label>ตั้งยอดใหม่ (บาท)</label><input type="number" id="cfgLifetimeNewAmount"></div>
+          </div>
+          <div class="form-group"><label>หมายเหตุ (ไม่บังคับ)</label><input id="cfgLifetimeNote" placeholder="เช่น ยอดยกมาจากบัญชีเดิมก่อนใช้ระบบ"></div>
+          <button class="btn btn-gold" onclick="submitLifetimeFund()"><i class="bi bi-check2"></i> บันทึกยอดเงินบำรุงตลอดชีพ</button>
         </div>
       </div>
 
@@ -498,13 +523,22 @@ async function loadDashboard(){
   if(!res.ok) return showToast(res.message, true);
   const d = res.data;
   document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-card"><div class="label">ยอดเงินคงเหลือ</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
-    <div class="kpi-card"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
-    <div class="kpi-card"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
-    <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
-    <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
-    <div class="kpi-card warn"><div class="label">รออนุมัติ</div><div class="value">${d.pendingApprovals} รายการ</div></div>
-    <div class="kpi-card"><div class="label">เงินบำรุงตลอดชีพสะสม<br><span style="font-size:10px;font-weight:400">(ห้ามถอนเงินต้น ข้อ 32)</span></div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div></div>
+    <div class="kpi-section-title"><span class="kpi-section-dot income"></span> รายรับ</div>
+    <div class="kpi-grid">
+      <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
+      <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
+    </div>
+    <div class="kpi-section-title"><span class="kpi-section-dot expense"></span> รายจ่าย</div>
+    <div class="kpi-grid">
+      <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
+      <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
+    </div>
+    <div class="kpi-section-title">ภาพรวมอื่นๆ</div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="label">ยอดเงินคงเหลือ</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
+      <div class="kpi-card warn"><div class="label">รออนุมัติ</div><div class="value">${d.pendingApprovals} รายการ</div></div>
+      <div class="kpi-card"><div class="label">เงินบำรุงตลอดชีพสะสม<br><span style="font-size:10px;font-weight:400">(ห้ามถอนเงินต้น ข้อ 32)</span></div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div></div>
+    </div>
   `;
   const exp = await apiGet('getExpenseRequests');
   const rows = (exp.data||[]).slice(0,6);
@@ -527,6 +561,10 @@ async function loadBankInfo(){
   document.getElementById('bankInfoCard').style.display = 'block';
   bankInfoLoaded = true;
 }
+function onIncomeCategoryChange(){
+  const cat = document.getElementById('incCategory').value;
+  document.getElementById('incTargetAccount').value = (cat === 'ค่าบำรุงตลอดชีพ') ? 'fixed_deposit' : 'savings';
+}
 async function submitIncome(){
   const evidenceUrl = await uploadIfSelected(document.getElementById('incEvidence'));
   const payload = {
@@ -536,13 +574,14 @@ async function submitIncome(){
     source: document.getElementById('incSource').value,
     note: document.getElementById('incNote').value,
     payerEmail: document.getElementById('incPayerEmail').value,
+    targetAccount: document.getElementById('incTargetAccount').value,
     evidenceUrl: evidenceUrl
   };
   const res = await apiPost('addIncome', payload);
   if(res.ok===false) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
   showToast('บันทึกรายรับสำเร็จ');
   document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';document.getElementById('incPayerEmail').value='';
-  loadIncome();
+  loadIncome(); loadDashboard();
 }
 function dateOnly(v){ return v ? String(v).slice(0,10) : '-'; }
 function monthYearKeys(){
@@ -560,16 +599,17 @@ async function loadIncome(){
   const totalMonth = rows.filter(r=>String(r.date).startsWith(monthKey)).reduce((s,r)=>s+Number(r.amount||0),0);
   const totalYear = rows.filter(r=>String(r.date).startsWith(yearKey)).reduce((s,r)=>s+Number(r.amount||0),0);
   document.getElementById('incomeKpiGrid').innerHTML = `
-    <div class="kpi-card"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div></div>
-    <div class="kpi-card"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(totalMonth)}</div></div>
-    <div class="kpi-card"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(totalYear)}</div></div>
+    <div class="kpi-card income"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div></div>
+    <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(totalMonth)}</div></div>
+    <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(totalYear)}</div></div>
   `;
 
   if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
-  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
+  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>บัญชี</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
   rows.forEach(r=>{
     const receiptBtnLabel = r.is_synced_from_membership ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
-    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
+    const acctLabel = r.target_account === 'fixed_deposit' ? '<span class="badge badge-pending">ฝากประจำ</span>' : '<span class="badge badge-approved">ออมทรัพย์</span>';
+    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${acctLabel}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
   });
   html += '</table>';
   document.getElementById('incomeTableWrap').innerHTML = html;
@@ -800,12 +840,18 @@ async function loadUsers(){
 /* ---------- Settings (บัญชีธนาคาร) ---------- */
 async function loadSettings(){
   const res = await apiGet('getConfig');
-  if(!res.ok || !res.data) return;
-  const c = res.data;
-  document.getElementById('cfgBankName').value = c.bank_name || '';
-  document.getElementById('cfgSavingsNo').value = c.savings_account_no || '';
-  document.getElementById('cfgSavingsName').value = c.savings_account_name || '';
-  document.getElementById('cfgFixedDeposit').value = c.fixed_deposit_account_no || '';
+  if(res.ok && res.data){
+    const c = res.data;
+    document.getElementById('cfgBankName').value = c.bank_name || '';
+    document.getElementById('cfgSavingsNo').value = c.savings_account_no || '';
+    document.getElementById('cfgSavingsName').value = c.savings_account_name || '';
+    document.getElementById('cfgFixedDeposit').value = c.fixed_deposit_account_no || '';
+  }
+  const dash = await apiGet('getDashboard');
+  if(dash.ok && dash.data){
+    document.getElementById('cfgLifetimeCurrentDisplay').value = '฿ ' + money(dash.data.lifetimeFundBalance);
+    document.getElementById('cfgLifetimeNewAmount').value = dash.data.lifetimeFundBalance;
+  }
 }
 async function submitSettings(){
   const payload = {
@@ -818,6 +864,14 @@ async function submitSettings(){
   if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
   showToast('บันทึกการตั้งค่าสำเร็จ');
   bankInfoLoaded = false; // ให้หน้ารายรับโหลดข้อมูลใหม่ครั้งถัดไป
+}
+async function submitLifetimeFund(){
+  const amount = document.getElementById('cfgLifetimeNewAmount').value;
+  const note = document.getElementById('cfgLifetimeNote').value;
+  const res = await apiPost('setLifetimeFundBalance', { amount, note });
+  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+  showToast(res.message);
+  loadSettings(); loadDashboard();
 }
 </script>
 </body>
