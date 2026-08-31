@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ระบบการเงินและบัญชี | สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ.</title><link rel="icon" type="image/png" href="logo.png">
-<link rel="icon" type="image/png" href="logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -607,9 +607,9 @@ async function loadIncome(){
   if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
   let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>บัญชี</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
   rows.forEach(r=>{
-    const receiptBtnLabel = r.is_synced_from_membership ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
+    const receiptBtnLabel = (r.is_synced_from_membership || r.receipt_file_url) ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
     const acctLabel = r.target_account === 'fixed_deposit' ? '<span class="badge badge-pending">ฝากประจำ</span>' : '<span class="badge badge-approved">ออมทรัพย์</span>';
-    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${acctLabel}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td>${r.receipt_file_url?'<a href="'+r.receipt_file_url+'" target="_blank" title="เปิดใบเสร็จที่เคยออก"><i class="bi bi-file-earmark-check"></i></a> ':''}<button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
+    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${acctLabel}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
   });
   html += '</table>';
   document.getElementById('incomeTableWrap').innerHTML = html;
