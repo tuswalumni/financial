@@ -3,212 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ระบบการเงินและบัญชี | สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ.</title><link rel="icon" type="image/png" href="logo.png">
-<link rel="icon" type="image/png" href="assets/logo.png">
+<meta name="theme-color" content="#6c1830">
+<title>ระบบการเงินและบัญชี | สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ.</title>
+<link rel="icon" type="image/png" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>
 :root{
   --tu-maroon-dark:#6c1830;
   --tu-maroon:#9a2245;
+  --tu-maroon-tint:#f8eef1;
   --tu-gold:#c9a227;
   --tu-gold-light:#e6c65c;
   --ink:#1e293b;
-  --muted:#64748b;
-  --bg:#f6f7f5;
+  --muted:#5b6578;            /* เข้มขึ้นจากเดิมให้ผ่าน contrast 4.5:1 บนพื้นขาว */
+  --bg:#f6f5f2;
   --card:#ffffff;
-  --line:#e2e8f0;
-  --danger:#dc2626;
-  --warn:#d97706;
-  --tu-income-green:#059669;
+  --line:#e4e2dc;
+  --line-strong:#cfccc3;
+  --danger:#c81e1e;
+  --danger-tint:#fdecec;
+  --warn:#b45309;
+  --warn-tint:#fef6e7;
+  --income:#047857;
+  --income-tint:#e7f6ef;
+  --radius:12px;
+  --shadow-sm:0 1px 2px rgba(30,41,59,.06);
+  --shadow-md:0 8px 24px rgba(30,41,59,.10);
+  --focus:0 0 0 3px rgba(201,162,39,.45);
+  --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;}
-h1,h2,h3,.brand,.nav-label{font-family:'Prompt',sans-serif;}
-a{text-decoration:none;color:inherit}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;font-size:15px;line-height:1.6}
+h1,h2,h3,.brand{font-family:'Prompt',sans-serif;line-height:1.35}
+a{color:var(--tu-maroon);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:none;box-shadow:var(--focus);border-radius:8px}
+.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.hidden{display:none !important}
+
+/* ---------- ฟอร์ม ---------- */
+.form-group{margin-bottom:14px}
+label{font-size:13.5px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px}
+label .opt{font-weight:400;color:var(--muted)}
+label .req{color:var(--danger)}
+input,select,textarea{
+  width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;
+  font-family:'Sarabun',sans-serif;font-size:15px;background:#fff;color:var(--ink);
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);
+}
+input[type=file]{padding:8px;background:#fbfaf7}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--tu-gold);box-shadow:var(--focus)}
+input:disabled{background:#f1f0ec;color:var(--muted)}
+input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
+.field-error{color:var(--danger);font-size:12.5px;margin-top:4px}
+.help{color:var(--muted);font-size:12.5px;margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* ---------- ปุ่ม ---------- */
+.btn{
+  border:1px solid transparent;border-radius:10px;padding:10px 18px;min-height:44px;font-weight:600;font-size:14.5px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  transition:background .15s var(--ease),transform .1s var(--ease),opacity .15s;
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--tu-maroon-dark);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--tu-maroon)}
+.btn-gold{background:var(--tu-gold);color:#2e2500}
+.btn-gold:hover:not(:disabled){background:var(--tu-gold-light)}
+.btn-outline{background:#fff;border-color:var(--line-strong);color:var(--ink)}
+.btn-outline:hover:not(:disabled){background:#f6f5f1}
+.btn-danger-outline{background:#fff;border-color:#f2b8b8;color:var(--danger)}
+.btn-danger-outline:hover:not(:disabled){background:var(--danger-tint)}
+.btn-sm{min-height:36px;padding:6px 12px;font-size:13px;border-radius:8px}
+.btn-block{width:100%}
+.btn-icon{min-height:44px;min-width:44px;padding:0;background:transparent;border:none;color:inherit;font-size:22px}
+.spinner{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- Login ---------- */
 #loginScreen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--tu-maroon) 0%,var(--tu-maroon-dark) 100%);
-  padding:20px;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(120% 90% at 20% 0%,var(--tu-maroon) 0%,var(--tu-maroon-dark) 60%,#4a0f20 100%);
 }
 .login-card{
-  background:var(--card);border-radius:18px;max-width:380px;width:100%;
-  padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.25);
-  border-top:5px solid var(--tu-gold);
+  background:var(--card);border-radius:18px;max-width:400px;width:100%;
+  padding:36px 32px 28px;box-shadow:0 24px 60px rgba(0,0,0,.3);border-top:5px solid var(--tu-gold);
 }
-.login-card .brand{font-size:15px;color:var(--tu-maroon-dark);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
-.login-card .sub{font-size:12px;color:var(--muted);margin-bottom:22px;text-transform:uppercase;letter-spacing:1px}
-.login-logo{display:block;width:76px;height:76px;margin:0 auto 16px;object-fit:contain}
-.login-card .brand,.login-card .sub{text-align:center}
-.sidebar-logo{width:44px;height:44px;object-fit:contain;flex:0 0 44px;background:#fff;border-radius:50%;padding:4px}
-.sidebar-brand-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.form-group{margin-bottom:14px}
-label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:5px}
-input,select,textarea{
-  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
-  font-family:'Sarabun',sans-serif;font-size:14px;background:#fbfbfa;
-}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--tu-gold-light);border-color:var(--tu-gold)}
-.btn{
-  border:none;border-radius:9px;padding:10px 18px;font-weight:600;font-size:14px;
-  cursor:pointer;font-family:'Sarabun',sans-serif;display:inline-flex;align-items:center;gap:6px;
-}
-.btn-primary{background:var(--tu-maroon-dark);color:#fff}
-.btn-primary:hover{background:var(--tu-maroon)}
-.btn-gold{background:var(--tu-gold);color:#3a2f00}
-.btn-gold:hover{background:var(--tu-gold-light)}
-.btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink)}
-.btn-block{width:100%;justify-content:center}
-.error-text{color:var(--danger);font-size:13px;margin-top:10px}
-.hint-box{margin-top:18px;padding:10px 12px;background:#fef9ec;border:1px solid #f3e3b0;border-radius:9px;font-size:12px;color:#7a5b00}
+.login-logo{display:block;width:84px;height:84px;margin:0 auto 14px;object-fit:contain}
+.login-card .brand{font-size:16px;color:var(--tu-maroon-dark);font-weight:700;text-align:center;margin:0}
+.login-card .sub{font-size:12.5px;color:var(--muted);margin:2px 0 24px;text-align:center;letter-spacing:.5px}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:48px}
+.pw-toggle{position:absolute;right:2px;top:0;height:44px;width:44px;border:none;background:none;color:var(--muted);cursor:pointer;font-size:18px}
+.error-text{color:var(--danger);font-size:13.5px;margin-top:12px;background:var(--danger-tint);padding:9px 12px;border-radius:9px}
+.hint-box{margin-top:18px;padding:10px 12px;background:#fef9ec;border:1px solid #f3e3b0;border-radius:9px;font-size:12.5px;color:#6b5000}
+.login-foot{text-align:center;font-size:12px;color:var(--muted);margin-top:20px}
 
 /* ---------- App shell ---------- */
 #app{display:none}
 .shell{display:flex;min-height:100vh}
 .sidebar{
-  width:230px;flex:0 0 230px;background:var(--tu-maroon-dark);color:#fff;
-  padding:22px 16px;display:flex;flex-direction:column;
+  width:248px;flex:0 0 248px;background:var(--tu-maroon-dark);color:#fff;
+  padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
 }
-.sidebar .brand{color:#fff;font-size:15px;line-height:1.4;margin-bottom:4px}
-.sidebar .sub{color:rgba(255,255,255,.55);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:26px}
+.sidebar-brand-row{display:flex;align-items:center;gap:10px;margin:0 4px 4px}
+.sidebar-logo{width:46px;height:46px;object-fit:contain;flex:0 0 46px;background:#fff;border-radius:50%;padding:3px}
+.sidebar .brand{color:#fff;font-size:14.5px;line-height:1.35;margin:0}
+.sidebar .sub{color:rgba(255,255,255,.7);font-size:11.5px;letter-spacing:.8px;margin:6px 4px 22px}
+.nav-group-label{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1px;margin:14px 12px 6px;text-transform:uppercase}
 .nav-item{
-  padding:10px 12px;border-radius:9px;display:flex;align-items:center;gap:10px;
-  color:rgba(255,255,255,.8);font-size:14px;cursor:pointer;margin-bottom:2px;
+  width:100%;text-align:left;background:none;border:none;font-family:inherit;
+  padding:10px 12px;min-height:44px;border-radius:10px;display:flex;align-items:center;gap:11px;
+  color:rgba(255,255,255,.85);font-size:14.5px;cursor:pointer;margin-bottom:2px;transition:background .15s var(--ease);
 }
-.nav-item:hover{background:rgba(255,255,255,.08)}
-.nav-item.active{background:var(--tu-gold);color:#3a2f00;font-weight:600}
+.nav-item i{font-size:17px;width:20px;text-align:center}
+.nav-item:hover{background:rgba(255,255,255,.09)}
+.nav-item.active{background:var(--tu-gold);color:#2e2500;font-weight:700}
+.nav-item .nav-count{margin-left:auto;background:#fff;color:var(--tu-maroon-dark);font-size:11.5px;font-weight:700;border-radius:20px;padding:0 8px;min-width:22px;text-align:center}
+.nav-item.active .nav-count{background:var(--tu-maroon-dark);color:#fff}
 .sidebar .spacer{flex:1}
-.user-box{border-top:1px solid rgba(255,255,255,.15);padding-top:14px;font-size:12px;color:rgba(255,255,255,.7)}
-.user-box b{color:#fff;display:block;font-size:13px}
+.user-box{border-top:1px solid rgba(255,255,255,.18);padding:14px 4px 0;font-size:12.5px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--tu-gold);color:#2e2500;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Prompt',sans-serif;flex:0 0 38px}
+.user-box b{color:#fff;display:block;font-size:13.5px;line-height:1.3}
+.logout-btn{flex:0 0 40px;min-width:40px !important;color:rgba(255,255,255,.85);background:none;border:none;cursor:pointer;min-width:44px;min-height:44px;font-size:19px;border-radius:10px}
+.logout-btn:hover{background:rgba(255,255,255,.1)}
 
-.main{flex:1;padding:26px 30px;max-width:1100px}
-.page-title{font-size:20px;font-weight:700;margin:0 0 4px}
-.page-sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+.topbar{display:none}
+.scrim{display:none}
 
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:26px}
-.kpi-card{background:var(--card);border-radius:14px;padding:18px 20px;border:1px solid var(--line);border-left:4px solid var(--tu-maroon)}
-.kpi-card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.kpi-card .value{font-size:24px;font-weight:700;color:var(--tu-maroon-dark);margin-top:6px;font-family:'Prompt',sans-serif}
-.kpi-card.warn{border-left-color:var(--warn)}
-.kpi-card.warn .value{color:var(--warn)}
-.kpi-card.expense{border-left-color:var(--danger)}
-.kpi-card.expense .value{color:var(--danger)}
-.kpi-card.income{border-left-color:var(--tu-income-green)}
-.kpi-card.income .value{color:var(--tu-income-green)}
-.kpi-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:22px 0 10px}
+.main{flex:1;min-width:0;padding:28px 32px 48px}
+.main-inner{max-width:1120px;margin:0 auto}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.page-title{font-size:22px;font-weight:700;margin:0 0 2px;color:var(--tu-maroon-dark)}
+.page-sub{color:var(--muted);font-size:14px;margin:0}
+.page{animation:fadeIn .2s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---------- KPI ---------- */
+.kpi-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.4px;margin:22px 0 10px}
 .kpi-section-title:first-child{margin-top:0}
-.kpi-section-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.kpi-section-dot.income{background:var(--tu-income-green)}
+.kpi-section-dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--tu-maroon)}
+.kpi-section-dot.income{background:var(--income)}
 .kpi-section-dot.expense{background:var(--danger)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:22px}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:16px 18px;border:1px solid var(--line);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.kpi-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tu-maroon)}
+.kpi-card .label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.kpi-card .label i{font-size:15px}
+.kpi-card .value{font-size:24px;font-weight:700;color:var(--tu-maroon-dark);margin-top:4px;font-family:'Prompt',sans-serif;font-variant-numeric:tabular-nums;word-break:break-word}
+.kpi-card .note{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi-card.warn::before{background:var(--warn)} .kpi-card.warn .value{color:var(--warn)}
+.kpi-card.expense::before{background:var(--danger)} .kpi-card.expense .value{color:var(--danger)}
+.kpi-card.income::before{background:var(--income)} .kpi-card.income .value{color:var(--income)}
+.kpi-card.gold::before{background:var(--tu-gold)}
+button.kpi-card{text-align:left;font-family:inherit;cursor:pointer;width:100%}
+button.kpi-card:hover{box-shadow:var(--shadow-md)}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
-.card h3{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+/* ---------- Card / table ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.card h2{font-size:16px;margin:0;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.card h2 i{color:var(--tu-maroon)}
+details.card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:32px}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary .chev{transition:transform .2s var(--ease);color:var(--muted)}
+details.card[open]>summary .chev{transform:rotate(180deg)}
+details.card[open]>summary{margin-bottom:16px}
 
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
-th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
-tr:hover td{background:#fafaf8}
-.badge{padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;display:inline-block}
-.badge-pending{background:#fef3c7;color:#92400e}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:12.5px;white-space:nowrap;background:#faf9f6;position:sticky;top:0}
+tbody tr:hover td{background:#fcfbf8}
+tfoot td{font-weight:700;background:#faf9f6;border-top:2px solid var(--line-strong)}
+td .sub{display:block;font-size:12px;color:var(--muted)}
+.pos{color:var(--income)} .neg{color:var(--danger)}
+.badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge-pending{background:#fef3c7;color:#7c3a06}
 .badge-approved{background:#d1fae5;color:#065f46}
-.badge-paid{background:#dbeafe;color:#1e40af}
-.badge-rejected{background:#fee2e2;color:#991b1b}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.toast{position:fixed;top:18px;right:18px;background:var(--tu-maroon-dark);color:#fff;padding:12px 18px;border-radius:10px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;display:none}
+.badge-paid{background:#dbeafe;color:#1e3a8a}
+.badge-rejected{background:#fee2e2;color:#8f1414}
+.badge-neutral{background:#eef0f3;color:#334155}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty{color:var(--muted);font-size:14px;padding:28px 0;text-align:center}
+.empty i{display:block;font-size:30px;color:var(--line-strong);margin-bottom:6px}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input,.toolbar select{width:auto;min-width:170px;flex:1 1 170px;max-width:280px}
+.chip-group{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line-strong);background:#fff;border-radius:20px;padding:5px 12px;min-height:34px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--tu-maroon-dark);border-color:var(--tu-maroon-dark);color:#fff}
+
+/* skeleton */
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,#eeece6 25%,#f6f5f1 50%,#eeece6 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+.skel-row{display:grid;grid-template-columns:1fr 2fr 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* progress */
+.progress{height:8px;background:#eeece6;border-radius:10px;overflow:hidden;min-width:90px}
+.progress>span{display:block;height:100%;background:var(--income);border-radius:10px}
+.progress.mid>span{background:var(--warn)}
+.progress.high>span{background:var(--danger)}
+
+/* workflow steps */
+.steps{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);margin-top:8px}
+.steps span.s{background:#fff;border:1px solid var(--line);border-radius:20px;padding:3px 10px}
+.steps i{font-size:11px}
+
+.info-callout{display:flex;gap:10px;background:var(--tu-maroon-tint);border:1px solid #ecd3db;border-radius:10px;padding:10px 14px;font-size:13.5px;color:#4a1020;margin-bottom:14px}
+.info-callout.warn{background:var(--warn-tint);border-color:#f3dcae;color:#5c3205}
+.bank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.bank-item{border:1px dashed var(--line-strong);border-radius:10px;padding:10px 14px}
+.bank-item .k{font-size:12.5px;color:var(--muted)}
+.bank-item .v{font-weight:700;font-family:'Prompt',sans-serif;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.copy-btn{border:none;background:none;color:var(--muted);cursor:pointer;min-width:32px;min-height:32px;border-radius:6px}
+.copy-btn:hover{color:var(--tu-maroon);background:#f6f5f1}
+
+/* bar chart in report */
+.mini-bars{display:flex;flex-direction:column;gap:3px;min-width:120px}
+.mini-bars span{height:6px;border-radius:4px;display:block}
+.mini-bars .i{background:var(--income)} .mini-bars .e{background:var(--danger)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* toast */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:1100;display:flex;flex-direction:column;gap:8px;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--tu-maroon-dark);color:#fff;padding:12px 14px 12px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-md);display:flex;gap:10px;align-items:flex-start;animation:toastIn .2s var(--ease)}
 .toast.error{background:var(--danger)}
-.empty{color:var(--muted);font-size:13.5px;padding:16px 0;text-align:center}
-.hidden{display:none !important}
-.modal-overlay{position:fixed;inset:0;background:rgba(15,15,15,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
-.modal-box{background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);border-top:4px solid var(--tu-gold)}
-.modal-box h3{margin:0 0 4px}
-@media(max-width:800px){
-  .shell{flex-direction:column}
-  .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px}
-  .sidebar .spacer{display:none}
-  .user-box{display:none}
-  .main{padding:18px}
+.toast.info{background:#334155}
+.toast i{font-size:17px;margin-top:1px}
+.toast button{margin-left:auto;background:none;border:none;color:#fff;opacity:.8;cursor:pointer;font-size:16px;min-width:28px}
+@keyframes toastIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,10,14,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal-box{background:#fff;border-radius:16px;padding:24px;max-width:460px;width:100%;max-height:calc(100vh - 32px);overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);border-top:4px solid var(--tu-gold);animation:fadeIn .18s var(--ease)}
+.modal-box h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px}
+.modal-summary{background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0 16px;font-size:14px}
+.modal-summary div{display:flex;justify-content:space-between;gap:10px}
+.modal-summary b{font-variant-numeric:tabular-nums}
+
+@media(max-width:900px){
+  .shell{display:block}
+  .topbar{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:50;background:var(--tu-maroon-dark);color:#fff;padding:6px 10px;min-height:56px}
+  .topbar img{width:34px;height:34px;background:#fff;border-radius:50%;padding:2px}
+  .topbar .t{font-family:'Prompt',sans-serif;font-size:14.5px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-105%);transition:transform .25s var(--ease);box-shadow:var(--shadow-md);width:min(280px,85vw)}
+  .sidebar.open{transform:none}
+  .scrim.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:150}
+  .main{padding:18px 14px 40px}
   .form-row{grid-template-columns:1fr}
+  .page-title{font-size:20px}
+  .kpi-card .value{font-size:21px}
+  .card{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+@media print{
+  .sidebar,.topbar,.toast-wrap,.no-print,details.card:not([open]){display:none !important}
+  .main{padding:0}
+  .card{box-shadow:none;break-inside:avoid}
 }
 </style>
 </head>
 <body>
 
 <!-- ================= LOGIN ================= -->
-<div id="loginScreen">
-  <div class="login-card">
-    <img src="logo.png" alt="ตราสมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มธ." class="login-logo">
-    <div class="brand">สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์</div>
-    <div class="sub">ระบบการเงินและบัญชี · มธ.</div>
+<main id="loginScreen">
+  <form class="login-card" onsubmit="event.preventDefault(); doLogin(this.querySelector('button[type=submit]'));" novalidate>
+    <img src="logo.png" alt="ตราสมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์ มหาวิทยาลัยธรรมศาสตร์" class="login-logo" width="84" height="84">
+    <h1 class="brand">สมาคมนักศึกษาเก่าสังคมสงเคราะห์ศาสตร์</h1>
+    <p class="sub">ระบบการเงินและบัญชี · มหาวิทยาลัยธรรมศาสตร์</p>
     <div class="form-group">
-      <label>ชื่อผู้ใช้</label>
-      <input id="loginUsername" placeholder="username">
+      <label for="loginUsername">ชื่อผู้ใช้</label>
+      <input id="loginUsername" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
     </div>
     <div class="form-group">
-      <label>รหัสผ่าน</label>
-      <input id="loginPassword" type="password" placeholder="••••••••">
+      <label for="loginPassword">รหัสผ่าน</label>
+      <div class="pw-wrap">
+        <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="แสดงรหัสผ่าน" aria-pressed="false" id="pwToggle"><i class="bi bi-eye" aria-hidden="true"></i></button>
+      </div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="doLogin()"><i class="bi bi-box-arrow-in-right"></i> เข้าสู่ระบบ</button>
-    <div id="loginError" class="error-text hidden"></div>
-    <div id="urlHintBox" class="hint-box hidden"><i class="bi bi-info-circle"></i> ยังไม่ได้ตั้งค่า URL ของระบบ (APPS_SCRIPT_URL) — ดูวิธีตั้งค่าใน README.md</div>
-  </div>
-</div>
+    <button type="submit" class="btn btn-primary btn-block"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> เข้าสู่ระบบ</button>
+    <div id="loginError" class="error-text hidden" role="alert"></div>
+    <div id="urlHintBox" class="hint-box hidden"><i class="bi bi-info-circle" aria-hidden="true"></i> ยังไม่ได้ตั้งค่า URL ของระบบ (APPS_SCRIPT_URL) — ดูวิธีตั้งค่าใน README.md</div>
+    <p class="login-foot">ลืมรหัสผ่าน? ติดต่อผู้ดูแลระบบของสมาคมฯ</p>
+  </form>
+</main>
 
 <!-- ================= APP ================= -->
 <div id="app">
+  <header class="topbar">
+    <button class="btn-icon" onclick="toggleNav(true)" aria-label="เปิดเมนู" aria-controls="sidebar" aria-expanded="false" id="navToggle"><i class="bi bi-list" aria-hidden="true"></i></button>
+    <img src="logo.png" alt="" width="34" height="34">
+    <span class="t" id="topbarTitle">แดชบอร์ด</span>
+  </header>
+  <div class="scrim" id="scrim" onclick="toggleNav(false)"></div>
   <div class="shell">
-    <div class="sidebar">
+    <nav class="sidebar" id="sidebar" aria-label="เมนูหลัก">
       <div class="sidebar-brand-row">
-        <img src="logo.png" alt="ตราสมาคมฯ" class="sidebar-logo">
-        <div class="brand">สมาคมนักศึกษาเก่า<br>สังคมสงเคราะห์ศาสตร์</div>
+        <img src="logo.png" alt="ตราสมาคมฯ" class="sidebar-logo" width="46" height="46">
+        <p class="brand">สมาคมนักศึกษาเก่า<br>สังคมสงเคราะห์ศาสตร์</p>
       </div>
       <div class="sub">ระบบการเงินและบัญชี</div>
 
-      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> แดชบอร์ด</div>
-      <div class="nav-item" data-page="income" onclick="showPage('income')"><i class="bi bi-cash-coin"></i> รายรับ</div>
-      <div class="nav-item" data-page="expense" onclick="showPage('expense')"><i class="bi bi-receipt-cutoff"></i> คำขอเบิกจ่าย</div>
-      <div class="nav-item" data-page="projects" onclick="showPage('projects')"><i class="bi bi-kanban"></i> โครงการ/งบประมาณ</div>
-      <div class="nav-item" data-page="assets" onclick="showPage('assets')"><i class="bi bi-building"></i> ทรัพย์สิน</div>
-      <div class="nav-item" data-page="reports" onclick="showPage('reports')"><i class="bi bi-bar-chart-line"></i> รายงาน</div>
-      <div class="nav-item admin-only hidden" data-page="users" onclick="showPage('users')"><i class="bi bi-people"></i> ผู้ใช้งาน</div>
-      <div class="nav-item settings-only hidden" data-page="settings" onclick="showPage('settings')"><i class="bi bi-gear"></i> ตั้งค่า</div>
+      <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')" aria-current="page"><i class="bi bi-speedometer2" aria-hidden="true"></i> แดชบอร์ด</button>
+      <div class="nav-group-label">บัญชีรายรับ-รายจ่าย</div>
+      <button class="nav-item" data-page="income" onclick="showPage('income')"><i class="bi bi-cash-coin" aria-hidden="true"></i> รายรับ</button>
+      <button class="nav-item" data-page="expense" onclick="showPage('expense')"><i class="bi bi-receipt-cutoff" aria-hidden="true"></i> คำขอเบิกจ่าย <span class="nav-count hidden" id="navPendingCount" aria-label="รายการรออนุมัติ"></span></button>
+      <button class="nav-item" data-page="projects" onclick="showPage('projects')"><i class="bi bi-kanban" aria-hidden="true"></i> โครงการ/งบประมาณ</button>
+      <div class="nav-group-label">ทรัพย์สินและรายงาน</div>
+      <button class="nav-item" data-page="assets" onclick="showPage('assets')"><i class="bi bi-building" aria-hidden="true"></i> ทรัพย์สิน</button>
+      <button class="nav-item" data-page="reports" onclick="showPage('reports')"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> รายงาน</button>
+      <div class="nav-group-label admin-group hidden">ผู้ดูแล</div>
+      <button class="nav-item admin-only hidden" data-page="users" onclick="showPage('users')"><i class="bi bi-people" aria-hidden="true"></i> ผู้ใช้งาน</button>
+      <button class="nav-item settings-only hidden" data-page="settings" onclick="showPage('settings')"><i class="bi bi-gear" aria-hidden="true"></i> ตั้งค่า</button>
 
       <div class="spacer"></div>
       <div class="user-box">
-        <b id="sbUserName">-</b>
-        <span id="sbUserRole">-</span>
-        <div style="margin-top:10px"><a href="#" onclick="doLogout()" style="color:rgba(255,255,255,.75)"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></div>
+        <div class="avatar" id="sbAvatar" aria-hidden="true">-</div>
+        <div style="flex:1;min-width:0"><b id="sbUserName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</b><span id="sbUserRole">-</span></div>
+        <button class="logout-btn" onclick="openPwModal()" aria-label="เปลี่ยนรหัสผ่าน" title="เปลี่ยนรหัสผ่าน"><i class="bi bi-key" aria-hidden="true"></i></button>
+        <button class="logout-btn" style="margin-left:0" onclick="doLogout()" aria-label="ออกจากระบบ" title="ออกจากระบบ"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
       </div>
-    </div>
+    </nav>
 
-    <div class="main">
+    <main class="main" id="mainContent" tabindex="-1">
+     <div class="main-inner">
 
       <!-- DASHBOARD -->
-      <div id="page-dashboard" class="page">
-        <h1 class="page-title">แดชบอร์ด</h1>
-        <p class="page-sub">ภาพรวมการเงินของสมาคมฯ</p>
-        <div class="kpi-grid" id="kpiGrid"></div>
+      <section id="page-dashboard" class="page" aria-labelledby="h-dashboard">
+        <div class="page-head">
+          <div><h1 class="page-title" id="h-dashboard">แดชบอร์ด</h1><p class="page-sub" id="dashGreeting">ภาพรวมการเงินของสมาคมฯ</p></div>
+          <button class="btn btn-outline btn-sm no-print" onclick="loadDashboard(this)"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> รีเฟรช</button>
+        </div>
+        <div id="kpiGrid" aria-live="polite"></div>
         <div class="card">
-          <h3><i class="bi bi-list-check"></i> คำขอเบิกจ่ายล่าสุด</h3>
+          <div class="card-head">
+            <h2><i class="bi bi-list-check" aria-hidden="true"></i> คำขอเบิกจ่ายล่าสุด</h2>
+            <button class="btn btn-outline btn-sm" onclick="showPage('expense')">ดูทั้งหมด <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+          </div>
           <div id="dashRecentExpense"></div>
         </div>
-      </div>
+      </section>
 
       <!-- INCOME -->
-      <div id="page-income" class="page hidden">
-        <h1 class="page-title">รายรับ</h1>
-        <p class="page-sub">ค่าบำรุงสมาชิก (sync อัตโนมัติ), เงินบริจาค, รายรับกิจกรรม และรายรับอื่น</p>
+      <section id="page-income" class="page hidden" aria-labelledby="h-income">
+        <div class="page-head"><div><h1 class="page-title" id="h-income">รายรับ</h1><p class="page-sub">ค่าบำรุงสมาชิก (sync อัตโนมัติ), เงินบริจาค, รายรับกิจกรรม และรายรับอื่น</p></div></div>
         <div class="card" id="bankInfoCard" style="display:none">
-          <h3><i class="bi bi-bank"></i> บัญชีธนาคารของสมาคมฯ</h3>
-          <div id="bankInfoWrap" style="font-size:13.5px;line-height:1.9"></div>
+          <div class="card-head"><h2><i class="bi bi-bank" aria-hidden="true"></i> บัญชีธนาคารของสมาคมฯ</h2></div>
+          <div id="bankInfoWrap"></div>
         </div>
-        <div class="card">
-          <h3><i class="bi bi-plus-circle"></i> บันทึกรายรับใหม่</h3>
+        <details class="card writer-only" id="incomeFormCard">
+          <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> บันทึกรายรับใหม่</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
-            <div class="form-group"><label>วันที่</label><input type="date" id="incDate"></div>
-            <div class="form-group"><label>หมวด</label>
+            <div class="form-group"><label for="incDate">วันที่ <span class="req">*</span></label><input type="date" id="incDate" required></div>
+            <div class="form-group"><label for="incCategory">หมวด <span class="req">*</span></label>
               <select id="incCategory" onchange="onIncomeCategoryChange()">
                 <option>เงินบริจาค</option><option>ค่าลงทะเบียนกิจกรรม</option>
                 <option>สปอนเซอร์</option><option>ดอกเบี้ยรับ</option>
@@ -216,37 +375,53 @@ tr:hover td{background:#fafaf8}
               </select>
             </div>
           </div>
+          <div id="lifetimeNotice" class="info-callout warn hidden" role="note"><i class="bi bi-shield-lock" aria-hidden="true"></i><div>ค่าบำรุงตลอดชีพจะลงเป็น <b>ทุนสำรอง</b> และฝากเข้าบัญชีฝากประจำ — ห้ามถอนใช้เงินต้น ตามข้อบังคับ ข้อ 32</div></div>
           <div class="form-row">
-            <div class="form-group"><label>จำนวนเงิน (บาท)</label><input type="number" id="incAmount"></div>
-            <div class="form-group"><label>แหล่งที่มา / ผู้ชำระ</label><input id="incSource"></div>
+            <div class="form-group"><label for="incAmount">จำนวนเงิน (บาท) <span class="req">*</span></label><input type="number" id="incAmount" inputmode="decimal" min="0" step="0.01" required></div>
+            <div class="form-group"><label for="incSource">แหล่งที่มา / ผู้ชำระ <span class="req">*</span></label><input id="incSource" required placeholder="เช่น คุณสมชาย ใจดี (รุ่น 40)"></div>
           </div>
-          <div class="form-group"><label>เข้าบัญชี</label>
-            <select id="incTargetAccount">
-              <option value="savings">บัญชีออมทรัพย์</option>
-              <option value="fixed_deposit">บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</option>
+          <div class="form-row">
+            <div class="form-group"><label for="incTargetAccount">เข้าบัญชี</label>
+              <select id="incTargetAccount">
+                <option value="savings">บัญชีออมทรัพย์</option>
+                <option value="fixed_deposit">บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</option>
+              </select>
+            </div>
+            <div class="form-group"><label for="incPayerEmail">อีเมลผู้ชำระ <span class="opt">(ไม่บังคับ)</span></label><input type="email" id="incPayerEmail" autocomplete="email" placeholder="name@example.com"><div class="help">ระบบจะส่งใบเสร็จ PDF ไปที่อีเมลนี้เมื่อกด "ออกใบเสร็จ"</div></div>
+          </div>
+          <div class="form-group"><label for="incNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="incNote"></div>
+          <div class="form-group"><label for="incEvidence">แนบหลักฐาน (ใบเสร็จ/สลิปโอน) <span class="opt">(ไม่บังคับ)</span></label><input type="file" id="incEvidence" accept="image/*,.pdf"></div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitIncome(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกรายรับ</button></div>
+        </details>
+        <div class="kpi-grid" id="incomeKpiGrid"></div>
+        <div class="card">
+          <div class="card-head"><h2><i class="bi bi-table" aria-hidden="true"></i> รายการรายรับ</h2></div>
+          <div class="toolbar no-print">
+            <input type="search" id="incSearch" placeholder="ค้นหาแหล่งที่มา / เลขที่ใบเสร็จ" aria-label="ค้นหารายรับ" oninput="renderIncomeTable()">
+            <select id="incFilterCat" aria-label="กรองตามหมวด" onchange="renderIncomeTable()">
+              <option value="">ทุกหมวด</option><option>ค่าบำรุงสมาชิก</option><option>เงินบริจาค</option><option>ค่าลงทะเบียนกิจกรรม</option><option>สปอนเซอร์</option><option>ดอกเบี้ยรับ</option><option>ค่าบำรุงตลอดชีพ</option><option>รายรับอื่น</option>
             </select>
           </div>
-          <div class="form-group"><label>หมายเหตุ</label><input id="incNote"></div>
-          <div class="form-group"><label>อีเมลผู้ชำระ (ถ้าต้องการส่งใบเสร็จทางอีเมล — ไม่บังคับ)</label><input type="email" id="incPayerEmail" placeholder="name@example.com"></div>
-          <div class="form-group"><label>แนบหลักฐาน (ใบเสร็จ/สลิปโอน)</label><input type="file" id="incEvidence" accept="image/*,.pdf"></div>
-          <button class="btn btn-primary" onclick="submitIncome()"><i class="bi bi-check2"></i> บันทึกรายรับ</button>
-        </div>
-        <div class="kpi-grid" id="incomeKpiGrid" style="margin-bottom:20px"></div>
-        <div class="card">
-          <h3><i class="bi bi-table"></i> รายการรายรับ</h3>
           <div id="incomeTableWrap"></div>
         </div>
-      </div>
+      </section>
 
       <!-- EXPENSE -->
-      <div id="page-expense" class="page hidden">
-        <h1 class="page-title">คำขอเบิกจ่าย</h1>
-        <p class="page-sub">ยื่นคำขอ → เหรัญญิกตรวจสอบ → (กรรมการ หากวงเงินสูง) → นายกสมาคมอนุมัติ → บันทึกจ่ายจริง</p>
-        <div class="card">
-          <h3><i class="bi bi-plus-circle"></i> ยื่นคำขอเบิกจ่ายใหม่</h3>
+      <section id="page-expense" class="page hidden" aria-labelledby="h-expense">
+        <div class="page-head"><div>
+          <h1 class="page-title" id="h-expense">คำขอเบิกจ่าย</h1>
+          <div class="steps" aria-label="ขั้นตอนการอนุมัติ">
+            <span class="s">ยื่นคำขอ</span><i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <span class="s">เหรัญญิกตรวจสอบ</span><i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <span class="s">≤ 5,000 บาท: นายกสมาคม / &gt; 5,000 บาท: มติกรรมการ</span><i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <span class="s">บันทึกจ่ายจริง</span>
+          </div>
+        </div></div>
+        <details class="card" id="expenseFormCard">
+          <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> ยื่นคำขอเบิกจ่ายใหม่</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
-            <div class="form-group"><label>โครงการ</label><select id="expProject"><option value="">- ไม่ระบุโครงการ -</option></select></div>
-            <div class="form-group"><label>หมวด</label>
+            <div class="form-group"><label for="expProject">โครงการ <span class="opt">(ไม่บังคับ)</span></label><select id="expProject"><option value="">- ไม่ระบุโครงการ -</option></select></div>
+            <div class="form-group"><label for="expCategory">หมวด <span class="req">*</span></label>
               <select id="expCategory">
                 <option>ค่าใช้จ่ายกิจกรรม</option><option>ค่าสวัสดิการสมาชิก</option>
                 <option>ค่าบริหารสำนักงาน</option><option>ค่าธรรมเนียมธนาคาร</option><option>ค่าใช้จ่ายอื่น</option>
@@ -254,88 +429,102 @@ tr:hover td{background:#fafaf8}
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>จำนวนเงิน (บาท)</label><input type="number" id="expAmount"></div>
-            <div class="form-group"><label>รายละเอียด</label><input id="expDescription"></div>
+            <div class="form-group"><label for="expAmount">จำนวนเงิน (บาท) <span class="req">*</span></label><input type="number" id="expAmount" inputmode="decimal" min="0" step="0.01" required oninput="updateExpenseRouteHint()"><div class="help" id="expRouteHint" aria-live="polite"></div></div>
+            <div class="form-group"><label for="expDescription">รายละเอียด <span class="req">*</span></label><input id="expDescription" required placeholder="เช่น ค่าอาหารว่างประชุมกรรมการ"></div>
           </div>
-          <button class="btn btn-primary" onclick="submitExpenseRequest()"><i class="bi bi-send"></i> ยื่นคำขอ</button>
-        </div>
-        <div class="kpi-grid" id="expenseKpiGrid" style="margin-bottom:20px"></div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitExpenseRequest(this)"><i class="bi bi-send" aria-hidden="true"></i> ยื่นคำขอ</button></div>
+        </details>
+        <div class="kpi-grid" id="expenseKpiGrid"></div>
         <div class="card">
-          <h3><i class="bi bi-table"></i> รายการคำขอเบิกจ่ายทั้งหมด</h3>
+          <div class="card-head"><h2><i class="bi bi-table" aria-hidden="true"></i> รายการคำขอเบิกจ่ายทั้งหมด</h2></div>
+          <div class="toolbar no-print">
+            <div class="chip-group" role="group" aria-label="กรองตามสถานะ" id="expFilterChips">
+              <button class="chip" aria-pressed="true" data-f="">ทั้งหมด</button>
+              <button class="chip" aria-pressed="false" data-f="mine">รอฉันดำเนินการ</button>
+              <button class="chip" aria-pressed="false" data-f="pending">รออนุมัติ</button>
+              <button class="chip" aria-pressed="false" data-f="approved">รอจ่ายเงิน</button>
+              <button class="chip" aria-pressed="false" data-f="paid">จ่ายแล้ว</button>
+              <button class="chip" aria-pressed="false" data-f="rejected">ถูกปฏิเสธ</button>
+            </div>
+          </div>
           <div id="expenseTableWrap"></div>
         </div>
-      </div>
+      </section>
 
       <!-- PROJECTS -->
-      <div id="page-projects" class="page hidden">
-        <h1 class="page-title">โครงการ / งบประมาณ</h1>
-        <p class="page-sub">ตั้งงบประมาณและติดตามการใช้จ่ายเทียบกับวงเงินที่อนุมัติ</p>
-        <div class="card">
-          <h3><i class="bi bi-plus-circle"></i> ตั้งโครงการใหม่</h3>
+      <section id="page-projects" class="page hidden" aria-labelledby="h-projects">
+        <div class="page-head"><div><h1 class="page-title" id="h-projects">โครงการ / งบประมาณ</h1><p class="page-sub">ตั้งงบประมาณและติดตามการใช้จ่ายเทียบกับวงเงินที่อนุมัติ</p></div></div>
+        <details class="card project-writer-only" id="projectFormCard">
+          <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> ตั้งโครงการใหม่</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
-            <div class="form-group"><label>ชื่อโครงการ</label><input id="prjName"></div>
-            <div class="form-group"><label>งบประมาณ (บาท)</label><input type="number" id="prjBudget"></div>
+            <div class="form-group"><label for="prjName">ชื่อโครงการ <span class="req">*</span></label><input id="prjName" required></div>
+            <div class="form-group"><label for="prjBudget">งบประมาณ (บาท) <span class="req">*</span></label><input type="number" id="prjBudget" inputmode="decimal" min="0" step="0.01" required></div>
           </div>
-          <button class="btn btn-primary" onclick="submitProject()"><i class="bi bi-check2"></i> บันทึกโครงการ</button>
-        </div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitProject(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกโครงการ</button></div>
+        </details>
         <div class="card">
-          <h3><i class="bi bi-kanban"></i> งบประมาณ vs ใช้จริง</h3>
+          <div class="card-head"><h2><i class="bi bi-kanban" aria-hidden="true"></i> งบประมาณ vs ใช้จริง</h2></div>
           <div id="projectsTableWrap"></div>
         </div>
-      </div>
+      </section>
 
       <!-- ASSETS -->
-      <div id="page-assets" class="page hidden">
-        <h1 class="page-title">บัญชีทรัพย์สินของสมาคม</h1>
-        <p class="page-sub">ตามข้อบังคับ ข้อ 33 สมาคมต้องจัดให้มีบัญชีทรัพย์สินแยกจากบัญชีรายรับ-รายจ่าย</p>
-        <div class="card">
-          <h3><i class="bi bi-plus-circle"></i> เพิ่มรายการทรัพย์สิน</h3>
+      <section id="page-assets" class="page hidden" aria-labelledby="h-assets">
+        <div class="page-head"><div><h1 class="page-title" id="h-assets">บัญชีทรัพย์สินของสมาคม</h1><p class="page-sub">ตามข้อบังคับ ข้อ 33 สมาคมต้องจัดให้มีบัญชีทรัพย์สินแยกจากบัญชีรายรับ-รายจ่าย</p></div></div>
+        <details class="card writer-only" id="assetFormCard">
+          <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> เพิ่มรายการทรัพย์สิน</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
-            <div class="form-group"><label>ชื่อทรัพย์สิน</label><input id="astName"></div>
-            <div class="form-group"><label>หมวดหมู่</label><input id="astCategory" placeholder="เช่น ครุภัณฑ์สำนักงาน, อุปกรณ์กิจกรรม"></div>
+            <div class="form-group"><label for="astName">ชื่อทรัพย์สิน <span class="req">*</span></label><input id="astName" required></div>
+            <div class="form-group"><label for="astCategory">หมวดหมู่</label><input id="astCategory" list="astCategoryList" placeholder="เช่น ครุภัณฑ์สำนักงาน, อุปกรณ์กิจกรรม"><datalist id="astCategoryList"><option value="ครุภัณฑ์สำนักงาน"><option value="อุปกรณ์กิจกรรม"><option value="ทั่วไป"></datalist></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>มูลค่า (บาท)</label><input type="number" id="astValue"></div>
-            <div class="form-group"><label>สถานที่เก็บ</label><input id="astLocation"></div>
+            <div class="form-group"><label for="astValue">มูลค่า (บาท) <span class="req">*</span></label><input type="number" id="astValue" inputmode="decimal" min="0" step="0.01" required></div>
+            <div class="form-group"><label for="astLocation">สถานที่เก็บ</label><input id="astLocation"></div>
           </div>
-          <div class="form-group"><label>หมายเหตุ</label><input id="astNote"></div>
-          <button class="btn btn-primary" onclick="submitAsset()"><i class="bi bi-check2"></i> บันทึกทรัพย์สิน</button>
-        </div>
-        <div class="kpi-grid" id="assetsKpiGrid" style="margin-bottom:20px"></div>
+          <div class="form-group"><label for="astNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="astNote"></div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitAsset(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกทรัพย์สิน</button></div>
+        </details>
+        <div class="kpi-grid" id="assetsKpiGrid"></div>
         <div class="card">
-          <h3><i class="bi bi-list-ul"></i> รายการทรัพย์สินทั้งหมด</h3>
+          <div class="card-head"><h2><i class="bi bi-list-ul" aria-hidden="true"></i> รายการทรัพย์สินทั้งหมด</h2></div>
           <div id="assetsTableWrap"></div>
         </div>
-      </div>
+      </section>
 
       <!-- REPORTS -->
-      <div id="page-reports" class="page hidden">
-        <h1 class="page-title">รายงาน</h1>
-        <p class="page-sub">สรุปรายรับ-รายจ่ายรายเดือน สำหรับที่ประชุมกรรมการ/ AGM</p>
+      <section id="page-reports" class="page hidden" aria-labelledby="h-reports">
+        <div class="page-head"><div><h1 class="page-title" id="h-reports">รายงาน</h1><p class="page-sub">สรุปรายรับ-รายจ่ายรายเดือน สำหรับที่ประชุมกรรมการ / ที่ประชุมใหญ่สามัญประจำปี</p></div></div>
         <div class="card">
-          <h3><i class="bi bi-calendar3"></i> สรุปรายเดือน — ปี พ.ศ. <input type="number" id="reportYear" style="width:90px;display:inline-block" value=""> <button class="btn btn-outline" onclick="loadReport()">ดูรายงาน</button></h3>
-          <div id="reportTableWrap"></div>
-          <div style="margin-top:14px;display:flex;gap:10px">
-            <button class="btn btn-gold" onclick="exportReport('pdf')"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button>
-            <button class="btn btn-outline" onclick="exportReport('xlsx')"><i class="bi bi-file-earmark-excel"></i> Export Excel</button>
+          <div class="card-head">
+            <h2><i class="bi bi-calendar3" aria-hidden="true"></i> สรุปรายเดือน</h2>
+            <form class="toolbar no-print" style="margin:0" onsubmit="event.preventDefault(); loadReport(this.querySelector('button'));">
+              <label for="reportYear" style="margin:0">ปี พ.ศ.</label>
+              <input type="number" id="reportYear" inputmode="numeric" style="min-width:0;width:110px;flex:0 0 110px" value="">
+              <button class="btn btn-outline btn-sm" type="submit">ดูรายงาน</button>
+            </form>
           </div>
-          <p style="font-size:12px;color:var(--muted);margin-top:10px">ใช้สำหรับส่งให้สมาชิกก่อนวันประชุมใหญ่สามัญประจำปี ตามข้อบังคับ ข้อ 30 (ไม่น้อยกว่า 7 วัน)</p>
+          <div class="legend" style="margin-bottom:10px"><span><i style="background:var(--income)"></i>รายรับ</span><span><i style="background:var(--danger)"></i>รายจ่าย</span></div>
+          <div id="reportTableWrap"></div>
+          <div class="form-actions no-print" style="margin-top:16px">
+            <button class="btn btn-gold" onclick="exportReport('pdf', this)"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Export PDF</button>
+            <button class="btn btn-outline" onclick="exportReport('xlsx', this)"><i class="bi bi-file-earmark-excel" aria-hidden="true"></i> Export Excel</button>
+          </div>
+          <p class="help" style="margin-top:12px">ใช้สำหรับส่งให้สมาชิกก่อนวันประชุมใหญ่สามัญประจำปี ตามข้อบังคับ ข้อ 30 (ไม่น้อยกว่า 7 วัน)</p>
         </div>
-      </div>
+      </section>
 
       <!-- USERS -->
-      <div id="page-users" class="page hidden">
-        <h1 class="page-title">ผู้ใช้งาน</h1>
-        <p class="page-sub">จัดการสิทธิ์การเข้าถึงระบบ (เฉพาะผู้ดูแลระบบ)</p>
-        <div class="card">
-          <h3><i class="bi bi-person-plus"></i> เพิ่มผู้ใช้ใหม่</h3>
+      <section id="page-users" class="page hidden" aria-labelledby="h-users">
+        <div class="page-head"><div><h1 class="page-title" id="h-users">ผู้ใช้งาน</h1><p class="page-sub">จัดการสิทธิ์การเข้าถึงระบบ (เฉพาะผู้ดูแลระบบ)</p></div></div>
+        <details class="card" id="userFormCard">
+          <summary><h2><i class="bi bi-person-plus" aria-hidden="true"></i> เพิ่มผู้ใช้ใหม่</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
-            <div class="form-group"><label>ชื่อ-สกุล</label><input id="usrName"></div>
-            <div class="form-group"><label>Username</label><input id="usrUsername"></div>
+            <div class="form-group"><label for="usrName">ชื่อ-สกุล <span class="req">*</span></label><input id="usrName" required autocomplete="off"></div>
+            <div class="form-group"><label for="usrUsername">Username <span class="req">*</span></label><input id="usrUsername" required autocomplete="off" autocapitalize="none" spellcheck="false"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>รหัสผ่านตั้งต้น</label><input id="usrPassword"></div>
-            <div class="form-group"><label>บทบาท</label>
+            <div class="form-group"><label for="usrPassword">รหัสผ่านตั้งต้น <span class="req">*</span></label><input id="usrPassword" required autocomplete="new-password"><div class="help">อย่างน้อย 8 ตัวอักษร แจ้งผู้ใช้ให้เปลี่ยนหลังเข้าระบบครั้งแรก</div></div>
+            <div class="form-group"><label for="usrRole">บทบาท</label>
               <select id="usrRole">
                 <option value="treasurer">เหรัญญิก (treasurer)</option>
                 <option value="president">นายกสมาคม (president)</option>
@@ -345,61 +534,91 @@ tr:hover td{background:#fafaf8}
               </select>
             </div>
           </div>
-          <button class="btn btn-primary" onclick="submitUser()"><i class="bi bi-check2"></i> เพิ่มผู้ใช้</button>
-        </div>
-        <div class="card"><h3><i class="bi bi-people"></i> รายชื่อผู้ใช้งาน</h3><div id="usersTableWrap"></div></div>
-      </div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitUser(this)"><i class="bi bi-check2" aria-hidden="true"></i> เพิ่มผู้ใช้</button></div>
+        </details>
+        <div class="card"><div class="card-head"><h2><i class="bi bi-people" aria-hidden="true"></i> รายชื่อผู้ใช้งาน</h2></div><div id="usersTableWrap"></div></div>
+      </section>
 
       <!-- SETTINGS -->
-      <div id="page-settings" class="page hidden">
-        <h1 class="page-title">ตั้งค่า</h1>
-        <p class="page-sub">ตั้งค่าบัญชีธนาคารของสมาคมฯ ที่แสดงในหน้ารายรับและใบเสร็จ</p>
+      <section id="page-settings" class="page hidden" aria-labelledby="h-settings">
+        <div class="page-head"><div><h1 class="page-title" id="h-settings">ตั้งค่า</h1><p class="page-sub">ตั้งค่าบัญชีธนาคารของสมาคมฯ ที่แสดงในหน้ารายรับและใบเสร็จ</p></div></div>
         <div class="card">
-          <h3><i class="bi bi-bank"></i> บัญชีธนาคาร</h3>
-          <div class="form-group"><label>ชื่อธนาคาร / สาขา</label><input id="cfgBankName" placeholder="เช่น ธนาคารกรุงไทย (Krungthai Bank) สาขาสะพานขาว"></div>
+          <div class="card-head"><h2><i class="bi bi-bank" aria-hidden="true"></i> บัญชีธนาคาร</h2></div>
+          <div class="form-group"><label for="cfgBankName">ชื่อธนาคาร / สาขา</label><input id="cfgBankName" placeholder="เช่น ธนาคารกรุงไทย (Krungthai Bank) สาขาสะพานขาว"></div>
           <div class="form-row">
-            <div class="form-group"><label>เลขที่บัญชีออมทรัพย์</label><input id="cfgSavingsNo" placeholder="เช่น 021-1-05188-8"></div>
-            <div class="form-group"><label>ชื่อบัญชีออมทรัพย์</label><input id="cfgSavingsName" placeholder="ชื่อบัญชีตามสมุดบัญชี"></div>
+            <div class="form-group"><label for="cfgSavingsNo">เลขที่บัญชีออมทรัพย์</label><input id="cfgSavingsNo" placeholder="เช่น 021-1-05188-8"></div>
+            <div class="form-group"><label for="cfgSavingsName">ชื่อบัญชีออมทรัพย์</label><input id="cfgSavingsName" placeholder="ชื่อบัญชีตามสมุดบัญชี"></div>
           </div>
-          <div class="form-group"><label>เลขที่บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</label><input id="cfgFixedDeposit" placeholder="เช่น 021-2-14864-8 (เงินบำรุงตลอดชีพ — ห้ามถอนเงินต้น ข้อ 32)"></div>
-          <button class="btn btn-primary" onclick="submitSettings()"><i class="bi bi-check2"></i> บันทึกการตั้งค่า</button>
-          <p style="font-size:12px;color:var(--muted);margin-top:12px">ข้อมูลนี้จะแสดงในหน้า "รายรับ" ให้เหรัญญิกอ้างอิงตอนบันทึกรายการ — สลับบัญชีออมทรัพย์/ฝากประจำได้ในอนาคตโดยไม่ต้องแก้โค้ด</p>
+          <div class="form-group"><label for="cfgFixedDeposit">เลขที่บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</label><input id="cfgFixedDeposit" placeholder="เช่น 021-2-14864-8"></div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="submitSettings(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกการตั้งค่า</button></div>
+          <p class="help" style="margin-top:12px">ข้อมูลนี้จะแสดงในหน้า "รายรับ" ให้เหรัญญิกอ้างอิงตอนบันทึกรายการ — เปลี่ยนบัญชีได้ในอนาคตโดยไม่ต้องแก้โค้ด</p>
         </div>
         <div class="card">
-          <h3><i class="bi bi-piggy-bank"></i> เงินบำรุงตลอดชีพสะสม (ข้อ 32)</h3>
-          <p class="page-sub" style="margin-bottom:14px">ใช้กรอกยอดยกมาตอนเริ่มใช้ระบบ หรือปรับยอดให้ตรงกับความเป็นจริง ระบบจะลงบัญชีคู่ให้อัตโนมัติ</p>
+          <div class="card-head"><h2><i class="bi bi-piggy-bank" aria-hidden="true"></i> เงินบำรุงตลอดชีพสะสม (ข้อ 32)</h2></div>
+          <div class="info-callout warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>ใช้กรอกยอดยกมาตอนเริ่มใช้ระบบ หรือปรับยอดให้ตรงกับความเป็นจริง ระบบจะลงบัญชีคู่ (1250 / 3100) ให้อัตโนมัติ และบันทึกในประวัติการใช้งาน</div></div>
           <div class="form-row">
-            <div class="form-group"><label>ยอดปัจจุบันในระบบ</label><input id="cfgLifetimeCurrentDisplay" disabled style="background:#f1f5f9"></div>
-            <div class="form-group"><label>ตั้งยอดใหม่ (บาท)</label><input type="number" id="cfgLifetimeNewAmount"></div>
+            <div class="form-group"><label for="cfgLifetimeCurrentDisplay">ยอดปัจจุบันในระบบ</label><input id="cfgLifetimeCurrentDisplay" disabled></div>
+            <div class="form-group"><label for="cfgLifetimeNewAmount">ตั้งยอดใหม่ (บาท)</label><input type="number" id="cfgLifetimeNewAmount" inputmode="decimal" min="0" step="0.01"></div>
           </div>
-          <div class="form-group"><label>หมายเหตุ (ไม่บังคับ)</label><input id="cfgLifetimeNote" placeholder="เช่น ยอดยกมาจากบัญชีเดิมก่อนใช้ระบบ"></div>
-          <button class="btn btn-gold" onclick="submitLifetimeFund()"><i class="bi bi-check2"></i> บันทึกยอดเงินบำรุงตลอดชีพ</button>
+          <div class="form-group"><label for="cfgLifetimeNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="cfgLifetimeNote" placeholder="เช่น ยอดยกมาจากบัญชีเดิมก่อนใช้ระบบ"></div>
+          <div class="form-actions"><button class="btn btn-gold" onclick="submitLifetimeFund(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกยอดเงินบำรุงตลอดชีพ</button></div>
         </div>
-      </div>
+      </section>
 
-    </div>
+     </div>
+    </main>
   </div>
 </div>
 
 <!-- Modal: บันทึกจ่ายเงิน (ผู้ลงนาม 2 ฝ่าย + หลักฐาน) -->
-<div id="payModalOverlay" class="modal-overlay hidden">
-  <div class="modal-box">
-    <h3><i class="bi bi-cash-stack"></i> บันทึกจ่ายเงิน</h3>
-    <p class="page-sub" style="margin-bottom:16px">ตามข้อบังคับข้อ 31 ต้องระบุผู้ลงนามสั่งจ่าย 2 ฝ่าย</p>
-    <div class="form-group"><label>วิธีจ่ายเงิน</label>
+<div id="payModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closePayModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="payModalTitle">
+    <h2 id="payModalTitle"><i class="bi bi-cash-stack" aria-hidden="true"></i> บันทึกจ่ายเงิน</h2>
+    <p class="page-sub">ตามข้อบังคับข้อ 31 ต้องระบุผู้ลงนามสั่งจ่าย 2 ฝ่าย</p>
+    <div class="modal-summary" id="paySummary"></div>
+    <div class="form-group"><label for="payMethod">วิธีจ่ายเงิน</label>
       <select id="payMethod"><option>โอนธนาคาร</option><option>เช็ค</option><option>เงินสด</option></select>
     </div>
-    <div class="form-group"><label>ผู้ลงนามฝ่ายที่ 1 (นายกสมาคม/อุปนายก)</label><input id="paySigned1"></div>
-    <div class="form-group"><label>ผู้ลงนามฝ่ายที่ 2 (เลขานุการ/เหรัญญิก)</label><input id="paySigned2"></div>
-    <div class="form-group"><label>แนบหลักฐานการโอน/สำเนาเช็ค</label><input type="file" id="payEvidence" accept="image/*,.pdf"></div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="btn btn-primary" onclick="confirmPayment()"><i class="bi bi-check2"></i> ยืนยันบันทึกจ่ายเงิน</button>
+    <div class="form-group"><label for="paySigned1">ผู้ลงนามฝ่ายที่ 1 (นายกสมาคม/อุปนายก) <span class="req">*</span></label><input id="paySigned1" required></div>
+    <div class="form-group"><label for="paySigned2">ผู้ลงนามฝ่ายที่ 2 (เลขานุการ/เหรัญญิก) <span class="req">*</span></label><input id="paySigned2" required></div>
+    <div class="form-group"><label for="payEvidence">แนบหลักฐานการโอน/สำเนาเช็ค <span class="opt">(ไม่บังคับ)</span></label><input type="file" id="payEvidence" accept="image/*,.pdf"></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="confirmPayment(this)"><i class="bi bi-check2" aria-hidden="true"></i> ยืนยันบันทึกจ่ายเงิน</button>
       <button class="btn btn-outline" onclick="closePayModal()">ยกเลิก</button>
     </div>
   </div>
 </div>
 
-<div id="toast" class="toast"></div>
+<!-- Modal: ยืนยันอนุมัติ / ปฏิเสธ -->
+<div id="decisionModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeDecisionModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="decisionModalTitle">
+    <h2 id="decisionModalTitle">ยืนยัน</h2>
+    <div class="modal-summary" id="decisionSummary"></div>
+    <div class="form-group"><label for="decisionNote" id="decisionNoteLabel">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><textarea id="decisionNote" rows="3"></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="decisionConfirmBtn" onclick="confirmDecision(this)">ยืนยัน</button>
+      <button class="btn btn-outline" onclick="closeDecisionModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: เปลี่ยนรหัสผ่านของตนเอง / ผู้ดูแลรีเซ็ตรหัสผ่านให้ผู้อื่น -->
+<div id="pwModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closePwModal()">
+  <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="pwModalTitle" onsubmit="event.preventDefault(); submitPassword(this.querySelector('button[type=submit]'));" novalidate>
+    <h2 id="pwModalTitle"><i class="bi bi-key" aria-hidden="true"></i> เปลี่ยนรหัสผ่าน</h2>
+    <p class="page-sub" id="pwModalSub">รหัสผ่านถูกเก็บแบบเข้ารหัส (hash) ผู้ดูแลระบบก็ไม่สามารถดูรหัสผ่านของท่านได้</p>
+    <input type="text" id="pwUsernameHint" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
+    <div class="form-group" id="pwCurrentGroup" style="margin-top:14px"><label for="pwCurrent">รหัสผ่านปัจจุบัน <span class="req">*</span></label><input type="password" id="pwCurrent" autocomplete="current-password"></div>
+    <div class="form-group"><label for="pwNew">รหัสผ่านใหม่ <span class="req">*</span></label><input type="password" id="pwNew" autocomplete="new-password"><div class="help">อย่างน้อย 8 ตัวอักษร</div></div>
+    <div class="form-group"><label for="pwConfirm">ยืนยันรหัสผ่านใหม่ <span class="req">*</span></label><input type="password" id="pwConfirm" autocomplete="new-password"></div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกรหัสผ่าน</button>
+      <button type="button" class="btn btn-outline" onclick="closePwModal()">ยกเลิก</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
 
 <script>
 /* ============================================================
@@ -407,36 +626,120 @@ tr:hover td{background:#fafaf8}
    ============================================================ */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrPcJkVwgDn0o6zasOM31LdE0B5hgrmNiGwQbaXTOOvbKmsJw4GhZUtrzwBw5NiCM/exec';
 
-let state = { token: null, name: '', role: '' };
+// ตรงกับ COMMITTEE_APPROVAL_THRESHOLD ใน Code.gs (ข้อบังคับ ข้อ 29) — ใช้แสดงคำแนะนำเท่านั้น ระบบหลังบ้านเป็นผู้ตัดสิน
+const COMMITTEE_APPROVAL_THRESHOLD = 5000;
+const SESSION_KEY = 'tusw_fin_session';
 
-// แสดงกล่องเตือนเฉพาะกรณีที่ยังไม่ได้แก้ URL จริง (ยังเป็นค่า placeholder เดิม)
+let state = { token: null, name: '', role: '' };
+let cache = { income: [], expenses: [], projects: [] };
+let expFilter = '';
+
 if (APPS_SCRIPT_URL.indexOf('ใส่รหัสของท่าน') !== -1) {
   document.getElementById('urlHintBox').classList.remove('hidden');
 }
 
-/* ---------- API helper ---------- */
-async function apiGet(action, params) {
-  const qs = new URLSearchParams(Object.assign({ action, token: state.token }, params || {}));
-  const res = await fetch(APPS_SCRIPT_URL + '?' + qs.toString());
-  return res.json();
-}
-async function apiPost(action, payload) {
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' }, // เลี่ยง CORS preflight ของ Apps Script
-    body: JSON.stringify({ action, token: state.token, payload })
-  });
-  return res.json();
-}
-
-function showToast(msg, isError) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3200);
+/* ---------- Utilities ---------- */
+const $ = id => document.getElementById(id);
+function esc(v){
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function money(n){ return Number(n||0).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function dateOnly(v){ return v ? String(v).slice(0,10) : '-'; }
+function thaiDate(v){
+  const s = dateOnly(v); const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if(!m) return s;
+  const mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(m[2])-1];
+  return `${Number(m[3])} ${mo} ${Number(m[1])+543}`;
+}
+function localDateStr(d){ d = d || new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+function monthYearKeys(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return { monthKey: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, yearKey: `${now.getFullYear()}` };
+}
+function safeUrl(u){ return /^https:\/\//i.test(String(u||'')) ? esc(u) : ''; }
+function emptyState(icon, text){ return `<div class="empty"><i class="bi bi-${icon}" aria-hidden="true"></i>${esc(text)}</div>`; }
+function skeleton(rows){ let h=''; for(let i=0;i<(rows||4);i++) h+='<div class="skel-row"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>'; return `<div aria-busy="true" aria-label="กำลังโหลด">${h}</div>`; }
+function tableWrap(html){ return `<div class="table-scroll">${html}</div>`; }
+
+/* ปุ่มกำลังทำงาน — กันกดซ้ำ + แสดงสถานะ */
+async function withBusy(btn, label, fn){
+  if(btn && btn.disabled) return;
+  let orig;
+  if(btn){ orig = btn.innerHTML; btn.disabled = true; btn.setAttribute('aria-busy','true'); btn.innerHTML = `<span class="spinner" aria-hidden="true"></span> ${esc(label||'กำลังดำเนินการ...')}`; }
+  try { return await fn(); }
+  finally { if(btn){ btn.disabled = false; btn.removeAttribute('aria-busy'); btn.innerHTML = orig; } }
+}
+
+/* ตรวจช่องบังคับ แสดงข้อผิดพลาดใต้ช่อง และโฟกัสช่องแรกที่ผิด */
+function validate(rules){
+  let firstBad = null; const bad = {};
+  rules.forEach(([id]) => {
+    const el = $(id); el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby');
+    const old = el.parentElement.querySelector('.field-error[data-for="'+id+'"]'); if(old) old.remove();
+  });
+  rules.forEach(([id, check, msg]) => {
+    if(bad[id]) return;
+    const el = $(id); const v = el.value.trim();
+    let isBad = false;
+    if(check === 'required') isBad = !v;
+    else if(check === 'positive') isBad = !(Number(v) > 0);
+    else if(check === 'nonneg') isBad = v === '' || isNaN(Number(v)) || Number(v) < 0;
+    else if(check === 'email') isBad = !!v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    else if(typeof check === 'function') isBad = !check(v);
+    if(isBad){
+      bad[id] = true;
+      el.setAttribute('aria-invalid','true');
+      const e = document.createElement('div'); e.className='field-error'; e.dataset.for=id; e.id='err-'+id; e.textContent = msg;
+      el.setAttribute('aria-describedby', e.id);
+      el.insertAdjacentElement('afterend', e);
+      if(!firstBad) firstBad = el;
+    }
+  });
+  if(firstBad){ firstBad.focus(); return false; }
+  return true;
+}
+
+/* ---------- API helper ---------- */
+async function apiGet(action, params) {
+  try{
+    const qs = new URLSearchParams(Object.assign({ action, token: state.token }, params || {}));
+    const res = await fetch(APPS_SCRIPT_URL + '?' + qs.toString());
+    return handleAuthExpiry(await res.json());
+  }catch(e){ return { ok:false, message:'เชื่อมต่อระบบไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่' }; }
+}
+async function apiPost(action, payload) {
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // เลี่ยง CORS preflight ของ Apps Script
+      body: JSON.stringify({ action, token: state.token, payload })
+    });
+    return handleAuthExpiry(await res.json());
+  }catch(e){ return { ok:false, message:'เชื่อมต่อระบบไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่' }; }
+}
+let authExpiredShown = false;
+function handleAuthExpiry(data){
+  if(data && data.ok === false && data.message === 'กรุณาเข้าสู่ระบบใหม่' && state.token){
+    if(!authExpiredShown){ authExpiredShown = true; doLogout(); showToast('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่', true); }
+  }
+  return data;
+}
+
+function showToast(msg, isError, kind) {
+  const wrap = $('toastWrap');
+  const t = document.createElement('div');
+  const type = isError ? 'error' : (kind || '');
+  t.className = 'toast ' + type;
+  t.setAttribute('role', isError ? 'alert' : 'status');
+  const icon = isError ? 'exclamation-circle' : (kind==='info' ? 'hourglass-split' : 'check-circle');
+  t.innerHTML = `<i class="bi bi-${icon}" aria-hidden="true"></i><span>${esc(msg)}</span><button aria-label="ปิดการแจ้งเตือน">✕</button>`;
+  t.querySelector('button').onclick = () => t.remove();
+  wrap.appendChild(t);
+  while(wrap.children.length > 3) wrap.firstChild.remove();
+  setTimeout(() => t.remove(), isError ? 6000 : 3500);
+}
 
 function fileToBase64(fileInputEl){
   return new Promise((resolve, reject) => {
@@ -444,8 +747,7 @@ function fileToBase64(fileInputEl){
     if(!file){ resolve(null); return; }
     const reader = new FileReader();
     reader.onload = () => {
-      const result = reader.result; // data:<mime>;base64,XXXX
-      const base64Data = result.split(',')[1];
+      const base64Data = reader.result.split(',')[1];
       resolve({ fileName: file.name, mimeType: file.type || 'application/octet-stream', base64Data });
     };
     reader.onerror = reject;
@@ -453,96 +755,156 @@ function fileToBase64(fileInputEl){
   });
 }
 async function uploadIfSelected(fileInputEl){
+  const file = fileInputEl.files[0];
+  if(file && file.size > 20 * 1024 * 1024){ showToast('ไฟล์มีขนาดใหญ่เกิน 20 MB กรุณาลดขนาดไฟล์ก่อนแนบ', true); return null; }
   const fileInfo = await fileToBase64(fileInputEl);
   if(!fileInfo) return '';
   const res = await apiPost('uploadFile', fileInfo);
-  if(!res.ok){ showToast('อัปโหลดไฟล์ไม่สำเร็จ: ' + (res.message||''), true); return ''; }
+  if(!res.ok){ showToast('อัปโหลดไฟล์ไม่สำเร็จ: ' + (res.message||''), true); return null; }
   return res.url;
 }
 
 /* ---------- Login / Logout ---------- */
-async function doLogin() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const errBox = document.getElementById('loginError');
-  errBox.classList.add('hidden');
-
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'login', username, password })
-    });
-    const data = await res.json();
-    if (!data.ok) { errBox.textContent = data.message; errBox.classList.remove('hidden'); return; }
-
-    state.token = data.token; state.name = data.name; state.role = data.role;
-    document.getElementById('sbUserName').textContent = data.name;
-    document.getElementById('sbUserRole').textContent = roleLabel(data.role);
-    if (data.role === 'admin') document.querySelector('.admin-only').classList.remove('hidden');
-    if (data.role === 'admin' || data.role === 'treasurer') document.querySelector('.settings-only').classList.remove('hidden');
-
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initApp();
-  } catch (e) {
-    errBox.textContent = 'เชื่อมต่อระบบไม่สำเร็จ ตรวจสอบ APPS_SCRIPT_URL ในไฟล์นี้ / ' + e.toString();
-    errBox.classList.remove('hidden');
-  }
+function togglePassword(){
+  const inp = $('loginPassword'), btn = $('pwToggle'); const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.setAttribute('aria-pressed', String(show)); btn.setAttribute('aria-label', show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+  btn.innerHTML = `<i class="bi bi-${show?'eye-slash':'eye'}" aria-hidden="true"></i>`;
 }
-function doLogout(){ state = { token:null, name:'', role:'' }; document.getElementById('app').style.display='none'; document.getElementById('loginScreen').style.display='flex'; }
+async function doLogin(btn) {
+  const username = $('loginUsername').value.trim();
+  const password = $('loginPassword').value;
+  const errBox = $('loginError');
+  errBox.classList.add('hidden');
+  if(!username || !password){ errBox.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'; errBox.classList.remove('hidden'); return; }
+
+  await withBusy(btn, 'กำลังเข้าสู่ระบบ...', async () => {
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'login', username, password })
+      });
+      const data = await res.json();
+      if (!data.ok) { errBox.textContent = data.message; errBox.classList.remove('hidden'); $('loginPassword').select(); return; }
+      enterApp(data);
+    } catch (e) {
+      errBox.textContent = 'เชื่อมต่อระบบไม่สำเร็จ ตรวจสอบ APPS_SCRIPT_URL ในไฟล์นี้ / ' + e.toString();
+      errBox.classList.remove('hidden');
+    }
+  });
+}
+function enterApp(data){
+  state.token = data.token; state.name = data.name; state.role = data.role;
+  authExpiredShown = false;
+  try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify(state)); }catch(e){}
+  $('sbUserName').textContent = data.name;
+  $('sbUserRole').textContent = roleLabel(data.role);
+  $('sbAvatar').textContent = (data.name||'?').trim().charAt(0);
+  applyRoleVisibility();
+  $('loginPassword').value = '';
+  $('loginScreen').style.display = 'none';
+  $('app').style.display = 'block';
+  initApp();
+}
+function applyRoleVisibility(){
+  const r = state.role;
+  const isAdmin = r === 'admin', canWrite = r === 'admin' || r === 'treasurer';
+  document.querySelectorAll('.admin-only,.admin-group').forEach(el => el.classList.toggle('hidden', !isAdmin));
+  document.querySelectorAll('.settings-only').forEach(el => el.classList.toggle('hidden', !canWrite));
+  // ซ่อนฟอร์มที่บทบาทนี้ไม่มีสิทธิ์บันทึกอยู่แล้วฝั่งหลังบ้าน (ลดการกรอกแล้วถูกปฏิเสธ)
+  document.querySelectorAll('.writer-only').forEach(el => el.classList.toggle('hidden', !canWrite));
+  document.querySelectorAll('.project-writer-only').forEach(el => el.classList.toggle('hidden', !(canWrite || r === 'president')));
+}
+function doLogout(){
+  state = { token:null, name:'', role:'' };
+  cache = { income: [], expenses: [], projects: [] };
+  bankInfoLoaded = false;
+  try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
+  applyRoleVisibility();
+  document.querySelectorAll('.admin-only,.admin-group,.settings-only').forEach(el => el.classList.add('hidden'));
+  toggleNav(false);
+  $('app').style.display='none'; $('loginScreen').style.display='flex';
+  $('loginUsername').focus();
+}
 function roleLabel(r){
   return {admin:'ผู้ดูแลระบบ', treasurer:'เหรัญญิก', president:'นายกสมาคม', committee:'กรรมการ', auditor:'ผู้ตรวจสอบบัญชี'}[r] || r;
 }
 
 /* ---------- Navigation ---------- */
+const PAGE_TITLES = {dashboard:'แดชบอร์ด', income:'รายรับ', expense:'คำขอเบิกจ่าย', projects:'โครงการ/งบประมาณ', assets:'ทรัพย์สิน', reports:'รายงาน', users:'ผู้ใช้งาน', settings:'ตั้งค่า'};
+function toggleNav(open){
+  $('sidebar').classList.toggle('open', open);
+  $('scrim').classList.toggle('show', open);
+  $('navToggle').setAttribute('aria-expanded', String(open));
+}
 function showPage(name){
+  const navItem = document.querySelector('.nav-item[data-page="'+name+'"]');
+  if(!navItem || navItem.classList.contains('hidden')) name = 'dashboard';
   document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
-  document.getElementById('page-'+name).classList.remove('hidden');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelector('.nav-item[data-page="'+name+'"]').classList.add('active');
+  $('page-'+name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n=>{ n.classList.remove('active'); n.removeAttribute('aria-current'); });
+  const active = document.querySelector('.nav-item[data-page="'+name+'"]');
+  active.classList.add('active'); active.setAttribute('aria-current','page');
+  $('topbarTitle').textContent = PAGE_TITLES[name] || '';
+  document.title = (PAGE_TITLES[name] ? PAGE_TITLES[name] + ' · ' : '') + 'ระบบการเงิน สมาคมฯ';
+  if(location.hash !== '#'+name) history.replaceState(null, '', '#'+name);
+  toggleNav(false);
+  window.scrollTo(0,0);
   if(name==='dashboard') loadDashboard();
   if(name==='income') { loadIncome(); loadBankInfo(); }
   if(name==='expense') loadExpense();
   if(name==='projects') loadProjects();
   if(name==='assets') loadAssets();
-  if(name==='reports') { document.getElementById('reportYear').value = new Date().getFullYear()+543; loadReport(); }
+  if(name==='reports') { if(!$('reportYear').value) $('reportYear').value = new Date().getFullYear()+543; loadReport(); }
   if(name==='users') loadUsers();
   if(name==='settings') loadSettings();
 }
 
 async function initApp(){
-  document.getElementById('incDate').value = new Date().toISOString().substring(0,10);
+  $('incDate').value = localDateStr();
   await loadProjectsIntoSelect();
-  showPage('dashboard');
+  const fromHash = (location.hash||'').replace('#','');
+  showPage(PAGE_TITLES[fromHash] ? fromHash : 'dashboard');
 }
 
 /* ---------- Dashboard ---------- */
-async function loadDashboard(){
-  const res = await apiGet('getDashboard');
-  if(!res.ok) return showToast(res.message, true);
-  const d = res.data;
-  document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-section-title"><span class="kpi-section-dot income"></span> รายรับ</div>
-    <div class="kpi-grid">
-      <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
-      <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
-    </div>
-    <div class="kpi-section-title"><span class="kpi-section-dot expense"></span> รายจ่าย</div>
-    <div class="kpi-grid">
-      <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
-      <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
-    </div>
-    <div class="kpi-section-title">ภาพรวมอื่นๆ</div>
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="label">ยอดเงินคงเหลือ</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
-      <div class="kpi-card warn"><div class="label">รออนุมัติ</div><div class="value">${d.pendingApprovals} รายการ</div></div>
-      <div class="kpi-card"><div class="label">เงินบำรุงตลอดชีพสะสม<br><span style="font-size:10px;font-weight:400">(ห้ามถอนเงินต้น ข้อ 32)</span></div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div></div>
-    </div>
-  `;
-  const exp = await apiGet('getExpenseRequests');
-  const rows = (exp.data||[]).slice(0,6);
-  document.getElementById('dashRecentExpense').innerHTML = rows.length ? renderExpenseTable(rows, false) : '<div class="empty">ยังไม่มีรายการ</div>';
+function setPendingCount(n){
+  const el = $('navPendingCount');
+  el.textContent = n; el.classList.toggle('hidden', !n);
+}
+async function loadDashboard(btn){
+  const hour = new Date().getHours();
+  $('dashGreeting').textContent = (hour < 12 ? 'สวัสดีตอนเช้า' : hour < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น') + ' คุณ' + state.name + ' — ภาพรวมการเงินของสมาคมฯ';
+  if(!$('kpiGrid').innerHTML) $('kpiGrid').innerHTML = skeleton(3);
+  if(!$('dashRecentExpense').innerHTML) $('dashRecentExpense').innerHTML = skeleton(4);
+  await withBusy(btn, 'กำลังโหลด...', async () => {
+    const [res, exp] = await Promise.all([apiGet('getDashboard'), apiGet('getExpenseRequests')]);
+    if(!res.ok) { $('kpiGrid').innerHTML = emptyState('wifi-off', 'โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
+    const d = res.data;
+    $('kpiGrid').innerHTML = `
+      <div class="kpi-section-title"><span class="kpi-section-dot"></span> สถานะเงิน</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="label"><i class="bi bi-bank" aria-hidden="true"></i> ยอดเงินคงเหลือ (ออมทรัพย์)</div><div class="value">฿ ${money(d.cashBalance)}</div></div>
+        <div class="kpi-card gold"><div class="label"><i class="bi bi-shield-lock" aria-hidden="true"></i> เงินบำรุงตลอดชีพสะสม</div><div class="value">฿ ${money(d.lifetimeFundBalance)}</div><div class="note">ห้ามถอนเงินต้น (ข้อ 32)</div></div>
+        <button class="kpi-card warn" onclick="setExpFilter('pending');showPage('expense')"><div class="label"><i class="bi bi-hourglass-split" aria-hidden="true"></i> รออนุมัติ</div><div class="value">${Number(d.pendingApprovals)||0} รายการ</div><div class="note">แตะเพื่อดูรายการ</div></button>
+      </div>
+      <div class="kpi-section-title"><span class="kpi-section-dot income"></span> รายรับ</div>
+      <div class="kpi-grid">
+        <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
+        <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
+      </div>
+      <div class="kpi-section-title"><span class="kpi-section-dot expense"></span> รายจ่าย</div>
+      <div class="kpi-grid">
+        <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
+        <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
+      </div>
+    `;
+    cache.expenses = exp.data || [];
+    setPendingCount(cache.expenses.filter(isMyTurn).length);
+    const rows = cache.expenses.slice(0,6);
+    $('dashRecentExpense').innerHTML = rows.length ? renderExpenseTable(rows, false) : emptyState('inbox', 'ยังไม่มีรายการ');
+  });
 }
 
 /* ---------- Income ---------- */
@@ -553,247 +915,394 @@ async function loadBankInfo(){
   if(!res.ok || !res.data) return;
   const c = res.data;
   if(!c.bank_name) return;
-  document.getElementById('bankInfoWrap').innerHTML = `
-    <div><b>${c.bank_name}</b></div>
-    <div>บัญชีออมทรัพย์: <b>${c.savings_account_no||'-'}</b> — ${c.savings_account_name||''}</div>
-    <div>บัญชีฝากประจำ (เงินบำรุงตลอดชีพ): <b>${c.fixed_deposit_account_no||'-'}</b></div>
+  const copyBtn = v => v ? `<button class="copy-btn" onclick="copyText('${esc(String(v).split(' ')[0])}')" aria-label="คัดลอกเลขที่บัญชี"><i class="bi bi-copy" aria-hidden="true"></i></button>` : '';
+  $('bankInfoWrap').innerHTML = `
+    <p style="margin:0 0 10px;font-weight:600">${esc(c.bank_name)}</p>
+    <div class="bank-grid">
+      <div class="bank-item"><div class="k">บัญชีออมทรัพย์ · ${esc(c.savings_account_name||'')}</div><div class="v">${esc(c.savings_account_no||'-')} ${copyBtn(c.savings_account_no)}</div></div>
+      <div class="bank-item"><div class="k">บัญชีฝากประจำ (เงินบำรุงตลอดชีพ)</div><div class="v">${esc(c.fixed_deposit_account_no||'-')} ${copyBtn(c.fixed_deposit_account_no)}</div></div>
+    </div>
   `;
-  document.getElementById('bankInfoCard').style.display = 'block';
+  $('bankInfoCard').style.display = 'block';
   bankInfoLoaded = true;
 }
+function copyText(t){
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>showToast('คัดลอก ' + t + ' แล้ว'));
+}
 function onIncomeCategoryChange(){
-  const cat = document.getElementById('incCategory').value;
-  document.getElementById('incTargetAccount').value = (cat === 'ค่าบำรุงตลอดชีพ') ? 'fixed_deposit' : 'savings';
+  const cat = $('incCategory').value;
+  $('incTargetAccount').value = (cat === 'ค่าบำรุงตลอดชีพ') ? 'fixed_deposit' : 'savings';
+  $('lifetimeNotice').classList.toggle('hidden', cat !== 'ค่าบำรุงตลอดชีพ');
 }
-async function submitIncome(){
-  const evidenceUrl = await uploadIfSelected(document.getElementById('incEvidence'));
-  const payload = {
-    date: document.getElementById('incDate').value,
-    category: document.getElementById('incCategory').value,
-    amount: document.getElementById('incAmount').value,
-    source: document.getElementById('incSource').value,
-    note: document.getElementById('incNote').value,
-    payerEmail: document.getElementById('incPayerEmail').value,
-    targetAccount: document.getElementById('incTargetAccount').value,
-    evidenceUrl: evidenceUrl
-  };
-  const res = await apiPost('addIncome', payload);
-  if(res.ok===false) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
-  showToast('บันทึกรายรับสำเร็จ');
-  document.getElementById('incAmount').value='';document.getElementById('incSource').value='';document.getElementById('incNote').value='';document.getElementById('incEvidence').value='';document.getElementById('incPayerEmail').value='';
-  loadIncome(); loadDashboard();
-}
-function dateOnly(v){ return v ? String(v).slice(0,10) : '-'; }
-function monthYearKeys(){
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  return { monthKey: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, yearKey: `${now.getFullYear()}` };
+async function submitIncome(btn){
+  if(!validate([
+    ['incDate','required','กรุณาระบุวันที่'],
+    ['incAmount','positive','กรุณาระบุจำนวนเงินที่มากกว่า 0'],
+    ['incSource','required','กรุณาระบุแหล่งที่มา / ผู้ชำระ'],
+    ['incPayerEmail','email','รูปแบบอีเมลไม่ถูกต้อง']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const evidenceUrl = await uploadIfSelected($('incEvidence'));
+    if(evidenceUrl === null) return;
+    const payload = {
+      date: $('incDate').value,
+      category: $('incCategory').value,
+      amount: $('incAmount').value,
+      source: $('incSource').value.trim(),
+      note: $('incNote').value.trim(),
+      payerEmail: $('incPayerEmail').value.trim(),
+      targetAccount: $('incTargetAccount').value,
+      evidenceUrl: evidenceUrl
+    };
+    const res = await apiPost('addIncome', payload);
+    if(res.ok===false) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+    showToast('บันทึกรายรับ ฿' + money(payload.amount) + ' สำเร็จ');
+    ['incAmount','incSource','incNote','incEvidence','incPayerEmail'].forEach(id => $(id).value='');
+    loadIncome();
+  });
 }
 
 async function loadIncome(){
+  if(!cache.income.length) $('incomeTableWrap').innerHTML = skeleton(5);
   const res = await apiGet('getIncomeList');
+  if(!res.ok){ $('incomeTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
   const rows = res.data||[];
+  cache.income = rows;
 
   const { monthKey, yearKey } = monthYearKeys();
   const totalAll = rows.reduce((s,r)=>s+Number(r.amount||0),0);
   const totalMonth = rows.filter(r=>String(r.date).startsWith(monthKey)).reduce((s,r)=>s+Number(r.amount||0),0);
   const totalYear = rows.filter(r=>String(r.date).startsWith(yearKey)).reduce((s,r)=>s+Number(r.amount||0),0);
-  document.getElementById('incomeKpiGrid').innerHTML = `
-    <div class="kpi-card income"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div></div>
+  $('incomeKpiGrid').innerHTML = `
+    <div class="kpi-card income"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div><div class="note">${rows.length} รายการ</div></div>
     <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(totalMonth)}</div></div>
     <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(totalYear)}</div></div>
   `;
-
-  if(!rows.length){ document.getElementById('incomeTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการรายรับ</div>'; return; }
-  let html = '<table><tr><th>วันที่</th><th>หมวด</th><th>แหล่งที่มา</th><th>บัญชี</th><th>เลขที่ใบเสร็จ</th><th style="text-align:right">จำนวนเงิน</th><th>หลักฐาน</th><th>ใบเสร็จ</th></tr>';
+  renderIncomeTable();
+}
+function renderIncomeTable(){
+  const q = ($('incSearch').value||'').trim().toLowerCase();
+  const cat = $('incFilterCat').value;
+  const rows = cache.income.filter(r =>
+    (!cat || r.category === cat) &&
+    (!q || [r.source, r.receipt_no, r.note, r.category].join(' ').toLowerCase().indexOf(q) !== -1));
+  if(!cache.income.length){ $('incomeTableWrap').innerHTML = emptyState('cash-coin','ยังไม่มีรายการรายรับ'); return; }
+  if(!rows.length){ $('incomeTableWrap').innerHTML = emptyState('search','ไม่พบรายการที่ตรงกับการค้นหา'); return; }
+  const canIssue = state.role === 'admin' || state.role === 'treasurer';
+  let html = '<table><thead><tr><th>วันที่</th><th>หมวด / แหล่งที่มา</th><th>บัญชี</th><th>เลขที่ใบเสร็จ</th><th class="num">จำนวนเงิน</th><th>หลักฐาน</th>'+(canIssue?'<th>ใบเสร็จ</th>':'')+'</tr></thead><tbody>';
   rows.forEach(r=>{
-    const receiptBtnLabel = (r.is_synced_from_membership || r.receipt_file_url) ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
-    const acctLabel = r.target_account === 'fixed_deposit' ? '<span class="badge badge-pending">ฝากประจำ</span>' : '<span class="badge badge-approved">ออมทรัพย์</span>';
-    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.category}${r.is_synced_from_membership?' <span class="badge badge-approved">sync สมาชิก</span>':''}</td><td>${r.source||'-'}</td><td>${acctLabel}</td><td>${r.receipt_no}</td><td style="text-align:right">${money(r.amount)}</td><td>${r.evidence_url?'<a href="'+r.evidence_url+'" target="_blank"><i class="bi bi-paperclip"></i></a>':'-'}</td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11.5px" onclick="issueReceipt('${r.income_id}')"><i class="bi bi-receipt"></i> ${receiptBtnLabel}</button></td></tr>`;
+    const synced = r.is_synced_from_membership === true || r.is_synced_from_membership === 'TRUE' || r.is_synced_from_membership === 'true';
+    const receiptBtnLabel = (synced || r.receipt_file_url) ? 'ดูใบเสร็จ' : 'ออกใบเสร็จ';
+    const acctLabel = r.target_account === 'fixed_deposit' ? '<span class="badge badge-pending">ฝากประจำ</span>' : '<span class="badge badge-neutral">ออมทรัพย์</span>';
+    const ev = safeUrl(r.evidence_url);
+    html += `<tr>
+      <td style="white-space:nowrap">${thaiDate(r.date)}</td>
+      <td>${esc(r.category)}${synced?' <span class="badge badge-approved"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> sync สมาชิก</span>':''}<span class="sub">${esc(r.source||'-')}</span></td>
+      <td>${acctLabel}</td>
+      <td style="white-space:nowrap">${esc(r.receipt_no)}</td>
+      <td class="num"><b>${money(r.amount)}</b></td>
+      <td>${ev?'<a href="'+ev+'" target="_blank" rel="noopener" aria-label="เปิดหลักฐาน"><i class="bi bi-paperclip" aria-hidden="true"></i> ดู</a>':'-'}</td>
+      ${canIssue?`<td><button class="btn btn-outline btn-sm" onclick="issueReceipt('${esc(r.income_id)}', this)"><i class="bi bi-receipt" aria-hidden="true"></i> ${receiptBtnLabel}</button></td>`:''}
+    </tr>`;
   });
-  html += '</table>';
-  document.getElementById('incomeTableWrap').innerHTML = html;
+  const sum = rows.reduce((s,r)=>s+Number(r.amount||0),0);
+  html += `</tbody><tfoot><tr><td colspan="4">รวม ${rows.length} รายการ</td><td class="num">${money(sum)}</td><td colspan="${canIssue?2:1}"></td></tr></tfoot></table>`;
+  $('incomeTableWrap').innerHTML = tableWrap(html);
 }
 
 /* ---------- Expense ---------- */
 async function loadProjectsIntoSelect(){
   const res = await apiGet('getProjects');
-  const sel = document.getElementById('expProject');
-  (res.data||[]).forEach(p=>{
+  const sel = $('expProject');
+  const current = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+  cache.projects = res.data || [];
+  cache.projects.forEach(p=>{
     const opt = document.createElement('option'); opt.value=p.project_id; opt.textContent = p.name + ' (คงเหลือ ฿'+money(p.remaining_amount)+')';
     sel.appendChild(opt);
   });
+  sel.value = current;
 }
-async function submitExpenseRequest(){
-  const payload = {
-    projectId: document.getElementById('expProject').value,
-    category: document.getElementById('expCategory').value,
-    amount: document.getElementById('expAmount').value,
-    description: document.getElementById('expDescription').value
-  };
-  const res = await apiPost('addExpenseRequest', payload);
-  if(!res.ok) return showToast(res.message||'ยื่นคำขอไม่สำเร็จ', true);
-  showToast(res.message);
-  document.getElementById('expAmount').value='';document.getElementById('expDescription').value='';
-  loadExpense();
+function updateExpenseRouteHint(){
+  const amt = Number($('expAmount').value);
+  $('expRouteHint').textContent = amt > 0
+    ? (amt <= COMMITTEE_APPROVAL_THRESHOLD ? 'เส้นทางอนุมัติ: เหรัญญิก → นายกสมาคม' : 'เกิน 5,000 บาท — เส้นทางอนุมัติ: เหรัญญิก → มติคณะกรรมการ (ข้อ 29)')
+    : '';
+}
+async function submitExpenseRequest(btn){
+  const proj = cache.projects.find(p => p.project_id === $('expProject').value);
+  if(!validate([
+    ['expAmount','positive','กรุณาระบุจำนวนเงินที่มากกว่า 0'],
+    ['expAmount', v => !proj || Number(v) <= Number(proj.remaining_amount), proj ? ('เกินวงเงินคงเหลือของโครงการ (฿' + money(proj.remaining_amount) + ')') : ''],
+    ['expDescription','required','กรุณาระบุรายละเอียดการเบิกจ่าย']
+  ])) return;
+  await withBusy(btn, 'กำลังยื่นคำขอ...', async () => {
+    const payload = {
+      projectId: $('expProject').value,
+      category: $('expCategory').value,
+      amount: $('expAmount').value,
+      description: $('expDescription').value.trim()
+    };
+    const res = await apiPost('addExpenseRequest', payload);
+    if(!res.ok) return showToast(res.message||'ยื่นคำขอไม่สำเร็จ', true);
+    showToast(res.message);
+    $('expAmount').value=''; $('expDescription').value=''; updateExpenseRouteHint();
+    loadExpense();
+  });
 }
 function statusBadge(status){
   const map = {
-    pending_treasurer:['badge-pending','รอเหรัญญิกตรวจสอบ'], pending_committee:['badge-pending','รอมติกรรมการ'],
-    pending_president:['badge-pending','รอนายกสมาคมอนุมัติ'], approved:['badge-approved','อนุมัติแล้ว รอจ่ายเงิน'],
-    paid:['badge-paid','จ่ายเงินแล้ว'], rejected:['badge-rejected','ถูกปฏิเสธ']
+    pending_treasurer:['badge-pending','hourglass-split','รอเหรัญญิกตรวจสอบ'], pending_committee:['badge-pending','people','รอมติกรรมการ'],
+    pending_president:['badge-pending','person-check','รอนายกสมาคมอนุมัติ'], approved:['badge-approved','check2','อนุมัติแล้ว รอจ่ายเงิน'],
+    paid:['badge-paid','check2-all','จ่ายเงินแล้ว'], rejected:['badge-rejected','x-circle','ถูกปฏิเสธ']
   };
-  const m = map[status] || ['badge-pending', status];
-  return `<span class="badge ${m[0]}">${m[1]}</span>`;
+  const m = map[status] || ['badge-neutral','dot', status];
+  return `<span class="badge ${m[0]}"><i class="bi bi-${m[1]}" aria-hidden="true"></i> ${esc(m[2])}</span>`;
+}
+const STEP_ROLE = {pending_treasurer:'treasurer', pending_committee:'committee', pending_president:'president'};
+function isMyTurn(r){
+  const stepRole = STEP_ROLE[r.status];
+  if (stepRole && (state.role===stepRole || state.role==='admin')) return true;
+  return r.status==='approved' && (state.role==='treasurer'||state.role==='admin');
 }
 function renderExpenseTable(rows, withActions){
-  let html = '<table><tr><th>วันที่</th><th>ผู้ยื่น</th><th>หมวด</th><th style="text-align:right">จำนวนเงิน</th><th>สถานะ</th>'+(withActions?'<th>ดำเนินการ</th>':'')+'</tr>';
+  let html = '<table><thead><tr><th>วันที่</th><th>ผู้ยื่น</th><th>หมวด / รายละเอียด</th><th class="num">จำนวนเงิน</th><th>สถานะ</th>'+(withActions?'<th>ดำเนินการ</th>':'')+'</tr></thead><tbody>';
   rows.forEach(r=>{
-    html += `<tr><td>${dateOnly(r.date)}</td><td>${r.requested_by}</td><td>${r.category}</td><td style="text-align:right">${money(r.amount)}</td><td>${statusBadge(r.status)}</td>`;
-    if(withActions){
-      html += `<td>${expenseActionButtons(r)}</td>`;
-    }
+    html += `<tr><td style="white-space:nowrap">${thaiDate(r.date)}</td><td>${esc(r.requested_by)}</td><td>${esc(r.category)}<span class="sub">${esc(r.description||'')}</span></td><td class="num"><b>${money(r.amount)}</b></td><td>${statusBadge(r.status)}</td>`;
+    if(withActions) html += `<td>${expenseActionButtons(r)}</td>`;
     html += '</tr>';
   });
-  return html + '</table>';
+  return tableWrap(html + '</tbody></table>');
 }
 function expenseActionButtons(r){
-  const stepRole = {pending_treasurer:'treasurer', pending_committee:'committee', pending_president:'president'}[r.status];
+  const stepRole = STEP_ROLE[r.status];
+  const id = esc(r.request_id);
   let btns = '';
   if (stepRole && (state.role===stepRole || state.role==='admin')) {
-    btns += `<button class="btn btn-primary" style="padding:5px 10px;font-size:12px" onclick="doApprove('${r.request_id}','approve')">อนุมัติ</button> `;
-    btns += `<button class="btn btn-outline" style="padding:5px 10px;font-size:12px" onclick="doApprove('${r.request_id}','reject')">ปฏิเสธ</button>`;
+    btns += `<button class="btn btn-primary btn-sm" onclick="doApprove('${id}','approve')"><i class="bi bi-check2" aria-hidden="true"></i> อนุมัติ</button>`;
+    btns += `<button class="btn btn-danger-outline btn-sm" onclick="doApprove('${id}','reject')"><i class="bi bi-x" aria-hidden="true"></i> ปฏิเสธ</button>`;
   }
   if (r.status==='approved' && (state.role==='treasurer'||state.role==='admin')) {
-    btns += `<button class="btn btn-gold" style="padding:5px 10px;font-size:12px" onclick="doPay('${r.request_id}')">บันทึกจ่ายเงิน</button>`;
+    btns += `<button class="btn btn-gold btn-sm" onclick="doPay('${id}')"><i class="bi bi-cash-stack" aria-hidden="true"></i> บันทึกจ่ายเงิน</button>`;
   }
-  return btns || '-';
+  return btns ? `<div class="actions">${btns}</div>` : '<span style="color:var(--muted)">-</span>';
 }
-async function doApprove(requestId, decision){
-  const res = await apiPost('approveExpense', { requestId, decision });
-  if(!res.ok) return showToast(res.message, true);
-  showToast(res.message); loadExpense(); loadDashboard();
+function requestSummaryHtml(r){
+  if(!r) return '';
+  return `<div><span>เลขที่</span><b>${esc(r.request_id)}</b></div>
+    <div><span>ผู้ยื่น</span><b>${esc(r.requested_by)}</b></div>
+    <div><span>หมวด</span><b>${esc(r.category)}</b></div>
+    <div><span>จำนวนเงิน</span><b>฿ ${money(r.amount)}</b></div>`;
 }
+
+/* --- ยืนยันอนุมัติ/ปฏิเสธ (เรียก approveExpense เหมือนเดิม พร้อมส่ง note ที่หลังบ้านรองรับอยู่แล้ว) --- */
+let pendingDecision = null, lastFocus = null;
+function doApprove(requestId, decision){
+  const r = cache.expenses.find(x => x.request_id === requestId);
+  pendingDecision = { requestId, decision };
+  lastFocus = document.activeElement;
+  const reject = decision === 'reject';
+  $('decisionModalTitle').innerHTML = reject ? '<i class="bi bi-x-circle" aria-hidden="true"></i> ปฏิเสธคำขอเบิกจ่าย' : '<i class="bi bi-check2-circle" aria-hidden="true"></i> อนุมัติคำขอเบิกจ่าย';
+  $('decisionSummary').innerHTML = requestSummaryHtml(r);
+  $('decisionNoteLabel').innerHTML = reject ? 'เหตุผลที่ปฏิเสธ <span class="req">*</span>' : 'หมายเหตุ <span class="opt">(ไม่บังคับ)</span>';
+  $('decisionNote').value = '';
+  const old = document.querySelector('.field-error[data-for="decisionNote"]'); if(old) old.remove();
+  const cb = $('decisionConfirmBtn');
+  cb.className = 'btn ' + (reject ? 'btn-danger-outline' : 'btn-primary');
+  cb.textContent = reject ? 'ยืนยันปฏิเสธ' : 'ยืนยันอนุมัติ';
+  $('decisionModalOverlay').classList.remove('hidden');
+  $('decisionNote').focus();
+}
+function closeDecisionModal(){ $('decisionModalOverlay').classList.add('hidden'); pendingDecision=null; if(lastFocus) lastFocus.focus(); }
+async function confirmDecision(btn){
+  if(!pendingDecision) return;
+  if(pendingDecision.decision === 'reject' && !validate([['decisionNote','required','กรุณาระบุเหตุผล เพื่อแจ้งผู้ยื่นคำขอทางอีเมล']])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const res = await apiPost('approveExpense', { requestId: pendingDecision.requestId, decision: pendingDecision.decision, note: $('decisionNote').value.trim() });
+    if(!res.ok) return showToast(res.message, true);
+    showToast(res.message); closeDecisionModal(); loadExpense();
+  });
+}
+
 let payModalRequestId = null;
 function doPay(requestId){
   payModalRequestId = requestId;
-  document.getElementById('paySigned1').value='';
-  document.getElementById('paySigned2').value='';
-  document.getElementById('payEvidence').value='';
-  document.getElementById('payModalOverlay').classList.remove('hidden');
+  lastFocus = document.activeElement;
+  $('paySummary').innerHTML = requestSummaryHtml(cache.expenses.find(x => x.request_id === requestId));
+  $('paySigned1').value=''; $('paySigned2').value=''; $('payEvidence').value='';
+  document.querySelectorAll('#payModalOverlay .field-error').forEach(e=>e.remove());
+  $('payModalOverlay').classList.remove('hidden');
+  $('payMethod').focus();
 }
-function closePayModal(){ document.getElementById('payModalOverlay').classList.add('hidden'); payModalRequestId=null; }
+function closePayModal(){ $('payModalOverlay').classList.add('hidden'); payModalRequestId=null; if(lastFocus) lastFocus.focus(); }
 
-async function confirmPayment(){
-  const signedBy1 = document.getElementById('paySigned1').value.trim();
-  const signedBy2 = document.getElementById('paySigned2').value.trim();
-  if(!signedBy1 || !signedBy2){ showToast('กรุณาระบุผู้ลงนามทั้ง 2 ฝ่าย ตามข้อบังคับข้อ 31', true); return; }
-
-  const evidenceUrl = await uploadIfSelected(document.getElementById('payEvidence'));
-  const res = await apiPost('recordPayment', {
-    requestId: payModalRequestId,
-    method: document.getElementById('payMethod').value,
-    signedBy1, signedBy2, evidenceUrl
+async function confirmPayment(btn){
+  if(!validate([
+    ['paySigned1','required','กรุณาระบุผู้ลงนามฝ่ายที่ 1 ตามข้อบังคับข้อ 31'],
+    ['paySigned2','required','กรุณาระบุผู้ลงนามฝ่ายที่ 2 ตามข้อบังคับข้อ 31'],
+    ['paySigned2', v => v !== $('paySigned1').value.trim(), 'ผู้ลงนามทั้ง 2 ฝ่ายต้องเป็นคนละคนกัน']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const evidenceUrl = await uploadIfSelected($('payEvidence'));
+    if(evidenceUrl === null) return;
+    const res = await apiPost('recordPayment', {
+      requestId: payModalRequestId,
+      method: $('payMethod').value,
+      signedBy1: $('paySigned1').value.trim(), signedBy2: $('paySigned2').value.trim(), evidenceUrl
+    });
+    if(!res.ok) return showToast(res.message, true);
+    showToast(res.message);
+    closePayModal();
+    loadExpense(); loadProjectsIntoSelect();
   });
-  if(!res.ok) return showToast(res.message, true);
-  showToast(res.message);
-  closePayModal();
-  loadExpense(); loadProjects(); loadDashboard();
+}
+function setExpFilter(f){
+  expFilter = f;
+  document.querySelectorAll('#expFilterChips .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === f)));
+  if(cache.expenses.length) renderExpenseList();
+}
+document.querySelectorAll('#expFilterChips .chip').forEach(c => c.addEventListener('click', () => setExpFilter(c.dataset.f)));
+function renderExpenseList(){
+  const pend = ['pending_treasurer','pending_committee','pending_president'];
+  const rows = cache.expenses.filter(r => {
+    if(!expFilter) return true;
+    if(expFilter === 'mine') return isMyTurn(r);
+    if(expFilter === 'pending') return pend.indexOf(r.status) !== -1;
+    return r.status === expFilter;
+  });
+  $('expenseTableWrap').innerHTML = !cache.expenses.length ? emptyState('inbox','ยังไม่มีคำขอเบิกจ่าย')
+    : rows.length ? renderExpenseTable(rows, true) : emptyState('funnel','ไม่มีรายการในสถานะนี้');
 }
 async function loadExpense(){
+  if(!cache.expenses.length) $('expenseTableWrap').innerHTML = skeleton(5);
   const res = await apiGet('getExpenseRequests');
+  if(!res.ok){ $('expenseTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
   const rows = res.data||[];
+  cache.expenses = rows;
 
   const paid = rows.filter(r=>r.status==='paid').reduce((s,r)=>s+Number(r.amount||0),0);
   const pending = rows.filter(r=>['pending_treasurer','pending_committee','pending_president','approved'].indexOf(r.status)!==-1).reduce((s,r)=>s+Number(r.amount||0),0);
   const rejected = rows.filter(r=>r.status==='rejected').reduce((s,r)=>s+Number(r.amount||0),0);
-  document.getElementById('expenseKpiGrid').innerHTML = `
+  const mine = rows.filter(isMyTurn).length;
+  setPendingCount(mine);
+  $('expenseKpiGrid').innerHTML = `
     <div class="kpi-card expense"><div class="label">รวมจ่ายเงินแล้ว</div><div class="value">฿ ${money(paid)}</div></div>
-    <div class="kpi-card warn"><div class="label">รวมรออนุมัติ/รอจ่าย</div><div class="value">฿ ${money(pending)}</div></div>
+    <div class="kpi-card warn"><div class="label">รวมรออนุมัติ/รอจ่าย</div><div class="value">฿ ${money(pending)}</div>${mine?`<div class="note">${mine} รายการรอท่านดำเนินการ</div>`:''}</div>
     <div class="kpi-card"><div class="label">รวมถูกปฏิเสธ</div><div class="value">฿ ${money(rejected)}</div></div>
   `;
-
-  document.getElementById('expenseTableWrap').innerHTML = rows.length ? renderExpenseTable(rows, true) : '<div class="empty">ยังไม่มีคำขอเบิกจ่าย</div>';
+  renderExpenseList();
 }
 
-async function issueReceipt(incomeId){
-  showToast('กำลังดำเนินการ... กรุณารอสักครู่');
-  const res = await apiPost('generateReceipt', { incomeId });
-  if(!res.ok) return showToast(res.message||'ออกใบเสร็จไม่สำเร็จ', true);
-  if(res.base64){
-    downloadBase64File(res.base64, res.mimeType, res.fileName);
-    showToast('ออกใบเสร็จสำเร็จ' + (res.url ? ' (บันทึกสำเนาไว้ใน Drive แล้ว)' : ''));
-  } else if(res.url){
-    window.open(res.url, '_blank');
-    showToast(res.fromMembershipSystem ? 'เปิดใบเสร็จตัวจริงจากระบบสมาชิกแล้ว' : 'เปิดใบเสร็จแล้ว');
-  }
-  loadIncome();
+async function issueReceipt(incomeId, btn){
+  await withBusy(btn, 'กำลังดำเนินการ...', async () => {
+    const res = await apiPost('generateReceipt', { incomeId });
+    if(!res.ok) return showToast(res.message||'ออกใบเสร็จไม่สำเร็จ', true);
+    if(res.base64){
+      downloadBase64File(res.base64, res.mimeType, res.fileName);
+      showToast('ออกใบเสร็จสำเร็จ' + (res.url ? ' (บันทึกสำเนาไว้ใน Drive แล้ว)' : ''));
+    } else if(res.url){
+      const w = window.open(res.url, '_blank'); if(w) w.opener = null;
+      if(!w) showToast('เบราว์เซอร์บล็อกหน้าต่างใหม่ — กรุณาอนุญาต popup สำหรับเว็บนี้', true);
+      else showToast(res.fromMembershipSystem ? 'เปิดใบเสร็จตัวจริงจากระบบสมาชิกแล้ว' : 'เปิดใบเสร็จแล้ว');
+    }
+    loadIncome();
+  });
 }
 
 /* ---------- Projects ---------- */
-async function submitProject(){
-  const payload = { name: document.getElementById('prjName').value, budgetAmount: document.getElementById('prjBudget').value };
-  const res = await apiPost('addProject', payload);
-  if(!res.ok) return showToast(res.message, true);
-  showToast('บันทึกโครงการสำเร็จ');
-  document.getElementById('prjName').value='';document.getElementById('prjBudget').value='';
-  loadProjects();
+async function submitProject(btn){
+  if(!validate([
+    ['prjName','required','กรุณาระบุชื่อโครงการ'],
+    ['prjBudget','positive','กรุณาระบุงบประมาณที่มากกว่า 0']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const payload = { name: $('prjName').value.trim(), budgetAmount: $('prjBudget').value };
+    const res = await apiPost('addProject', payload);
+    if(!res.ok) return showToast(res.message, true);
+    showToast('บันทึกโครงการสำเร็จ');
+    $('prjName').value=''; $('prjBudget').value='';
+    loadProjects(); loadProjectsIntoSelect();
+  });
 }
 async function loadProjects(){
+  if(!$('projectsTableWrap').innerHTML) $('projectsTableWrap').innerHTML = skeleton(3);
   const res = await apiGet('getProjects');
+  if(!res.ok){ $('projectsTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
   const rows = res.data||[];
-  if(!rows.length){ document.getElementById('projectsTableWrap').innerHTML = '<div class="empty">ยังไม่มีโครงการ</div>'; return; }
-  let html = '<table><tr><th>โครงการ</th><th style="text-align:right">งบประมาณ</th><th style="text-align:right">ใช้ไปแล้ว</th><th style="text-align:right">คงเหลือ</th></tr>';
+  if(!rows.length){ $('projectsTableWrap').innerHTML = emptyState('kanban','ยังไม่มีโครงการ'); return; }
+  let html = '<table><thead><tr><th>โครงการ</th><th class="num">งบประมาณ</th><th class="num">ใช้ไปแล้ว</th><th class="num">คงเหลือ</th><th>การใช้งบ</th></tr></thead><tbody>';
   rows.forEach(p=>{
-    html += `<tr><td>${p.name}</td><td style="text-align:right">${money(p.budget_amount)}</td><td style="text-align:right">${money(p.used_amount)}</td><td style="text-align:right">${money(p.remaining_amount)}</td></tr>`;
+    const budget = Number(p.budget_amount)||0, used = Number(p.used_amount)||0;
+    const pct = budget > 0 ? Math.min(100, Math.round(used / budget * 100)) : 0;
+    const lvl = pct >= 90 ? 'high' : pct >= 70 ? 'mid' : '';
+    html += `<tr><td>${esc(p.name)}<span class="sub">ปีงบ ${esc(p.fiscal_year||'-')}</span></td><td class="num">${money(budget)}</td><td class="num">${money(used)}</td><td class="num ${Number(p.remaining_amount)<0?'neg':''}"><b>${money(p.remaining_amount)}</b></td>
+      <td style="min-width:130px"><div class="progress ${lvl}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="ใช้งบไป ${pct}%"><span style="width:${pct}%"></span></div><span class="sub">${pct}%</span></td></tr>`;
   });
-  document.getElementById('projectsTableWrap').innerHTML = html + '</table>';
+  $('projectsTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
 }
 
 /* ---------- Assets (บัญชีทรัพย์สินของสมาคม ข้อ 33) ---------- */
-async function submitAsset(){
-  const payload = {
-    name: document.getElementById('astName').value,
-    category: document.getElementById('astCategory').value,
-    value: document.getElementById('astValue').value,
-    location: document.getElementById('astLocation').value,
-    note: document.getElementById('astNote').value
-  };
-  const res = await apiPost('addAsset', payload);
-  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
-  showToast('บันทึกทรัพย์สินสำเร็จ');
-  ['astName','astCategory','astValue','astLocation','astNote'].forEach(id=>document.getElementById(id).value='');
-  loadAssets();
+async function submitAsset(btn){
+  if(!validate([
+    ['astName','required','กรุณาระบุชื่อทรัพย์สิน'],
+    ['astValue','nonneg','กรุณาระบุมูลค่า (0 ขึ้นไป)']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const payload = {
+      name: $('astName').value.trim(),
+      category: $('astCategory').value.trim(),
+      value: $('astValue').value,
+      location: $('astLocation').value.trim(),
+      note: $('astNote').value.trim()
+    };
+    const res = await apiPost('addAsset', payload);
+    if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+    showToast('บันทึกทรัพย์สินสำเร็จ');
+    ['astName','astCategory','astValue','astLocation','astNote'].forEach(id=>$(id).value='');
+    loadAssets();
+  });
 }
 async function loadAssets(){
+  if(!$('assetsTableWrap').innerHTML) $('assetsTableWrap').innerHTML = skeleton(3);
   const res = await apiGet('getAssets');
+  if(!res.ok){ $('assetsTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
   const rows = res.data||[];
 
   const totalValue = rows.reduce((s,a)=>s+Number(a.value||0),0);
-  document.getElementById('assetsKpiGrid').innerHTML = `
-    <div class="kpi-card"><div class="label">มูลค่าทรัพย์สินรวม</div><div class="value">฿ ${money(totalValue)}</div></div>
+  $('assetsKpiGrid').innerHTML = `
+    <div class="kpi-card gold"><div class="label">มูลค่าทรัพย์สินรวม</div><div class="value">฿ ${money(totalValue)}</div></div>
     <div class="kpi-card"><div class="label">จำนวนรายการ</div><div class="value">${rows.length} รายการ</div></div>
   `;
 
-  if(!rows.length){ document.getElementById('assetsTableWrap').innerHTML='<div class="empty">ยังไม่มีรายการทรัพย์สิน</div>'; return; }
-  let html = '<table><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th style="text-align:right">มูลค่า</th><th>สถานที่เก็บ</th></tr>';
+  if(!rows.length){ $('assetsTableWrap').innerHTML = emptyState('building','ยังไม่มีรายการทรัพย์สิน'); return; }
+  let html = '<table><thead><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th class="num">มูลค่า</th><th>สถานที่เก็บ</th></tr></thead><tbody>';
   rows.forEach(a=>{
-    html += `<tr><td>${a.name}</td><td>${a.category}</td><td>${dateOnly(a.acquired_date)}</td><td style="text-align:right">${money(a.value)}</td><td>${a.location||'-'}</td></tr>`;
+    html += `<tr><td>${esc(a.name)}${a.note?`<span class="sub">${esc(a.note)}</span>`:''}</td><td>${esc(a.category)}</td><td style="white-space:nowrap">${thaiDate(a.acquired_date)}</td><td class="num">${money(a.value)}</td><td>${esc(a.location||'-')}</td></tr>`;
   });
-  document.getElementById('assetsTableWrap').innerHTML = html + '</table>';
+  html += `</tbody><tfoot><tr><td colspan="3">รวม</td><td class="num">${money(totalValue)}</td><td></td></tr></tfoot>`;
+  $('assetsTableWrap').innerHTML = tableWrap(html + '</table>');
 }
 
 /* ---------- Reports ---------- */
-async function loadReport(){
-  const year = document.getElementById('reportYear').value;
-  const res = await apiGet('getReport', { type:'income_expense_summary', fiscalYear: year });
-  const rows = res.data||[];
-  let html = '<table><tr><th>เดือน</th><th style="text-align:right">รายรับ</th><th style="text-align:right">รายจ่าย</th><th style="text-align:right">สุทธิ</th></tr>';
-  const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  rows.forEach((r,i)=>{
-    html += `<tr><td>${thMonths[i]}</td><td style="text-align:right">${money(r.income)}</td><td style="text-align:right">${money(r.expense)}</td><td style="text-align:right">${money(r.net)}</td></tr>`;
+async function loadReport(btn){
+  const year = $('reportYear').value;
+  $('reportTableWrap').innerHTML = skeleton(6);
+  await withBusy(btn, 'กำลังโหลด...', async () => {
+    const res = await apiGet('getReport', { type:'income_expense_summary', fiscalYear: year });
+    if(!res.ok){ $('reportTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
+    const rows = res.data||[];
+    const thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const max = Math.max(1, ...rows.map(r => Math.max(r.income, r.expense)));
+    let ti = 0, te = 0;
+    let html = '<table><thead><tr><th>เดือน</th><th class="num">รายรับ</th><th class="num">รายจ่าย</th><th class="num">สุทธิ</th><th aria-hidden="true">เปรียบเทียบ</th></tr></thead><tbody>';
+    rows.forEach((r,i)=>{
+      ti += Number(r.income)||0; te += Number(r.expense)||0;
+      html += `<tr><td>${thMonths[i]}</td><td class="num">${money(r.income)}</td><td class="num">${money(r.expense)}</td><td class="num ${r.net<0?'neg':r.net>0?'pos':''}"><b>${money(r.net)}</b></td>
+        <td aria-hidden="true"><div class="mini-bars"><span class="i" style="width:${r.income/max*100}%"></span><span class="e" style="width:${r.expense/max*100}%"></span></div></td></tr>`;
+    });
+    html += `</tbody><tfoot><tr><td>รวมทั้งปี ${esc(year)}</td><td class="num">${money(ti)}</td><td class="num">${money(te)}</td><td class="num ${ti-te<0?'neg':'pos'}">${money(ti-te)}</td><td></td></tr></tfoot></table>`;
+    $('reportTableWrap').innerHTML = tableWrap(html);
   });
-  document.getElementById('reportTableWrap').innerHTML = html + '</table>';
 }
 
 function downloadBase64File(base64, mimeType, fileName){
@@ -804,75 +1313,150 @@ function downloadBase64File(base64, mimeType, fileName){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = fileName; document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
+  document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function exportReport(format){
-  showToast('กำลังสร้างรายงาน... กรุณารอสักครู่');
-  const year = document.getElementById('reportYear').value;
-  const res = await apiPost('exportReport', { reportType:'income_expense_summary', fiscalYear: year, format });
-  if(!res.ok) return showToast(res.message||'สร้างรายงานไม่สำเร็จ', true);
-  downloadBase64File(res.base64, res.mimeType, res.fileName);
-  showToast('ดาวน์โหลดรายงานสำเร็จ');
+async function exportReport(format, btn){
+  await withBusy(btn, 'กำลังสร้างรายงาน...', async () => {
+    const year = $('reportYear').value;
+    const res = await apiPost('exportReport', { reportType:'income_expense_summary', fiscalYear: year, format });
+    if(!res.ok) return showToast(res.message||'สร้างรายงานไม่สำเร็จ', true);
+    downloadBase64File(res.base64, res.mimeType, res.fileName);
+    showToast('ดาวน์โหลดรายงานสำเร็จ');
+  });
 }
 
 /* ---------- Users ---------- */
-async function submitUser(){
-  const payload = {
-    name: document.getElementById('usrName').value, username: document.getElementById('usrUsername').value,
-    password: document.getElementById('usrPassword').value, role: document.getElementById('usrRole').value
-  };
-  const res = await apiPost('addUser', payload);
-  if(!res.ok) return showToast(res.message, true);
-  showToast('เพิ่มผู้ใช้สำเร็จ');
-  document.getElementById('usrName').value='';document.getElementById('usrUsername').value='';document.getElementById('usrPassword').value='';
-  loadUsers();
+async function submitUser(btn){
+  if(!validate([
+    ['usrName','required','กรุณาระบุชื่อ-สกุล'],
+    ['usrUsername', v => /^[A-Za-z0-9._-]{3,}$/.test(v), 'ใช้ตัวอักษรอังกฤษ ตัวเลข . _ - อย่างน้อย 3 ตัว'],
+    ['usrPassword', v => v.length >= 8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const payload = {
+      name: $('usrName').value.trim(), username: $('usrUsername').value.trim(),
+      password: $('usrPassword').value, role: $('usrRole').value
+    };
+    const res = await apiPost('addUser', payload);
+    if(!res.ok) return showToast(res.message, true);
+    showToast('เพิ่มผู้ใช้สำเร็จ');
+    $('usrName').value=''; $('usrUsername').value=''; $('usrPassword').value='';
+    loadUsers();
+  });
 }
 async function loadUsers(){
+  if(!$('usersTableWrap').innerHTML) $('usersTableWrap').innerHTML = skeleton(3);
   const res = await apiGet('getUsers');
-  if(!res.ok) return showToast(res.message, true);
+  if(!res.ok){ $('usersTableWrap').innerHTML = emptyState('lock','ไม่สามารถโหลดรายชื่อผู้ใช้'); return showToast(res.message, true); }
   const rows = res.data||[];
-  let html = '<table><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th></tr>';
-  rows.forEach(u=>{ html += `<tr><td>${u.name}</td><td>${u.username}</td><td>${roleLabel(u.role)}</td></tr>`; });
-  document.getElementById('usersTableWrap').innerHTML = html + '</table>';
+  let html = '<table><thead><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th><th>สถานะ</th><th>รหัสผ่าน</th></tr></thead><tbody>';
+  rows.forEach(u=>{
+    const active = !(u.active === false || u.active === 'FALSE');
+    html += `<tr><td>${esc(u.name)}${u.email?`<span class="sub">${esc(u.email)}</span>`:''}</td><td>${esc(u.username)}</td><td>${esc(roleLabel(u.role))}</td><td>${active?'<span class="badge badge-approved">ใช้งาน</span>':'<span class="badge badge-neutral">ปิดใช้งาน</span>'}</td><td><button class="btn btn-outline btn-sm" onclick="openPwModal('${esc(u.user_id)}','${esc(u.name)}')"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ต</button></td></tr>`;
+  });
+  $('usersTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
 }
 
 /* ---------- Settings (บัญชีธนาคาร) ---------- */
 async function loadSettings(){
-  const res = await apiGet('getConfig');
+  const [res, dash] = await Promise.all([apiGet('getConfig'), apiGet('getDashboard')]);
   if(res.ok && res.data){
     const c = res.data;
-    document.getElementById('cfgBankName').value = c.bank_name || '';
-    document.getElementById('cfgSavingsNo').value = c.savings_account_no || '';
-    document.getElementById('cfgSavingsName').value = c.savings_account_name || '';
-    document.getElementById('cfgFixedDeposit').value = c.fixed_deposit_account_no || '';
+    $('cfgBankName').value = c.bank_name || '';
+    $('cfgSavingsNo').value = c.savings_account_no || '';
+    $('cfgSavingsName').value = c.savings_account_name || '';
+    $('cfgFixedDeposit').value = c.fixed_deposit_account_no || '';
   }
-  const dash = await apiGet('getDashboard');
   if(dash.ok && dash.data){
-    document.getElementById('cfgLifetimeCurrentDisplay').value = '฿ ' + money(dash.data.lifetimeFundBalance);
-    document.getElementById('cfgLifetimeNewAmount').value = dash.data.lifetimeFundBalance;
+    $('cfgLifetimeCurrentDisplay').value = '฿ ' + money(dash.data.lifetimeFundBalance);
+    $('cfgLifetimeNewAmount').value = dash.data.lifetimeFundBalance;
   }
 }
-async function submitSettings(){
-  const payload = {
-    bank_name: document.getElementById('cfgBankName').value,
-    savings_account_no: document.getElementById('cfgSavingsNo').value,
-    savings_account_name: document.getElementById('cfgSavingsName').value,
-    fixed_deposit_account_no: document.getElementById('cfgFixedDeposit').value
-  };
-  const res = await apiPost('updateConfig', payload);
-  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
-  showToast('บันทึกการตั้งค่าสำเร็จ');
-  bankInfoLoaded = false; // ให้หน้ารายรับโหลดข้อมูลใหม่ครั้งถัดไป
+async function submitSettings(btn){
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const payload = {
+      bank_name: $('cfgBankName').value.trim(),
+      savings_account_no: $('cfgSavingsNo').value.trim(),
+      savings_account_name: $('cfgSavingsName').value.trim(),
+      fixed_deposit_account_no: $('cfgFixedDeposit').value.trim()
+    };
+    const res = await apiPost('updateConfig', payload);
+    if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+    showToast('บันทึกการตั้งค่าสำเร็จ');
+    bankInfoLoaded = false; // ให้หน้ารายรับโหลดข้อมูลใหม่ครั้งถัดไป
+  });
 }
-async function submitLifetimeFund(){
-  const amount = document.getElementById('cfgLifetimeNewAmount').value;
-  const note = document.getElementById('cfgLifetimeNote').value;
-  const res = await apiPost('setLifetimeFundBalance', { amount, note });
-  if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
-  showToast(res.message);
-  loadSettings(); loadDashboard();
+async function submitLifetimeFund(btn){
+  if(!validate([['cfgLifetimeNewAmount','nonneg','กรุณาระบุยอด (0 ขึ้นไป)']])) return;
+  const amount = $('cfgLifetimeNewAmount').value;
+  if(!confirm('ยืนยันปรับยอดเงินบำรุงตลอดชีพเป็น ฿' + money(amount) + ' ?\nระบบจะลงบัญชีคู่ปรับยอดและบันทึกในประวัติการใช้งาน')) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const res = await apiPost('setLifetimeFundBalance', { amount, note: $('cfgLifetimeNote').value.trim() });
+    if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
+    showToast(res.message);
+    $('cfgLifetimeNote').value = '';
+    loadSettings();
+  });
 }
+
+/* ---------- รหัสผ่าน: เปลี่ยนของตนเอง (ทุกบทบาท) / รีเซ็ตให้ผู้อื่น (admin) ---------- */
+let pwResetTarget = null;
+function openPwModal(userId, userName){
+  pwResetTarget = userId || null;
+  lastFocus = document.activeElement;
+  const reset = !!pwResetTarget;
+  $('pwModalTitle').innerHTML = reset ? '<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ตรหัสผ่าน' : '<i class="bi bi-key" aria-hidden="true"></i> เปลี่ยนรหัสผ่าน';
+  $('pwModalSub').textContent = reset
+    ? 'ตั้งรหัสผ่านชั่วคราวให้ ' + userName + ' แล้วแจ้งให้เจ้าของบัญชีเปลี่ยนเองหลังเข้าสู่ระบบ'
+    : 'รหัสผ่านถูกเก็บแบบเข้ารหัส (hash) ผู้ดูแลระบบก็ไม่สามารถดูรหัสผ่านของท่านได้';
+  $('pwCurrentGroup').classList.toggle('hidden', reset);
+  $('pwUsernameHint').value = reset ? '' : state.name;
+  ['pwCurrent','pwNew','pwConfirm'].forEach(id => { $(id).value=''; $(id).removeAttribute('aria-invalid'); });
+  document.querySelectorAll('#pwModalOverlay .field-error').forEach(e=>e.remove());
+  toggleNav(false);
+  $('pwModalOverlay').classList.remove('hidden');
+  (reset ? $('pwNew') : $('pwCurrent')).focus();
+}
+function closePwModal(){ $('pwModalOverlay').classList.add('hidden'); pwResetTarget=null; if(lastFocus) lastFocus.focus(); }
+async function submitPassword(btn){
+  const rules = [];
+  if(!pwResetTarget) rules.push(['pwCurrent','required','กรุณากรอกรหัสผ่านปัจจุบัน']);
+  rules.push(['pwNew', v => v.length >= 8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร']);
+  rules.push(['pwConfirm', v => v === $('pwNew').value.trim(), 'รหัสผ่านยืนยันไม่ตรงกัน']);
+  if(!validate(rules)) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const res = pwResetTarget
+      ? await apiPost('resetPassword', { userId: pwResetTarget, newPassword: $('pwNew').value })
+      : await apiPost('changePassword', { currentPassword: $('pwCurrent').value, newPassword: $('pwNew').value });
+    if(!res.ok) return showToast(res.message || 'บันทึกไม่สำเร็จ', true);
+    showToast(res.message);
+    closePwModal();
+  });
+}
+
+/* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
+document.addEventListener('keydown', e => {
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  if(e.key === 'Escape'){
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal})[openModal.id](); return; }
+    if($('sidebar').classList.contains('open')) toggleNav(false);
+  }
+  if(e.key === 'Tab' && openModal){
+    const f = Array.from(openModal.querySelectorAll('button:not([disabled]),input:not([disabled]):not([tabindex="-1"]),select,textarea')).filter(el => el.offsetParent !== null);
+    const first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+    else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+  }
+});
+
+/* ---------- คืนสถานะการเข้าสู่ระบบเมื่อรีเฟรชหน้า (ภายในแท็บเดียวกัน) ---------- */
+(function restoreSession(){
+  try{
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+    if(s && s.token) enterApp(s);
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
