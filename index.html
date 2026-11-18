@@ -135,6 +135,13 @@ input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
 .logout-btn{flex:0 0 40px;min-width:40px !important;color:rgba(255,255,255,.85);background:none;border:none;cursor:pointer;min-width:44px;min-height:44px;font-size:19px;border-radius:10px}
 .logout-btn:hover{background:rgba(255,255,255,.1)}
 .user-box{flex-wrap:wrap}
+.sb-email{display:block;max-width:100%;background:none;border:none;padding:2px 0;margin:0;font:inherit;font-size:11.5px;color:rgba(255,255,255,.65);cursor:pointer;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-email:hover{color:#fff;text-decoration:underline}
+.sb-email.missing{color:var(--tu-gold-light)}
+.nav-item .nav-warn{background:var(--tu-gold-light);color:#2e2500;font-weight:600;white-space:nowrap}
+.email-status{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:9px 12px;border-radius:9px;margin-top:12px}
+.email-status.ok{background:var(--income-tint);color:#065f46}
+.email-status.none{background:var(--warn-tint);color:#5c3205}
 /* ไฟล์หลักฐานคำขอเบิกจ่าย */
 .file-drop{border:1.5px dashed var(--line-strong);border-radius:10px;padding:12px 14px;background:#fbfaf7;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .file-drop.drag{border-color:var(--tu-gold);background:#fffbeb}
@@ -344,15 +351,16 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
       <div class="nav-group-label admin-group hidden">ผู้ดูแล</div>
       <button class="nav-item admin-only hidden" data-page="users" onclick="showPage('users')"><i class="bi bi-people" aria-hidden="true"></i> ผู้ใช้งาน</button>
       <button class="nav-item settings-only hidden" data-page="settings" onclick="showPage('settings')"><i class="bi bi-gear" aria-hidden="true"></i> ตั้งค่า</button>
+      <div class="nav-group-label">บัญชีของฉัน</div>
+      <button class="nav-item" type="button" onclick="openEmailModal()"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมลของฉัน <span class="nav-count nav-warn hidden" id="navEmailMissing">ยังไม่ตั้ง</span></button>
+      <button class="nav-item" type="button" onclick="openPwModal()"><i class="bi bi-key" aria-hidden="true"></i> เปลี่ยนรหัสผ่าน</button>
 
       <div class="spacer"></div>
       <div class="user-box">
         <div class="avatar" id="sbAvatar" aria-hidden="true">-</div>
-        <div style="flex:1;min-width:0"><b id="sbUserName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</b><span id="sbUserRole">-</span></div>
+        <div style="flex:1;min-width:0"><b id="sbUserName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</b><span id="sbUserRole">-</span><button type="button" class="sb-email" id="sbUserEmail" onclick="openEmailModal()" title="แก้ไขอีเมลรับแจ้งเตือน"></button></div>
         <div class="user-actions">
-          <button class="logout-btn" onclick="openEmailModal()" aria-label="อีเมลรับแจ้งเตือน" title="อีเมลรับแจ้งเตือน"><i class="bi bi-envelope" aria-hidden="true"></i></button>
-          <button class="logout-btn" onclick="openPwModal()" aria-label="เปลี่ยนรหัสผ่าน" title="เปลี่ยนรหัสผ่าน"><i class="bi bi-key" aria-hidden="true"></i></button>
-          <button class="logout-btn" onclick="doLogout()" aria-label="ออกจากระบบ" title="ออกจากระบบ"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
+          <button class="logout-btn" onclick="doLogout()" style="flex:1 1 auto;width:100%;font-size:13.5px;display:flex;align-items:center;gap:8px;padding:0 8px"><i class="bi bi-box-arrow-right" aria-hidden="true" style="font-size:17px"></i> ออกจากระบบ</button>
         </div>
       </div>
     </nav>
@@ -690,10 +698,12 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
   <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" onsubmit="event.preventDefault(); submitEmail(this.querySelector('button[type=submit]'));" novalidate>
     <h2 id="emailModalTitle"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมลรับแจ้งเตือน</h2>
     <p class="page-sub" id="emailModalSub">ระบบจะส่งอีเมลเมื่อมีคำขอเบิกจ่ายรอท่านดำเนินการ และเมื่อคำขอของท่านมีความคืบหน้า (ตรวจสอบ → อนุมัติ → จ่ายเงิน)</p>
+    <div class="email-status hidden" id="emailStatus" role="status"></div>
     <div class="form-group" style="margin-top:14px"><label for="emailInput">อีเมล</label><input type="email" id="emailInput" autocomplete="email" placeholder="name@example.com"><div class="help">เว้นว่างแล้วบันทึก = ไม่รับแจ้งเตือน</div></div>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกอีเมล</button>
-      <button type="button" class="btn btn-outline" onclick="closeEmailModal()">ยกเลิก</button>
+      <button type="button" class="btn btn-outline" id="emailTestBtn" onclick="sendTestEmail(this)"><i class="bi bi-send-check" aria-hidden="true"></i> ส่งอีเมลทดสอบ</button>
+      <button type="button" class="btn btn-outline" onclick="closeEmailModal()">ปิด</button>
     </div>
   </form>
 </div>
@@ -936,8 +946,7 @@ function applyRoleVisibility(){
 function doLogout(){
   state = { token:null, name:'', role:'', userId:'' };
   cache = { income: [], expenses: [], projects: [] };
-  bankInfoLoaded = false; myEmail = null;
-  $('emailReminder').classList.add('hidden');
+  bankInfoLoaded = false; myEmail = null; renderMyEmail();
   try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
   applyRoleVisibility();
   document.querySelectorAll('.admin-only,.admin-group,.settings-only').forEach(el => el.classList.add('hidden'));
@@ -1738,7 +1747,16 @@ async function loadMyProfile(){
   const res = await apiPost('getMyProfile', {});
   if(!res.ok || !res.data) return;
   myEmail = res.data.email || '';
-  $('emailReminder').classList.toggle('hidden', !!myEmail);
+  renderMyEmail();
+}
+/* แสดงสถานะอีเมลของตนเองในเมนู / กล่องผู้ใช้ / แดชบอร์ด */
+function renderMyEmail(){
+  const has = !!myEmail;
+  $('emailReminder').classList.toggle('hidden', has || myEmail === null);
+  $('navEmailMissing').classList.toggle('hidden', has || myEmail === null);
+  const sb = $('sbUserEmail');
+  sb.textContent = has ? myEmail : (myEmail === null ? '' : '+ เพิ่มอีเมลรับแจ้งเตือน');
+  sb.classList.toggle('missing', !has);
 }
 function openEmailModal(userId, userName, currentEmail){
   emailTarget = userId || null;
@@ -1746,6 +1764,16 @@ function openEmailModal(userId, userName, currentEmail){
   const other = !!emailTarget && emailTarget !== state.userId;
   $('emailModalTitle').innerHTML = '<i class="bi bi-envelope" aria-hidden="true"></i> ' + (other ? 'อีเมลของ ' + esc(userName) : 'อีเมลรับแจ้งเตือนของฉัน');
   $('emailInput').value = other ? (currentEmail || '') : (myEmail || '');
+  // ปุ่มทดสอบ/สถานะ แสดงเฉพาะอีเมลของตนเอง
+  $('emailTestBtn').classList.toggle('hidden', other);
+  const st = $('emailStatus');
+  st.classList.toggle('hidden', other);
+  if(!other){
+    st.className = 'email-status ' + (myEmail ? 'ok' : 'none');
+    st.innerHTML = myEmail
+      ? `<i class="bi bi-check-circle" aria-hidden="true"></i> ปัจจุบันรับแจ้งเตือนที่ <b>${esc(myEmail)}</b>`
+      : '<i class="bi bi-exclamation-triangle" aria-hidden="true"></i> ยังไม่ได้ตั้งอีเมล — ท่านจะไม่ได้รับแจ้งเตือนใดๆ';
+  }
   $('emailInput').removeAttribute('aria-invalid');
   document.querySelectorAll('#emailModalOverlay .field-error').forEach(e=>e.remove());
   toggleNav(false);
@@ -1760,9 +1788,22 @@ async function submitEmail(btn){
     const res = await apiPost('updateUserEmail', emailTarget ? { userId: emailTarget, email } : { email });
     if(!res.ok) return showToast(res.message || 'บันทึกไม่สำเร็จ', true);
     showToast(res.message);
-    if(!emailTarget || emailTarget === state.userId){ myEmail = email; $('emailReminder').classList.toggle('hidden', !!email); }
+    const self = !emailTarget || emailTarget === state.userId;
+    if(self){ myEmail = email; renderMyEmail(); }
     closeEmailModal();
+    if(self && email) showToast('กด "ส่งอีเมลทดสอบ" ในเมนู อีเมลรับแจ้งเตือน เพื่อตรวจว่าได้รับอีเมลจริง', false, 'info');
     if(!$('page-users').classList.contains('hidden')) loadUsers();
+  });
+}
+
+/* ส่งอีเมลทดสอบไปยังอีเมลที่บันทึกไว้ (ถ้าแก้ในช่องแต่ยังไม่บันทึก ให้บันทึกก่อน) */
+async function sendTestEmail(btn){
+  const typed = $('emailInput').value.trim();
+  if(!myEmail) return showToast('กรุณาบันทึกอีเมลก่อนส่งอีเมลทดสอบ', true);
+  if(typed !== myEmail) return showToast('อีเมลในช่องยังไม่ได้บันทึก — กด "บันทึกอีเมล" ก่อน แล้วค่อยทดสอบ', true);
+  await withBusy(btn, 'กำลังส่ง...', async () => {
+    const res = await apiPost('sendTestEmail', {});
+    showToast(res.message || (res.ok ? 'ส่งแล้ว' : 'ส่งไม่สำเร็จ'), !res.ok);
   });
 }
 
