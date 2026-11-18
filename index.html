@@ -504,6 +504,14 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
           <div class="form-row">
             <div class="form-group"><label for="prjFiscalYear">ปีงบประมาณ <span class="req">*</span></label><select id="prjFiscalYear"></select><div class="help" id="prjFiscalHint"></div></div>
           </div>
+          <div class="form-group"><label for="prjEvidenceInput">ไฟล์หลักฐานโครงการ <span class="opt">(ไม่บังคับ · สูงสุด 3 ไฟล์ ไฟล์ละไม่เกิน 10 MB)</span></label>
+            <div class="file-drop" id="prjEvidenceDrop">
+              <button type="button" class="btn btn-outline btn-sm" onclick="$('prjEvidenceInput').click()"><i class="bi bi-paperclip" aria-hidden="true"></i> เลือกไฟล์</button>
+              <span class="hint">เช่น เอกสารเสนอโครงการ มติที่ประชุม ใบเสนอราคา (รูปภาพ/PDF) — ลากไฟล์มาวางที่นี่ได้</span>
+              <input type="file" id="prjEvidenceInput" accept="image/*,.pdf" multiple class="sr-only" tabindex="-1" onchange="onEvidencePicked('prj', this.files); this.value='';">
+            </div>
+            <ul class="file-list" id="prjEvidenceList" aria-live="polite"></ul>
+          </div>
           <div class="form-actions"><button class="btn btn-primary" onclick="submitProject(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกโครงการ</button></div>
         </details>
         <div class="card">
@@ -521,7 +529,10 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
           <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> เพิ่มรายการทรัพย์สิน</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
             <div class="form-group"><label for="astName">ชื่อทรัพย์สิน <span class="req">*</span></label><input id="astName" required></div>
-            <div class="form-group"><label for="astCategory">หมวดหมู่</label><input id="astCategory" list="astCategoryList" placeholder="เช่น ครุภัณฑ์สำนักงาน, อุปกรณ์กิจกรรม"><datalist id="astCategoryList"><option value="ครุภัณฑ์สำนักงาน"><option value="อุปกรณ์กิจกรรม"><option value="ทั่วไป"></datalist></div>
+            <div class="form-group"><label for="astCategory">หมวดหมู่ <span class="req">*</span></label>
+              <select id="astCategory" onchange="onAssetCategoryChange()"></select>
+              <input id="astCategoryOther" class="hidden" style="margin-top:8px" placeholder="ระบุหมวดหมู่" aria-label="ระบุหมวดหมู่อื่นๆ">
+            </div>
           </div>
           <div class="form-row">
             <div class="form-group"><label for="astValue">มูลค่า (บาท) <span class="req">*</span></label><input type="number" id="astValue" inputmode="decimal" min="0" step="0.01" required></div>
@@ -532,7 +543,9 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
         </details>
         <div class="kpi-grid" id="assetsKpiGrid"></div>
         <div class="card">
-          <div class="card-head"><h2><i class="bi bi-list-ul" aria-hidden="true"></i> รายการทรัพย์สินทั้งหมด</h2></div>
+          <div class="card-head"><h2><i class="bi bi-list-ul" aria-hidden="true"></i> รายการทรัพย์สินทั้งหมด</h2>
+            <select id="astFilterCat" aria-label="กรองตามหมวดหมู่" onchange="renderAssetsTable()" style="width:auto;min-width:180px"><option value="">ทุกหมวดหมู่</option></select>
+          </div>
           <div id="assetsTableWrap"></div>
         </div>
       </section>
@@ -692,6 +705,29 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
       <button class="btn btn-outline" onclick="closeDeleteExpModal()">ยกเลิก</button>
     </div>
   </div>
+</div>
+
+<!-- Modal: แก้ไขโครงการ / งบประมาณ -->
+<div id="editPrjModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeEditProject()">
+  <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="editPrjTitle" onsubmit="event.preventDefault(); confirmEditProject(this.querySelector('button[type=submit]'));" novalidate>
+    <h2 id="editPrjTitle"><i class="bi bi-pencil-square" aria-hidden="true"></i> แก้ไขโครงการ / งบประมาณ</h2>
+    <p class="page-sub" id="editPrjSub"></p>
+    <div class="form-group" style="margin-top:14px"><label for="editPrjName">ชื่อโครงการ <span class="req">*</span></label><input id="editPrjName"></div>
+    <div class="form-group"><label for="editPrjBudget">งบประมาณ (บาท) <span class="req">*</span></label><input type="number" id="editPrjBudget" inputmode="decimal" min="0" step="0.01"><div class="help" id="editPrjBudgetHint"></div></div>
+    <div class="form-group"><label for="editPrjFiscalYear">ปีงบประมาณ <span class="req">*</span></label><select id="editPrjFiscalYear" onchange="$('editPrjFiscalHint').textContent = fiscalRangeLabel(Number(this.value))"></select><div class="help" id="editPrjFiscalHint"></div></div>
+    <div class="form-group"><label for="prjEditEvidenceInput">ไฟล์หลักฐานโครงการ <span class="opt">(ไม่บังคับ · สูงสุด 3 ไฟล์ ไฟล์ละไม่เกิน 10 MB)</span></label>
+            <div class="file-drop" id="prjEditEvidenceDrop">
+              <button type="button" class="btn btn-outline btn-sm" onclick="$('prjEditEvidenceInput').click()"><i class="bi bi-paperclip" aria-hidden="true"></i> เลือกไฟล์</button>
+              <span class="hint">เช่น เอกสารเสนอโครงการ มติที่ประชุม ใบเสนอราคา (รูปภาพ/PDF) — ลากไฟล์มาวางที่นี่ได้</span>
+              <input type="file" id="prjEditEvidenceInput" accept="image/*,.pdf" multiple class="sr-only" tabindex="-1" onchange="onEvidencePicked('prjEdit', this.files); this.value='';">
+            </div>
+            <ul class="file-list" id="prjEditEvidenceList" aria-live="polite"></ul>
+          </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกการแก้ไข</button>
+      <button type="button" class="btn btn-outline" onclick="closeEditProject()">ยกเลิก</button>
+    </div>
+  </form>
 </div>
 
 <!-- Modal: ปิด/เปิดการใช้งาน หรือ ลบผู้ใช้ (ผู้ดูแลระบบ) -->
@@ -1004,7 +1040,7 @@ function showPage(name){
 
 async function initApp(){
   $('incDate').value = localDateStr();
-  initFiscalYearSelect();
+  initFiscalYearSelect(); fillAssetCategories([]);
   loadMyProfile();
   await loadProjectsIntoSelect();
   const fromHash = (location.hash||'').replace('#','');
@@ -1274,7 +1310,7 @@ function expenseActionButtons(r){
 /* --- ไฟล์หลักฐานการเบิก (สูงสุด 3 ไฟล์) ---
    evidence[key] = [{ file: File }  (ไฟล์ใหม่ รออัปโหลด)  |  { name, url }  (ไฟล์ที่แนบไว้แล้ว)] */
 const MAX_EVIDENCE_FILES = 3, MAX_EVIDENCE_BYTES = 10 * 1024 * 1024;
-const evidence = { exp: [], edit: [] };
+const evidence = { exp: [], edit: [], prj: [], prjEdit: [] };
 function parseEvidence(v){ if(!v) return []; try{ const a = JSON.parse(v); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
 function fmtSize(b){ return b >= 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1, Math.round(b/1024))+' KB'; }
 function onEvidencePicked(key, fileList){
@@ -1314,19 +1350,19 @@ async function uploadEvidence(key, btn){
     n++; if(btn) btn.innerHTML = `<span class="spinner" aria-hidden="true"></span> กำลังอัปโหลดไฟล์ ${n}/${pending}...`;
     const info = await new Promise((resolve, reject) => {
       const r = new FileReader();
-      r.onload = () => resolve({ fileName: 'เบิกจ่าย_' + localDateStr() + '_' + x.file.name, mimeType: x.file.type || 'application/octet-stream', base64Data: String(r.result).split(',')[1] });
+      r.onload = () => resolve({ fileName: (key.indexOf('prj') === 0 ? 'โครงการ_' : 'เบิกจ่าย_') + localDateStr() + '_' + x.file.name, mimeType: x.file.type || 'application/octet-stream', base64Data: String(r.result).split(',')[1] });
       r.onerror = reject; r.readAsDataURL(x.file);
     });
     const res = await apiPost('uploadFile', info);
     if(!res.ok){ showToast('อัปโหลด ' + x.file.name + ' ไม่สำเร็จ: ' + (res.message||''), true); return null; }
     // เก็บผลไว้ — ถ้าขั้นถัดไปล้มเหลวแล้วกดส่งใหม่ จะไม่อัปโหลดซ้ำ
-    delete x.file; x.name = info.fileName.replace(/^เบิกจ่าย_\d{4}-\d{2}-\d{2}_/, ''); x.url = res.url;
+    delete x.file; x.name = info.fileName.replace(/^(เบิกจ่าย|โครงการ)_\d{4}-\d{2}-\d{2}_/, ''); x.url = res.url;
     out.push({ name: x.name, url: x.url });
   }
   return out;
 }
 /* ลากไฟล์มาวาง */
-['exp','edit'].forEach(key => {
+['exp','edit','prj','prjEdit'].forEach(key => {
   const el = $(key+'EvidenceDrop'); if(!el) return;
   el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag'); });
   el.addEventListener('dragleave', () => el.classList.remove('drag'));
@@ -1540,11 +1576,15 @@ async function submitProject(btn){
     ['prjBudget','positive','กรุณาระบุงบประมาณที่มากกว่า 0']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
-    const payload = { name: $('prjName').value.trim(), budgetAmount: $('prjBudget').value, fiscalYear: Number($('prjFiscalYear').value) };
+    const files = await uploadEvidence('prj', btn);
+    if(files === null) return;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> กำลังบันทึก...';
+    const payload = { name: $('prjName').value.trim(), budgetAmount: $('prjBudget').value, fiscalYear: Number($('prjFiscalYear').value), evidenceFiles: files };
     const res = await apiPost('addProject', payload);
     if(!res.ok) return showToast(res.message, true);
-    showToast('บันทึกโครงการสำเร็จ (ปีงบประมาณ ' + payload.fiscalYear + ')');
+    showToast('บันทึกโครงการสำเร็จ (ปีงบประมาณ ' + payload.fiscalYear + (files.length ? ' · แนบหลักฐาน ' + files.length + ' ไฟล์' : '') + ')');
     $('prjName').value=''; $('prjBudget').value=''; $('prjFiscalYear').value = currentFiscalYear(); updateFiscalHint();
+    evidence.prj = []; renderEvidenceList('prj');
     loadProjects(); loadProjectsIntoSelect();
   });
 }
@@ -1573,7 +1613,7 @@ function renderProjectsTable(){
   if(!cache.projects.length){ $('projectsTableWrap').innerHTML = emptyState('kanban','ยังไม่มีโครงการ'); return; }
   if(!rows.length){ $('projectsTableWrap').innerHTML = emptyState('funnel','ไม่มีโครงการในปีงบประมาณนี้'); return; }
   const curFy = currentFiscalYear();
-  let html = '<table><thead><tr><th>โครงการ</th><th class="num">งบประมาณ</th><th class="num">จ่ายแล้ว</th><th class="num">คำขอค้าง<span style="display:block;font-weight:400;font-size:11.5px">รออนุมัติ/รอจ่าย</span></th><th class="num">ยื่นเพิ่มได้</th><th>การใช้งบ</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>โครงการ</th><th class="num">งบประมาณ</th><th class="num">จ่ายแล้ว</th><th class="num">คำขอค้าง<span style="display:block;font-weight:400;font-size:11.5px">รออนุมัติ/รอจ่าย</span></th><th class="num">ยื่นเพิ่มได้</th><th>การใช้งบ</th>' + (canEditProjects() ? '<th>จัดการ</th>' : '') + '</tr></thead><tbody>';
   rows.forEach(p=>{
     const budget = Number(p.budget_amount)||0, used = Number(p.used_amount)||0;
     const committed = Number(p.committed_amount)||0, avail = availableOf(p);
@@ -1582,22 +1622,88 @@ function renderProjectsTable(){
     const pct = Math.round(pctUsed + pctCommit);
     const lvl = pct >= 90 ? 'high' : pct >= 70 ? 'mid' : '';
     const fyTag = Number(p.fiscal_year) === curFy ? ' <span class="badge badge-approved">ปีงบปัจจุบัน</span>' : '';
-    html += `<tr><td>${esc(p.name)}<span class="sub">ปีงบประมาณ ${esc(p.fiscal_year||'-')}${fyTag}</span></td><td class="num">${money(budget)}</td><td class="num">${money(used)}</td><td class="num">${committed?money(committed):'<span style="color:var(--muted)">-</span>'}</td><td class="num ${avail<0?'neg':''}"><b>${money(avail)}</b></td>
-      <td style="min-width:150px"><div class="progress ${lvl}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="จ่ายแล้ว ${Math.round(pctUsed)}% และจองไว้ ${Math.round(pctCommit)}% ของงบ"><span style="width:${pctUsed}%"></span><span class="c" style="width:${pctCommit}%"></span></div><span class="sub">${pct}% (จ่ายแล้ว ${Math.round(pctUsed)}% · จองไว้ ${Math.round(pctCommit)}%)</span></td></tr>`;
+    const edited = p.updated_at ? `<span class="sub" title="แก้ไขล่าสุดโดย ${esc(p.updated_by||'')}">แก้ไขล่าสุด ${esc(thaiDate(p.updated_at))}</span>` : '';
+    html += `<tr><td>${esc(p.name)}<span class="sub">ปีงบประมาณ ${esc(p.fiscal_year||'-')}${fyTag}</span>${evidenceLinksHtml(p)}${edited}</td><td class="num">${money(budget)}</td><td class="num">${money(used)}</td><td class="num">${committed?money(committed):'<span style="color:var(--muted)">-</span>'}</td><td class="num ${avail<0?'neg':''}"><b>${money(avail)}</b></td>
+      <td style="min-width:150px"><div class="progress ${lvl}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="จ่ายแล้ว ${Math.round(pctUsed)}% และจองไว้ ${Math.round(pctCommit)}% ของงบ"><span style="width:${pctUsed}%"></span><span class="c" style="width:${pctCommit}%"></span></div><span class="sub">${pct}% (จ่ายแล้ว ${Math.round(pctUsed)}% · จองไว้ ${Math.round(pctCommit)}%)</span></td>${canEditProjects() ? `<td><button class="btn btn-outline btn-sm" onclick="openEditProject('${esc(p.project_id)}')" aria-label="แก้ไขโครงการ ${esc(p.name)}"><i class="bi bi-pencil" aria-hidden="true"></i> แก้ไข</button></td>` : ''}</tr>`;
   });
   $('projectsTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
 }
 
+/* --- แก้ไขโครงการ / งบประมาณ (ผู้ดูแลระบบ / นายก / เหรัญญิก — สิทธิ์เดียวกับตั้งโครงการ) --- */
+function canEditProjects(){ return ['admin','treasurer','president'].includes(state.role); }
+let editPrjId = null;
+function openEditProject(projectId){
+  const p = cache.projects.find(x => x.project_id === projectId); if(!p) return;
+  editPrjId = projectId; lastFocus = document.activeElement;
+  const used = Number(p.used_amount)||0, committed = Number(p.committed_amount)||0;
+  $('editPrjSub').textContent = 'รหัส ' + p.project_id + (p.updated_at ? ' · แก้ไขล่าสุด ' + thaiDate(p.updated_at) + (p.updated_by ? ' โดย ' + p.updated_by : '') : '');
+  $('editPrjName').value = p.name || '';
+  $('editPrjBudget').value = Number(p.budget_amount) || '';
+  $('editPrjBudget').min = used + committed;
+  $('editPrjBudgetHint').textContent = (used + committed) > 0
+    ? 'ลดได้ไม่ต่ำกว่า ฿' + money(used + committed) + ' (จ่ายแล้ว ฿' + money(used) + ' + คำขอค้าง ฿' + money(committed) + ')'
+    : 'ยังไม่มีการใช้งบ — ปรับได้อิสระ';
+  const cur = currentFiscalYear(), pfy = Number(p.fiscal_year) || cur;
+  const years = Array.from(new Set([pfy, cur-1, cur, cur+1])).sort();
+  $('editPrjFiscalYear').innerHTML = years.map(y => `<option value="${y}">${y}${y===cur?' (ปีงบปัจจุบัน)':''}</option>`).join('');
+  $('editPrjFiscalYear').value = pfy; $('editPrjFiscalHint').textContent = fiscalRangeLabel(pfy);
+  evidence.prjEdit = parseEvidence(p.evidence_files).map(f => ({ name: f.name, url: f.url }));
+  renderEvidenceList('prjEdit');
+  document.querySelectorAll('#editPrjModalOverlay .field-error').forEach(e=>e.remove());
+  ['editPrjName','editPrjBudget'].forEach(id => $(id).removeAttribute('aria-invalid'));
+  $('editPrjModalOverlay').classList.remove('hidden');
+  $('editPrjName').focus();
+}
+function closeEditProject(){ $('editPrjModalOverlay').classList.add('hidden'); editPrjId = null; if(lastFocus) lastFocus.focus(); }
+async function confirmEditProject(btn){
+  if(!editPrjId) return;
+  const p = cache.projects.find(x => x.project_id === editPrjId) || {};
+  const floor = (Number(p.used_amount)||0) + (Number(p.committed_amount)||0);
+  if(!validate([
+    ['editPrjName','required','กรุณาระบุชื่อโครงการ'],
+    ['editPrjBudget','positive','กรุณาระบุงบประมาณที่มากกว่า 0'],
+    ['editPrjBudget', v => Number(v) >= floor, 'ลดงบได้ไม่ต่ำกว่า ฿' + money(floor) + ' (จ่ายแล้ว + คำขอค้าง)']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const files = await uploadEvidence('prjEdit', btn);
+    if(files === null) return;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> กำลังบันทึก...';
+    const res = await apiPost('updateProject', {
+      projectId: editPrjId, name: $('editPrjName').value.trim(), budgetAmount: $('editPrjBudget').value,
+      fiscalYear: Number($('editPrjFiscalYear').value), evidenceFiles: files
+    });
+    if(!res.ok) return showToast(res.message || 'บันทึกไม่สำเร็จ', true);
+    showToast(res.message); closeEditProject(); loadProjects(); loadProjectsIntoSelect();
+  });
+}
+
 /* ---------- Assets (บัญชีทรัพย์สินของสมาคม ข้อ 33) ---------- */
+/* หมวดหมู่ทรัพย์สินมาตรฐาน + หมวดที่เคยบันทึกไว้แล้ว + "อื่นๆ (ระบุ)" */
+const ASSET_CATEGORIES = ['ครุภัณฑ์สำนักงาน','คอมพิวเตอร์และอุปกรณ์ไอที','โสตทัศนูปกรณ์','อุปกรณ์กิจกรรม','เฟอร์นิเจอร์','ยานพาหนะ','ที่ดินและอาคาร','สินทรัพย์ไม่มีตัวตน (เว็บไซต์/ซอฟต์แวร์/ลิขสิทธิ์)','ของที่ระลึก/วัสดุคงคลัง','ทั่วไป'];
+function fillAssetCategories(existing){
+  const sel = $('astCategory'), keep = sel.value;
+  const extra = Array.from(new Set((existing||[]).map(a => String(a.category||'').trim()).filter(c => c && !ASSET_CATEGORIES.includes(c))));
+  sel.innerHTML = ASSET_CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('')
+    + (extra.length ? '<optgroup label="หมวดที่เคยใช้">' + extra.map(c => `<option>${esc(c)}</option>`).join('') + '</optgroup>' : '')
+    + '<option value="__other">อื่นๆ (ระบุเอง)</option>';
+  sel.value = keep && Array.from(sel.options).some(o => o.value === keep) ? keep : ASSET_CATEGORIES[0];
+  onAssetCategoryChange();
+}
+function onAssetCategoryChange(){
+  const other = $('astCategory').value === '__other';
+  $('astCategoryOther').classList.toggle('hidden', !other);
+  if(other) $('astCategoryOther').focus();
+}
 async function submitAsset(btn){
   if(!validate([
     ['astName','required','กรุณาระบุชื่อทรัพย์สิน'],
-    ['astValue','nonneg','กรุณาระบุมูลค่า (0 ขึ้นไป)']
+    ['astValue','nonneg','กรุณาระบุมูลค่า (0 ขึ้นไป)'],
+    ['astCategoryOther', v => $('astCategory').value !== '__other' || v.trim().length > 0, 'กรุณาระบุหมวดหมู่']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
     const payload = {
       name: $('astName').value.trim(),
-      category: $('astCategory').value.trim(),
+      category: $('astCategory').value === '__other' ? $('astCategoryOther').value.trim() : $('astCategory').value,
       value: $('astValue').value,
       location: $('astLocation').value.trim(),
       note: $('astNote').value.trim()
@@ -1605,7 +1711,8 @@ async function submitAsset(btn){
     const res = await apiPost('addAsset', payload);
     if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
     showToast('บันทึกทรัพย์สินสำเร็จ');
-    ['astName','astCategory','astValue','astLocation','astNote'].forEach(id=>$(id).value='');
+    ['astName','astValue','astLocation','astNote','astCategoryOther'].forEach(id=>$(id).value='');
+    $('astCategory').value = ASSET_CATEGORIES[0]; onAssetCategoryChange();
     loadAssets();
   });
 }
@@ -1614,14 +1721,27 @@ async function loadAssets(){
   const res = await apiGet('getAssets');
   if(!res.ok){ $('assetsTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
   const rows = res.data||[];
-
+  fillAssetCategories(rows);
+  assetsCache = rows;
+  // ตัวกรองตามหมวดหมู่
+  const fsel = $('astFilterCat'), keepF = fsel.value;
+  const cats = Array.from(new Set(rows.map(a => String(a.category||'ทั่วไป')))).sort();
+  fsel.innerHTML = '<option value="">ทุกหมวดหมู่</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+  fsel.value = cats.includes(keepF) ? keepF : '';
+  renderAssetsTable();
+}
+let assetsCache = [];
+function renderAssetsTable(){
+  const f = $('astFilterCat').value;
+  const all = assetsCache, rows = all.filter(a => !f || String(a.category||'ทั่วไป') === f);
   const totalValue = rows.reduce((s,a)=>s+Number(a.value||0),0);
   $('assetsKpiGrid').innerHTML = `
     <div class="kpi-card gold"><div class="label">มูลค่าทรัพย์สินรวม</div><div class="value">฿ ${money(totalValue)}</div></div>
-    <div class="kpi-card"><div class="label">จำนวนรายการ</div><div class="value">${rows.length} รายการ</div></div>
+    <div class="kpi-card"><div class="label">จำนวนรายการ</div><div class="value">${rows.length} รายการ</div>${f ? `<div class="note">หมวด ${esc(f)}</div>` : ''}</div>
   `;
 
-  if(!rows.length){ $('assetsTableWrap').innerHTML = emptyState('building','ยังไม่มีรายการทรัพย์สิน'); return; }
+  if(!all.length){ $('assetsTableWrap').innerHTML = emptyState('building','ยังไม่มีรายการทรัพย์สิน'); return; }
+  if(!rows.length){ $('assetsTableWrap').innerHTML = emptyState('funnel','ไม่มีทรัพย์สินในหมวดนี้'); return; }
   let html = '<table><thead><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th class="num">มูลค่า</th><th>สถานที่เก็บ</th></tr></thead><tbody>';
   rows.forEach(a=>{
     html += `<tr><td>${esc(a.name)}${a.note?`<span class="sub">${esc(a.note)}</span>`:''}</td><td>${esc(a.category)}</td><td style="white-space:nowrap">${thaiDate(a.acquired_date)}</td><td class="num">${money(a.value)}</td><td>${esc(a.location||'-')}</td></tr>`;
@@ -1918,9 +2038,9 @@ async function submitPassword(btn){
 
 /* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
 document.addEventListener('keydown', e => {
-  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay','userActionModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay','userActionModalOverlay','editPrjModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
   if(e.key === 'Escape'){
-    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal, userActionModalOverlay:closeUserAction})[openModal.id](); return; }
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal, userActionModalOverlay:closeUserAction, editPrjModalOverlay:closeEditProject})[openModal.id](); return; }
     if($('sidebar').classList.contains('open')) toggleNav(false);
   }
   if(e.key === 'Tab' && openModal){
