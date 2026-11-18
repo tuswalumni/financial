@@ -535,10 +535,13 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
             </div>
           </div>
           <div class="form-row">
+            <div class="form-group"><label for="astDate">วันที่ได้มา <span class="req">*</span></label><input type="date" id="astDate" required><div class="help">วันที่ซื้อ / รับบริจาค / ได้รับโอน (ไม่ใช่วันที่บันทึก)</div></div>
             <div class="form-group"><label for="astValue">มูลค่า (บาท) <span class="req">*</span></label><input type="number" id="astValue" inputmode="decimal" min="0" step="0.01" required></div>
-            <div class="form-group"><label for="astLocation">สถานที่เก็บ</label><input id="astLocation"></div>
           </div>
-          <div class="form-group"><label for="astNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="astNote"></div>
+          <div class="form-row">
+            <div class="form-group"><label for="astLocation">สถานที่เก็บ</label><input id="astLocation"></div>
+            <div class="form-group"><label for="astNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="astNote"></div>
+          </div>
           <div class="form-actions"><button class="btn btn-primary" onclick="submitAsset(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกทรัพย์สิน</button></div>
         </details>
         <div class="kpi-grid" id="assetsKpiGrid"></div>
@@ -705,6 +708,29 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
       <button class="btn btn-outline" onclick="closeDeleteExpModal()">ยกเลิก</button>
     </div>
   </div>
+</div>
+
+<!-- Modal: แก้ไขรายการทรัพย์สิน -->
+<div id="editAstModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeEditAsset()">
+  <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="editAstTitle" onsubmit="event.preventDefault(); confirmEditAsset(this.querySelector('button[type=submit]'));" novalidate>
+    <h2 id="editAstTitle"><i class="bi bi-pencil-square" aria-hidden="true"></i> แก้ไขรายการทรัพย์สิน</h2>
+    <p class="page-sub" id="editAstSub"></p>
+    <div class="form-group" style="margin-top:14px"><label for="editAstName">ชื่อทรัพย์สิน <span class="req">*</span></label><input id="editAstName"></div>
+    <div class="form-group"><label for="editAstCategory">หมวดหมู่ <span class="req">*</span></label>
+      <select id="editAstCategory" onchange="onAssetCategoryChange('editAst')"></select>
+      <input id="editAstCategoryOther" class="hidden" style="margin-top:8px" placeholder="ระบุหมวดหมู่" aria-label="ระบุหมวดหมู่อื่นๆ">
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label for="editAstDate">วันที่ได้มา <span class="req">*</span></label><input type="date" id="editAstDate"></div>
+      <div class="form-group"><label for="editAstValue">มูลค่า (บาท) <span class="req">*</span></label><input type="number" id="editAstValue" inputmode="decimal" min="0" step="0.01"></div>
+    </div>
+    <div class="form-group"><label for="editAstLocation">สถานที่เก็บ</label><input id="editAstLocation"></div>
+    <div class="form-group"><label for="editAstNote">หมายเหตุ <span class="opt">(ไม่บังคับ)</span></label><input id="editAstNote"></div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกการแก้ไข</button>
+      <button type="button" class="btn btn-outline" onclick="closeEditAsset()">ยกเลิก</button>
+    </div>
+  </form>
 </div>
 
 <!-- Modal: แก้ไขโครงการ / งบประมาณ -->
@@ -1041,6 +1067,7 @@ function showPage(name){
 async function initApp(){
   $('incDate').value = localDateStr();
   initFiscalYearSelect(); fillAssetCategories([]);
+  $('astDate').value = localDateStr(); $('astDate').max = localDateStr();
   loadMyProfile();
   await loadProjectsIntoSelect();
   const fromHash = (location.hash||'').replace('#','');
@@ -1680,30 +1707,76 @@ async function confirmEditProject(btn){
 /* ---------- Assets (บัญชีทรัพย์สินของสมาคม ข้อ 33) ---------- */
 /* หมวดหมู่ทรัพย์สินมาตรฐาน + หมวดที่เคยบันทึกไว้แล้ว + "อื่นๆ (ระบุ)" */
 const ASSET_CATEGORIES = ['ครุภัณฑ์สำนักงาน','คอมพิวเตอร์และอุปกรณ์ไอที','โสตทัศนูปกรณ์','อุปกรณ์กิจกรรม','เฟอร์นิเจอร์','ยานพาหนะ','ที่ดินและอาคาร','สินทรัพย์ไม่มีตัวตน (เว็บไซต์/ซอฟต์แวร์/ลิขสิทธิ์)','ของที่ระลึก/วัสดุคงคลัง','ทั่วไป'];
-function fillAssetCategories(existing){
-  const sel = $('astCategory'), keep = sel.value;
+function fillAssetCategories(existing, prefix, want){
+  prefix = prefix || 'ast';
+  const sel = $(prefix+'Category'), keep = want !== undefined ? want : sel.value;
   const extra = Array.from(new Set((existing||[]).map(a => String(a.category||'').trim()).filter(c => c && !ASSET_CATEGORIES.includes(c))));
   sel.innerHTML = ASSET_CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('')
     + (extra.length ? '<optgroup label="หมวดที่เคยใช้">' + extra.map(c => `<option>${esc(c)}</option>`).join('') + '</optgroup>' : '')
     + '<option value="__other">อื่นๆ (ระบุเอง)</option>';
   sel.value = keep && Array.from(sel.options).some(o => o.value === keep) ? keep : ASSET_CATEGORIES[0];
-  onAssetCategoryChange();
+  onAssetCategoryChange(prefix, true);
 }
-function onAssetCategoryChange(){
-  const other = $('astCategory').value === '__other';
-  $('astCategoryOther').classList.toggle('hidden', !other);
-  if(other) $('astCategoryOther').focus();
+function onAssetCategoryChange(prefix, silent){
+  prefix = prefix || 'ast';
+  const other = $(prefix+'Category').value === '__other';
+  $(prefix+'CategoryOther').classList.toggle('hidden', !other);
+  if(other && !silent) $(prefix+'CategoryOther').focus();
 }
+const assetCategoryValue = prefix => $(prefix+'Category').value === '__other' ? $(prefix+'CategoryOther').value.trim() : $(prefix+'Category').value;
+const notFuture = v => !!v && v <= localDateStr();
+/* --- แก้ไขรายการทรัพย์สิน (ผู้ดูแลระบบ / เหรัญญิก) --- */
+function canManageAssets(){ return ['admin','treasurer'].includes(state.role); }
+let editAstId = null;
+function openEditAsset(assetId){
+  const a = assetsCache.find(x => x.asset_id === assetId); if(!a) return;
+  editAstId = assetId; lastFocus = document.activeElement;
+  $('editAstSub').textContent = 'รหัส ' + a.asset_id + (a.recorded_by ? ' · บันทึกโดย ' + a.recorded_by : '') + (a.updated_at ? ' · แก้ไขล่าสุด ' + thaiDate(a.updated_at) + (a.updated_by ? ' โดย ' + a.updated_by : '') : '');
+  $('editAstName').value = a.name || '';
+  fillAssetCategories(assetsCache, 'editAst', String(a.category||'').trim());
+  $('editAstCategoryOther').value = '';
+  $('editAstDate').value = String(a.acquired_date || '').substring(0, 10);
+  $('editAstDate').max = localDateStr();
+  $('editAstValue').value = Number(a.value) || 0;
+  $('editAstLocation').value = a.location || '';
+  $('editAstNote').value = a.note || '';
+  document.querySelectorAll('#editAstModalOverlay .field-error').forEach(e=>e.remove());
+  ['editAstName','editAstValue','editAstDate','editAstCategoryOther'].forEach(id => $(id).removeAttribute('aria-invalid'));
+  $('editAstModalOverlay').classList.remove('hidden');
+  $('editAstName').focus();
+}
+function closeEditAsset(){ $('editAstModalOverlay').classList.add('hidden'); editAstId = null; if(lastFocus) lastFocus.focus(); }
+async function confirmEditAsset(btn){
+  if(!editAstId) return;
+  if(!validate([
+    ['editAstName','required','กรุณาระบุชื่อทรัพย์สิน'],
+    ['editAstCategoryOther', v => $('editAstCategory').value !== '__other' || v.trim().length > 0, 'กรุณาระบุหมวดหมู่'],
+    ['editAstDate', notFuture, 'กรุณาระบุวันที่ได้มา (ต้องไม่เป็นวันในอนาคต)'],
+    ['editAstValue','nonneg','กรุณาระบุมูลค่า (0 ขึ้นไป)']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const res = await apiPost('updateAsset', {
+      assetId: editAstId, name: $('editAstName').value.trim(), category: assetCategoryValue('editAst'),
+      acquiredDate: $('editAstDate').value, value: $('editAstValue').value,
+      location: $('editAstLocation').value.trim(), note: $('editAstNote').value.trim()
+    });
+    if(!res.ok) return showToast(res.message || 'บันทึกไม่สำเร็จ', true);
+    showToast(res.message); closeEditAsset(); loadAssets();
+  });
+}
+
 async function submitAsset(btn){
   if(!validate([
     ['astName','required','กรุณาระบุชื่อทรัพย์สิน'],
     ['astValue','nonneg','กรุณาระบุมูลค่า (0 ขึ้นไป)'],
-    ['astCategoryOther', v => $('astCategory').value !== '__other' || v.trim().length > 0, 'กรุณาระบุหมวดหมู่']
+    ['astCategoryOther', v => $('astCategory').value !== '__other' || v.trim().length > 0, 'กรุณาระบุหมวดหมู่'],
+    ['astDate', notFuture, 'กรุณาระบุวันที่ได้มา (ต้องไม่เป็นวันในอนาคต)']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
     const payload = {
       name: $('astName').value.trim(),
-      category: $('astCategory').value === '__other' ? $('astCategoryOther').value.trim() : $('astCategory').value,
+      category: assetCategoryValue('ast'),
+      acquiredDate: $('astDate').value,
       value: $('astValue').value,
       location: $('astLocation').value.trim(),
       note: $('astNote').value.trim()
@@ -1712,7 +1785,8 @@ async function submitAsset(btn){
     if(!res.ok) return showToast(res.message||'บันทึกไม่สำเร็จ', true);
     showToast('บันทึกทรัพย์สินสำเร็จ');
     ['astName','astValue','astLocation','astNote','astCategoryOther'].forEach(id=>$(id).value='');
-    $('astCategory').value = ASSET_CATEGORIES[0]; onAssetCategoryChange();
+    $('astDate').value = localDateStr();
+    $('astCategory').value = ASSET_CATEGORIES[0]; onAssetCategoryChange('ast', true);
     loadAssets();
   });
 }
@@ -1742,11 +1816,13 @@ function renderAssetsTable(){
 
   if(!all.length){ $('assetsTableWrap').innerHTML = emptyState('building','ยังไม่มีรายการทรัพย์สิน'); return; }
   if(!rows.length){ $('assetsTableWrap').innerHTML = emptyState('funnel','ไม่มีทรัพย์สินในหมวดนี้'); return; }
-  let html = '<table><thead><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th class="num">มูลค่า</th><th>สถานที่เก็บ</th></tr></thead><tbody>';
+  const canEdit = canManageAssets();
+  let html = '<table><thead><tr><th>ชื่อทรัพย์สิน</th><th>หมวดหมู่</th><th>วันที่ได้มา</th><th class="num">มูลค่า</th><th>สถานที่เก็บ</th>' + (canEdit ? '<th>จัดการ</th>' : '') + '</tr></thead><tbody>';
   rows.forEach(a=>{
-    html += `<tr><td>${esc(a.name)}${a.note?`<span class="sub">${esc(a.note)}</span>`:''}</td><td>${esc(a.category)}</td><td style="white-space:nowrap">${thaiDate(a.acquired_date)}</td><td class="num">${money(a.value)}</td><td>${esc(a.location||'-')}</td></tr>`;
+    const edited = a.updated_at ? `<span class="sub" title="แก้ไขโดย ${esc(a.updated_by||'')}">แก้ไขล่าสุด ${esc(thaiDate(a.updated_at))}</span>` : '';
+    html += `<tr><td>${esc(a.name)}${a.note?`<span class="sub">${esc(a.note)}</span>`:''}${edited}</td><td>${esc(a.category)}</td><td style="white-space:nowrap">${thaiDate(a.acquired_date)}</td><td class="num">${money(a.value)}</td><td>${esc(a.location||'-')}</td>${canEdit ? `<td><button class="btn btn-outline btn-sm" onclick="openEditAsset('${esc(a.asset_id)}')" aria-label="แก้ไข ${esc(a.name)}"><i class="bi bi-pencil" aria-hidden="true"></i> แก้ไข</button></td>` : ''}</tr>`;
   });
-  html += `</tbody><tfoot><tr><td colspan="3">รวม</td><td class="num">${money(totalValue)}</td><td></td></tr></tfoot>`;
+  html += `</tbody><tfoot><tr><td colspan="3">รวม</td><td class="num">${money(totalValue)}</td><td${canEdit ? ' colspan="2"' : ''}></td></tr></tfoot>`;
   $('assetsTableWrap').innerHTML = tableWrap(html + '</table>');
 }
 
@@ -2038,9 +2114,9 @@ async function submitPassword(btn){
 
 /* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
 document.addEventListener('keydown', e => {
-  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay','userActionModalOverlay','editPrjModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay','userActionModalOverlay','editPrjModalOverlay','editAstModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
   if(e.key === 'Escape'){
-    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal, userActionModalOverlay:closeUserAction, editPrjModalOverlay:closeEditProject})[openModal.id](); return; }
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal, userActionModalOverlay:closeUserAction, editPrjModalOverlay:closeEditProject, editAstModalOverlay:closeEditAsset})[openModal.id](); return; }
     if($('sidebar').classList.contains('open')) toggleNav(false);
   }
   if(e.key === 'Tab' && openModal){
