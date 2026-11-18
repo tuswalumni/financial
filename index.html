@@ -135,6 +135,7 @@ input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
 .logout-btn{flex:0 0 40px;min-width:40px !important;color:rgba(255,255,255,.85);background:none;border:none;cursor:pointer;min-width:44px;min-height:44px;font-size:19px;border-radius:10px}
 .logout-btn:hover{background:rgba(255,255,255,.1)}
 .user-box{flex-wrap:wrap}
+tr.row-inactive td{color:var(--muted);background:#fafaf8}
 .sb-email{display:block;max-width:100%;background:none;border:none;padding:2px 0;margin:0;font:inherit;font-size:11.5px;color:rgba(255,255,255,.65);cursor:pointer;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sb-email:hover{color:#fff;text-decoration:underline}
 .sb-email.missing{color:var(--tu-gold-light)}
@@ -689,6 +690,19 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
     <div class="form-actions">
       <button class="btn btn-danger-outline" onclick="confirmDeleteExpense(this)"><i class="bi bi-trash3" aria-hidden="true"></i> ยืนยันลบคำขอ</button>
       <button class="btn btn-outline" onclick="closeDeleteExpModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: ปิด/เปิดการใช้งาน หรือ ลบผู้ใช้ (ผู้ดูแลระบบ) -->
+<div id="userActionModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeUserAction()">
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="userActionTitle" aria-describedby="userActionList">
+    <h2 id="userActionTitle"></h2>
+    <div class="modal-summary" id="userActionSummary" style="margin-top:12px"></div>
+    <ul id="userActionList" style="margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.7;color:var(--ink)"></ul>
+    <div class="form-actions">
+      <button id="userActionConfirm" class="btn btn-primary" onclick="confirmUserAction(this)"></button>
+      <button id="userActionCancel" class="btn btn-outline" onclick="closeUserAction()">ยกเลิก</button>
     </div>
   </div>
 </div>
@@ -1682,21 +1696,81 @@ async function submitUser(btn){
     loadUsers();
   });
 }
+let usersCache = [];
+const isUserActive = u => !(u.active === false || String(u.active).toUpperCase() === 'FALSE');
 async function loadUsers(){
   if(!$('usersTableWrap').innerHTML) $('usersTableWrap').innerHTML = skeleton(3);
   const res = await apiGet('getUsers');
   if(!res.ok){ $('usersTableWrap').innerHTML = emptyState('lock','ไม่สามารถโหลดรายชื่อผู้ใช้'); return showToast(res.message, true); }
-  const rows = res.data||[];
-  const noEmail = rows.filter(u => !u.email && !(u.active === false || u.active === 'FALSE')).length;
-  let html = (noEmail ? `<div class="info-callout warn" role="note"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i><div>มีผู้ใช้ <b>${noEmail} คน</b> ที่ยังไม่มีอีเมล — จะไม่ได้รับแจ้งเตือนความคืบหน้าคำขอเบิกจ่าย</div></div>` : '')
+  // ใช้งานอยู่ขึ้นก่อน
+  const rows = usersCache = (res.data||[]).slice().sort((a,b) => isUserActive(b) - isUserActive(a));
+  const nActive = rows.filter(isUserActive).length;
+  const noEmail = rows.filter(u => !u.email && isUserActive(u)).length;
+  const activeAdmins = rows.filter(u => u.role === 'admin' && isUserActive(u)).length;
+  let html = `<p class="page-sub" style="margin:0 0 10px">ใช้งาน ${nActive} คน · ปิดใช้งาน ${rows.length - nActive} คน</p>`
+    + (noEmail ? `<div class="info-callout warn" role="note"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i><div>มีผู้ใช้ <b>${noEmail} คน</b> ที่ยังไม่มีอีเมล — จะไม่ได้รับแจ้งเตือนความคืบหน้าคำขอเบิกจ่าย</div></div>` : '')
     + '<table><thead><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th><th>อีเมลแจ้งเตือน</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody>';
   rows.forEach(u=>{
-    const active = !(u.active === false || u.active === 'FALSE');
-    const emailCell = u.email ? esc(u.email) : '<span class="badge badge-pending"><i class="bi bi-envelope-slash" aria-hidden="true"></i> ยังไม่มีอีเมล</span>';
-    html += `<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(roleLabel(u.role))}</td><td>${emailCell}</td><td>${active?'<span class="badge badge-approved">ใช้งาน</span>':'<span class="badge badge-neutral">ปิดใช้งาน</span>'}</td>
-      <td><div class="actions"><button class="btn btn-outline btn-sm" onclick="openEmailModal('${esc(u.user_id)}','${esc(u.name)}','${esc(u.email||'')}')"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมล</button><button class="btn btn-outline btn-sm" onclick="openPwModal('${esc(u.user_id)}','${esc(u.name)}')"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ตรหัส</button></div></td></tr>`;
+    const active = isUserActive(u);
+    const self = String(u.user_id) === String(state.userId);
+    const id = esc(u.user_id);
+    const emailCell = u.email ? esc(u.email) : (active ? '<span class="badge badge-pending"><i class="bi bi-envelope-slash" aria-hidden="true"></i> ยังไม่มีอีเมล</span>' : '<span style="color:var(--muted)">-</span>');
+    let btns = `<button class="btn btn-outline btn-sm" onclick="openEmailModal('${id}','${esc(u.name)}','${esc(u.email||'')}')"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมล</button>`
+      + `<button class="btn btn-outline btn-sm" onclick="openPwModal('${id}','${esc(u.name)}')"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ตรหัส</button>`;
+    if(self){
+      btns += '<span class="badge badge-neutral" title="ปิดใช้งานหรือลบบัญชีของตนเองไม่ได้">บัญชีของท่าน</span>';
+    } else {
+      const lastAdmin = u.role === 'admin' && active && activeAdmins <= 1;
+      const lockTip = lastAdmin ? ' disabled title="ต้องมีผู้ดูแลระบบที่ใช้งานได้อย่างน้อย 1 คน"' : '';
+      btns += active
+        ? `<button class="btn btn-outline btn-sm" onclick="openUserAction('${id}','disable')"${lockTip} aria-label="ปิดการใช้งาน ${esc(u.name)}"><i class="bi bi-pause-circle" aria-hidden="true"></i> ปิดใช้งาน</button>`
+        : `<button class="btn btn-outline btn-sm" onclick="openUserAction('${id}','enable')" aria-label="เปิดการใช้งาน ${esc(u.name)}"><i class="bi bi-play-circle" aria-hidden="true"></i> เปิดใช้งาน</button>`;
+      btns += `<button class="btn btn-danger-outline btn-sm" onclick="openUserAction('${id}','delete')"${lockTip} aria-label="ลบ ${esc(u.name)}"><i class="bi bi-trash3" aria-hidden="true"></i> ลบ</button>`;
+    }
+    html += `<tr${active?'':' class="row-inactive"'}><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(roleLabel(u.role))}</td><td>${emailCell}</td><td>${active?'<span class="badge badge-approved">ใช้งาน</span>':'<span class="badge badge-neutral"><i class="bi bi-pause-circle" aria-hidden="true"></i> ปิดใช้งาน</span>'}</td>
+      <td><div class="actions">${btns}</div></td></tr>`;
   });
   $('usersTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
+}
+
+/* --- ปิด/เปิดการใช้งาน และลบผู้ใช้ (ผู้ดูแลระบบ) --- */
+let userAction = null;
+function openUserAction(userId, kind){
+  const u = usersCache.find(x => String(x.user_id) === String(userId)); if(!u) return;
+  userAction = { userId, kind }; lastFocus = document.activeElement;
+  const sameRoleActive = usersCache.filter(x => x.role === u.role && isUserActive(x) && x.user_id !== u.user_id).length;
+  const approverRole = ['treasurer','president'].includes(u.role);
+  const warnLast = (kind !== 'enable' && approverRole && isUserActive(u) && !sameRoleActive)
+    ? `<li><b>${esc(roleLabel(u.role))}มีเพียงคนเดียว</b> — ระหว่างนี้คำขอเบิกจ่ายที่รอ${esc(roleLabel(u.role))}พิจารณา จะแจ้งไปยังผู้ดูแลระบบแทน</li>` : '';
+  const hist = Number(u.history_count)||0;
+  const cfg = {
+    disable: { icon:'pause-circle', title:'ปิดการใช้งานบัญชี', btn:'ปิดการใช้งาน', cls:'btn-primary', items:
+      `<li>เข้าสู่ระบบไม่ได้ และหากกำลังใช้งานอยู่จะถูกออกจากระบบทันที</li><li>ไม่ได้รับอีเมลแจ้งเตือน</li><li>ข้อมูลและประวัติทั้งหมดยังอยู่ครบ — <b>เปิดใช้งานกลับได้ทุกเมื่อ</b></li>${warnLast}` },
+    enable: { icon:'play-circle', title:'เปิดการใช้งานบัญชี', btn:'เปิดการใช้งาน', cls:'btn-primary', items:
+      `<li>เข้าสู่ระบบได้อีกครั้งด้วยรหัสผ่านเดิม (รีเซ็ตรหัสได้ถ้าจำไม่ได้)</li><li>กลับมาได้รับอีเมลแจ้งเตือนตามบทบาท${u.email ? '' : ' (ยังไม่มีอีเมล)'}</li>` },
+    delete: { icon:'trash3', title:'ลบบัญชีผู้ใช้', btn:'ยืนยันลบบัญชี', cls:'btn-danger-outline', items: hist
+      ? `<li>บัญชีนี้มีรายการที่เกี่ยวข้อง <b>${hist} รายการ</b> (คำขอ/การอนุมัติ/การจ่ายเงิน/รายรับ) — ระบบจะ<b>นำออกจากรายชื่อ</b> แต่เก็บชื่อไว้ในประวัติเพื่อการตรวจสอบบัญชี</li><li>เข้าสู่ระบบไม่ได้อีก และ username นี้นำไปตั้งให้บัญชีใหม่ได้</li><li><b>ย้อนกลับจากหน้าเว็บไม่ได้</b> — หากเพียงพักการใช้งาน แนะนำ “ปิดใช้งาน” แทน</li>${warnLast}`
+      : `<li>บัญชีนี้ยังไม่มีรายการใดๆ — จะ<b>ลบถาวร</b></li><li>เข้าสู่ระบบไม่ได้อีก และ <b>ย้อนกลับไม่ได้</b></li>${warnLast}` }
+  }[kind];
+  $('userActionTitle').innerHTML = `<i class="bi bi-${cfg.icon}" aria-hidden="true"${kind==='delete'?' style="color:var(--danger)"':''}></i> ${cfg.title}`;
+  $('userActionSummary').innerHTML = `<div><span>ชื่อ</span><b>${esc(u.name)}</b></div><div><span>Username</span><b>${esc(u.username)}</b></div><div><span>บทบาท</span><b>${esc(roleLabel(u.role))}</b></div>`;
+  $('userActionList').innerHTML = cfg.items;
+  const b = $('userActionConfirm'); b.className = 'btn ' + cfg.cls; b.innerHTML = `<i class="bi bi-${cfg.icon}" aria-hidden="true"></i> ${cfg.btn}`;
+  $('userActionModalOverlay').classList.remove('hidden');
+  // ปุ่มที่ปลอดภัยกว่า (ยกเลิก) ได้โฟกัสก่อนสำหรับการลบ
+  (kind === 'delete' ? $('userActionCancel') : b).focus();
+}
+function closeUserAction(){ $('userActionModalOverlay').classList.add('hidden'); userAction = null; if(lastFocus) lastFocus.focus(); }
+async function confirmUserAction(btn){
+  if(!userAction) return;
+  const { userId, kind } = userAction;
+  await withBusy(btn, 'กำลังดำเนินการ...', async () => {
+    const res = kind === 'delete'
+      ? await apiPost('deleteUser', { userId })
+      : await apiPost('setUserActive', { userId, active: kind === 'enable' });
+    if(!res.ok){ showToast(res.message || 'ดำเนินการไม่สำเร็จ', true); return; }
+    showToast(res.message); closeUserAction(); loadUsers();
+  });
 }
 
 /* ---------- Settings (บัญชีธนาคาร) ---------- */
@@ -1844,9 +1918,9 @@ async function submitPassword(btn){
 
 /* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
 document.addEventListener('keydown', e => {
-  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay','userActionModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
   if(e.key === 'Escape'){
-    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal})[openModal.id](); return; }
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal, userActionModalOverlay:closeUserAction})[openModal.id](); return; }
     if($('sidebar').classList.contains('open')) toggleNav(false);
   }
   if(e.key === 'Tab' && openModal){
