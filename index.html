@@ -134,6 +134,21 @@ input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
 .user-box b{color:#fff;display:block;font-size:13.5px;line-height:1.3}
 .logout-btn{flex:0 0 40px;min-width:40px !important;color:rgba(255,255,255,.85);background:none;border:none;cursor:pointer;min-width:44px;min-height:44px;font-size:19px;border-radius:10px}
 .logout-btn:hover{background:rgba(255,255,255,.1)}
+.user-box{flex-wrap:wrap}
+/* ไฟล์หลักฐานคำขอเบิกจ่าย */
+.file-drop{border:1.5px dashed var(--line-strong);border-radius:10px;padding:12px 14px;background:#fbfaf7;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.file-drop.drag{border-color:var(--tu-gold);background:#fffbeb}
+.file-drop .hint{flex:1;min-width:180px;font-size:13px;color:var(--muted)}
+.file-list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.file-list li{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:6px 6px 6px 12px;background:#fff;font-size:13.5px}
+.file-list li .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-list li .fsize{color:var(--muted);font-size:12px;white-space:nowrap}
+.file-list li .tag{font-size:11.5px;color:var(--income);white-space:nowrap}
+.file-list li button{border:none;background:none;color:var(--danger);cursor:pointer;min-width:36px;min-height:36px;border-radius:8px;font-size:16px}
+.file-list li button:hover{background:var(--danger-tint)}
+.ev-links{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:12.5px}
+.ev-links a{display:inline-flex;align-items:center;gap:3px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-actions{display:flex;justify-content:space-between;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:6px;margin-top:2px}
 
 .topbar{display:none}
 .scrim{display:none}
@@ -334,8 +349,11 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
       <div class="user-box">
         <div class="avatar" id="sbAvatar" aria-hidden="true">-</div>
         <div style="flex:1;min-width:0"><b id="sbUserName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</b><span id="sbUserRole">-</span></div>
-        <button class="logout-btn" onclick="openPwModal()" aria-label="เปลี่ยนรหัสผ่าน" title="เปลี่ยนรหัสผ่าน"><i class="bi bi-key" aria-hidden="true"></i></button>
-        <button class="logout-btn" style="margin-left:0" onclick="doLogout()" aria-label="ออกจากระบบ" title="ออกจากระบบ"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
+        <div class="user-actions">
+          <button class="logout-btn" onclick="openEmailModal()" aria-label="อีเมลรับแจ้งเตือน" title="อีเมลรับแจ้งเตือน"><i class="bi bi-envelope" aria-hidden="true"></i></button>
+          <button class="logout-btn" onclick="openPwModal()" aria-label="เปลี่ยนรหัสผ่าน" title="เปลี่ยนรหัสผ่าน"><i class="bi bi-key" aria-hidden="true"></i></button>
+          <button class="logout-btn" onclick="doLogout()" aria-label="ออกจากระบบ" title="ออกจากระบบ"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
+        </div>
       </div>
     </nav>
 
@@ -348,6 +366,7 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
           <div><h1 class="page-title" id="h-dashboard">แดชบอร์ด</h1><p class="page-sub" id="dashGreeting">ภาพรวมการเงินของสมาคมฯ</p></div>
           <button class="btn btn-outline btn-sm no-print" onclick="loadDashboard(this)"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> รีเฟรช</button>
         </div>
+        <div id="emailReminder" class="info-callout warn hidden" role="note"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i><div style="flex:1">ท่านยังไม่ได้ตั้งอีเมล — จะไม่ได้รับแจ้งเตือนเมื่อมีคำขอรอท่านดำเนินการ หรือเมื่อคำขอของท่านมีความคืบหน้า</div><button class="btn btn-outline btn-sm" onclick="openEmailModal()">ตั้งอีเมล</button></div>
         <div id="kpiGrid" aria-live="polite"></div>
         <div class="card">
           <div class="card-head">
@@ -434,6 +453,14 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
           <div class="form-row">
             <div class="form-group"><label for="expAmount">จำนวนเงิน (บาท) <span class="req">*</span></label><input type="number" id="expAmount" inputmode="decimal" min="0" step="0.01" required oninput="updateExpenseRouteHint()"><div class="help" id="expRouteHint" aria-live="polite"></div></div>
             <div class="form-group"><label for="expDescription">รายละเอียด <span class="req">*</span></label><input id="expDescription" required placeholder="เช่น ค่าอาหารว่างประชุมกรรมการ"></div>
+          </div>
+          <div class="form-group"><label for="expEvidenceInput">ไฟล์หลักฐานการเบิก <span class="opt">(ไม่บังคับ · สูงสุด 3 ไฟล์ ไฟล์ละไม่เกิน 10 MB)</span></label>
+            <div class="file-drop" id="expEvidenceDrop">
+              <button type="button" class="btn btn-outline btn-sm" onclick="$('expEvidenceInput').click()"><i class="bi bi-paperclip" aria-hidden="true"></i> เลือกไฟล์</button>
+              <span class="hint">ใบเสร็จ ใบแจ้งหนี้ ใบเสนอราคา หรือรูปถ่ายเอกสาร (รูปภาพ/PDF) — ลากไฟล์มาวางที่นี่ได้</span>
+              <input type="file" id="expEvidenceInput" accept="image/*,.pdf" multiple class="sr-only" tabindex="-1" onchange="onEvidencePicked('exp', this.files); this.value='';">
+            </div>
+            <ul class="file-list" id="expEvidenceList" aria-live="polite"></ul>
           </div>
           <div class="form-actions"><button class="btn btn-primary" onclick="submitExpenseRequest(this)"><i class="bi bi-send" aria-hidden="true"></i> ยื่นคำขอ</button></div>
         </details>
@@ -534,6 +561,9 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
           </div>
           <div class="form-row">
             <div class="form-group"><label for="usrPassword">รหัสผ่านตั้งต้น <span class="req">*</span></label><input id="usrPassword" required autocomplete="new-password"><div class="help">อย่างน้อย 8 ตัวอักษร แจ้งผู้ใช้ให้เปลี่ยนหลังเข้าระบบครั้งแรก</div></div>
+            <div class="form-group"><label for="usrEmail">อีเมล <span class="opt">(แนะนำ)</span></label><input type="email" id="usrEmail" autocomplete="off" placeholder="name@example.com"><div class="help">ใช้ส่งแจ้งเตือนความคืบหน้าคำขอเบิกจ่าย</div></div>
+          </div>
+          <div class="form-row">
             <div class="form-group"><label for="usrRole">บทบาท</label>
               <select id="usrRole">
                 <option value="treasurer">เหรัญญิก (treasurer)</option>
@@ -626,6 +656,14 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
     </div>
     <div class="form-group"><label for="editExpAmount">จำนวนเงิน (บาท) <span class="req">*</span></label><input type="number" id="editExpAmount" inputmode="decimal" min="0" step="0.01" oninput="updateRouteHint('editExpAmount','editExpRouteHint')"><div class="help" id="editExpRouteHint" aria-live="polite"></div></div>
     <div class="form-group"><label for="editExpDescription">รายละเอียด <span class="req">*</span></label><input id="editExpDescription"></div>
+    <div class="form-group"><label for="editEvidenceInput">ไฟล์หลักฐานการเบิก <span class="opt">(ไม่บังคับ · สูงสุด 3 ไฟล์ ไฟล์ละไม่เกิน 10 MB)</span></label>
+            <div class="file-drop" id="editEvidenceDrop">
+              <button type="button" class="btn btn-outline btn-sm" onclick="$('editEvidenceInput').click()"><i class="bi bi-paperclip" aria-hidden="true"></i> เลือกไฟล์</button>
+              <span class="hint">ใบเสร็จ ใบแจ้งหนี้ ใบเสนอราคา หรือรูปถ่ายเอกสาร (รูปภาพ/PDF) — ลากไฟล์มาวางที่นี่ได้</span>
+              <input type="file" id="editEvidenceInput" accept="image/*,.pdf" multiple class="sr-only" tabindex="-1" onchange="onEvidencePicked('edit', this.files); this.value='';">
+            </div>
+            <ul class="file-list" id="editEvidenceList" aria-live="polite"></ul>
+          </div>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกการแก้ไข</button>
       <button type="button" class="btn btn-outline" onclick="closeEditExpModal()">ยกเลิก</button>
@@ -645,6 +683,19 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
       <button class="btn btn-outline" onclick="closeDeleteExpModal()">ยกเลิก</button>
     </div>
   </div>
+</div>
+
+<!-- Modal: อีเมลรับแจ้งเตือน (ของตนเอง / ผู้ดูแลตั้งให้ผู้อื่น) -->
+<div id="emailModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeEmailModal()">
+  <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" onsubmit="event.preventDefault(); submitEmail(this.querySelector('button[type=submit]'));" novalidate>
+    <h2 id="emailModalTitle"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมลรับแจ้งเตือน</h2>
+    <p class="page-sub" id="emailModalSub">ระบบจะส่งอีเมลเมื่อมีคำขอเบิกจ่ายรอท่านดำเนินการ และเมื่อคำขอของท่านมีความคืบหน้า (ตรวจสอบ → อนุมัติ → จ่ายเงิน)</p>
+    <div class="form-group" style="margin-top:14px"><label for="emailInput">อีเมล</label><input type="email" id="emailInput" autocomplete="email" placeholder="name@example.com"><div class="help">เว้นว่างแล้วบันทึก = ไม่รับแจ้งเตือน</div></div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกอีเมล</button>
+      <button type="button" class="btn btn-outline" onclick="closeEmailModal()">ยกเลิก</button>
+    </div>
+  </form>
 </div>
 
 <!-- Modal: เปลี่ยนรหัสผ่านของตนเอง / ผู้ดูแลรีเซ็ตรหัสผ่านให้ผู้อื่น -->
@@ -885,7 +936,8 @@ function applyRoleVisibility(){
 function doLogout(){
   state = { token:null, name:'', role:'', userId:'' };
   cache = { income: [], expenses: [], projects: [] };
-  bankInfoLoaded = false;
+  bankInfoLoaded = false; myEmail = null;
+  $('emailReminder').classList.add('hidden');
   try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
   applyRoleVisibility();
   document.querySelectorAll('.admin-only,.admin-group,.settings-only').forEach(el => el.classList.add('hidden'));
@@ -930,6 +982,7 @@ function showPage(name){
 async function initApp(){
   $('incDate').value = localDateStr();
   initFiscalYearSelect();
+  loadMyProfile();
   await loadProjectsIntoSelect();
   const fromHash = (location.hash||'').replace('#','');
   showPage(PAGE_TITLES[fromHash] ? fromHash : 'dashboard');
@@ -1117,16 +1170,21 @@ async function submitExpenseRequest(btn){
     ['expDescription','required','กรุณาระบุรายละเอียดการเบิกจ่าย']
   ])) return;
   await withBusy(btn, 'กำลังยื่นคำขอ...', async () => {
+    const files = await uploadEvidence('exp', btn);
+    if(files === null) return;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> กำลังยื่นคำขอ...';
     const payload = {
       projectId: $('expProject').value,
       category: $('expCategory').value,
       amount: $('expAmount').value,
-      description: $('expDescription').value.trim()
+      description: $('expDescription').value.trim(),
+      evidenceFiles: files
     };
     const res = await apiPost('addExpenseRequest', payload);
     if(!res.ok) return showToast(res.message||'ยื่นคำขอไม่สำเร็จ', true);
-    showToast(res.message);
+    showToast(res.message + (files.length ? ' (แนบหลักฐาน ' + files.length + ' ไฟล์)' : ''));
     $('expAmount').value=''; $('expDescription').value=''; updateExpenseRouteHint();
+    evidence.exp = []; renderEvidenceList('exp');
     loadExpense();
   });
 }
@@ -1162,7 +1220,7 @@ function renderExpenseTable(rows, withActions){
     const prj = r.project_id ? projectName(r.project_id) : '';
     const edited = r.updated_at ? ' <span class="badge badge-neutral" title="แก้ไขล่าสุด ' + esc(thaiDate(r.updated_at)) + '">แก้ไขแล้ว</span>' : '';
     const cancelNote = r.status === 'cancelled' && r.cancel_reason ? `<span class="sub">เหตุผลที่ลบ: ${esc(r.cancel_reason)}</span>` : '';
-    html += `<tr><td style="white-space:nowrap">${thaiDate(r.date)}</td><td>${esc(r.requested_by)}</td><td>${esc(r.category)}${edited}<span class="sub">${esc(r.description||'')}</span>${prj?`<span class="sub"><i class="bi bi-kanban" aria-hidden="true"></i> ${esc(prj)}</span>`:''}</td><td class="num"><b>${money(r.amount)}</b></td><td>${statusBadge(r.status)}${cancelNote}</td>`;
+    html += `<tr><td style="white-space:nowrap">${thaiDate(r.date)}</td><td>${esc(r.requested_by)}</td><td>${esc(r.category)}${edited}<span class="sub">${esc(r.description||'')}</span>${prj?`<span class="sub"><i class="bi bi-kanban" aria-hidden="true"></i> ${esc(prj)}</span>`:''}${evidenceLinksHtml(r)}</td><td class="num"><b>${money(r.amount)}</b></td><td>${statusBadge(r.status)}${cancelNote}</td>`;
     if(withActions) html += `<td>${expenseActionButtons(r)}</td>`;
     html += '</tr>';
   });
@@ -1190,6 +1248,73 @@ function expenseActionButtons(r){
   return btns ? `<div class="actions">${btns}${note}</div>` : '<span style="color:var(--muted)">-</span>';
 }
 
+/* --- ไฟล์หลักฐานการเบิก (สูงสุด 3 ไฟล์) ---
+   evidence[key] = [{ file: File }  (ไฟล์ใหม่ รออัปโหลด)  |  { name, url }  (ไฟล์ที่แนบไว้แล้ว)] */
+const MAX_EVIDENCE_FILES = 3, MAX_EVIDENCE_BYTES = 10 * 1024 * 1024;
+const evidence = { exp: [], edit: [] };
+function parseEvidence(v){ if(!v) return []; try{ const a = JSON.parse(v); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function fmtSize(b){ return b >= 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1, Math.round(b/1024))+' KB'; }
+function onEvidencePicked(key, fileList){
+  const list = evidence[key];
+  const rejected = [];
+  Array.from(fileList || []).forEach(f => {
+    const okType = /^image\//.test(f.type) || f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+    if(!okType){ rejected.push(f.name + ' (รองรับเฉพาะรูปภาพ/PDF)'); return; }
+    if(f.size > MAX_EVIDENCE_BYTES){ rejected.push(f.name + ' (เกิน 10 MB)'); return; }
+    if(list.some(x => x.file && x.file.name === f.name && x.file.size === f.size)) return; // เลือกซ้ำ
+    if(list.length >= MAX_EVIDENCE_FILES){ rejected.push(f.name + ' (ครบ ' + MAX_EVIDENCE_FILES + ' ไฟล์แล้ว)'); return; }
+    list.push({ file: f });
+  });
+  if(rejected.length) showToast('ไม่ได้เพิ่ม: ' + rejected.join(', '), true);
+  renderEvidenceList(key);
+}
+function removeEvidence(key, i){ evidence[key].splice(i, 1); renderEvidenceList(key); $(key+'EvidenceInput').closest('.form-group').querySelector('.btn').focus(); }
+function renderEvidenceList(key){
+  const list = evidence[key];
+  $(key+'EvidenceList').innerHTML = list.map((x, i) => {
+    const name = x.file ? x.file.name : x.name;
+    const meta = x.file ? `<span class="fsize">${fmtSize(x.file.size)}</span>` : `<span class="tag"><i class="bi bi-cloud-check" aria-hidden="true"></i> แนบไว้แล้ว</span>`;
+    const nameHtml = x.url && safeUrl(x.url) ? `<a class="fname" href="${safeUrl(x.url)}" target="_blank" rel="noopener">${esc(name)}</a>` : `<span class="fname">${esc(name)}</span>`;
+    return `<li><i class="bi bi-file-earmark${/\.pdf$/i.test(name)?'-pdf':'-image'}" aria-hidden="true"></i>${nameHtml}${meta}<button type="button" onclick="removeEvidence('${key}',${i})" aria-label="นำไฟล์ ${esc(name)} ออก"><i class="bi bi-x-lg" aria-hidden="true"></i></button></li>`;
+  }).join('');
+  const full = list.length >= MAX_EVIDENCE_FILES;
+  const pickBtn = $(key+'EvidenceDrop').querySelector('.btn');
+  pickBtn.disabled = full;
+  pickBtn.innerHTML = full ? '<i class="bi bi-check2" aria-hidden="true"></i> ครบ 3 ไฟล์แล้ว' : '<i class="bi bi-paperclip" aria-hidden="true"></i> ' + (list.length ? 'เพิ่มไฟล์' : 'เลือกไฟล์');
+}
+/* อัปโหลดไฟล์ใหม่ทีละไฟล์ (แสดงความคืบหน้าบนปุ่ม) แล้วคืนรายการ [{name,url}] — ล้มเหลว = null */
+async function uploadEvidence(key, btn){
+  const out = [], list = evidence[key];
+  const pending = list.filter(x => x.file).length; let n = 0;
+  for(const x of list){
+    if(!x.file){ out.push({ name: x.name, url: x.url }); continue; }
+    n++; if(btn) btn.innerHTML = `<span class="spinner" aria-hidden="true"></span> กำลังอัปโหลดไฟล์ ${n}/${pending}...`;
+    const info = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve({ fileName: 'เบิกจ่าย_' + localDateStr() + '_' + x.file.name, mimeType: x.file.type || 'application/octet-stream', base64Data: String(r.result).split(',')[1] });
+      r.onerror = reject; r.readAsDataURL(x.file);
+    });
+    const res = await apiPost('uploadFile', info);
+    if(!res.ok){ showToast('อัปโหลด ' + x.file.name + ' ไม่สำเร็จ: ' + (res.message||''), true); return null; }
+    // เก็บผลไว้ — ถ้าขั้นถัดไปล้มเหลวแล้วกดส่งใหม่ จะไม่อัปโหลดซ้ำ
+    delete x.file; x.name = info.fileName.replace(/^เบิกจ่าย_\d{4}-\d{2}-\d{2}_/, ''); x.url = res.url;
+    out.push({ name: x.name, url: x.url });
+  }
+  return out;
+}
+/* ลากไฟล์มาวาง */
+['exp','edit'].forEach(key => {
+  const el = $(key+'EvidenceDrop'); if(!el) return;
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drag'));
+  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('drag'); onEvidencePicked(key, e.dataTransfer.files); });
+});
+function evidenceLinksHtml(r){
+  const files = parseEvidence(r.evidence_files);
+  if(!files.length) return '';
+  return '<span class="ev-links">' + files.map(f => safeUrl(f.url) ? `<a href="${safeUrl(f.url)}" target="_blank" rel="noopener" title="${esc(f.name)}"><i class="bi bi-paperclip" aria-hidden="true"></i>${esc(f.name)}</a>` : '').join('') + '</span>';
+}
+
 /* --- ผู้ยื่นแก้ไขคำขอ --- */
 let editExpId = null;
 function openEditExpense(requestId){
@@ -1202,6 +1327,8 @@ function openEditExpense(requestId){
   $('editExpCategory').value = r.category;
   $('editExpAmount').value = Number(r.amount) || '';
   $('editExpDescription').value = r.description || '';
+  evidence.edit = parseEvidence(r.evidence_files).map(f => ({ name: f.name, url: f.url }));
+  renderEvidenceList('edit');
   updateRouteHint('editExpAmount','editExpRouteHint');
   document.querySelectorAll('#editExpModalOverlay .field-error').forEach(e=>e.remove());
   ['editExpAmount','editExpDescription'].forEach(id => $(id).removeAttribute('aria-invalid'));
@@ -1221,12 +1348,16 @@ async function confirmEditExpense(btn){
     ['editExpDescription','required','กรุณาระบุรายละเอียดการเบิกจ่าย']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const files = await uploadEvidence('edit', btn);
+    if(files === null) return;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> กำลังบันทึก...';
     const res = await apiPost('updateExpenseRequest', {
       requestId: editExpId,
       projectId: $('editExpProject').value,
       category: $('editExpCategory').value,
       amount: $('editExpAmount').value,
-      description: $('editExpDescription').value.trim()
+      description: $('editExpDescription').value.trim(),
+      evidenceFiles: files
     });
     if(!res.ok){ showToast(res.message || 'แก้ไขไม่สำเร็จ', true); loadExpense(); return; }
     showToast(res.message); closeEditExpModal(); loadExpense();
@@ -1258,7 +1389,8 @@ function requestSummaryHtml(r){
   return `<div><span>เลขที่</span><b>${esc(r.request_id)}</b></div>
     <div><span>ผู้ยื่น</span><b>${esc(r.requested_by)}</b></div>
     <div><span>หมวด</span><b>${esc(r.category)}</b></div>
-    <div><span>จำนวนเงิน</span><b>฿ ${money(r.amount)}</b></div>`;
+    <div><span>จำนวนเงิน</span><b>฿ ${money(r.amount)}</b></div>
+    <div><span>หลักฐาน</span><b style="text-align:right">${evidenceLinksHtml(r) || '<span style="color:var(--muted);font-weight:400">ไม่ได้แนบ</span>'}</b></div>`;
 }
 
 /* --- ยืนยันอนุมัติ/ปฏิเสธ (เรียก approveExpense เหมือนเดิม พร้อมส่ง note ที่หลังบ้านรองรับอยู่แล้ว) --- */
@@ -1526,17 +1658,18 @@ async function submitUser(btn){
   if(!validate([
     ['usrName','required','กรุณาระบุชื่อ-สกุล'],
     ['usrUsername', v => /^[A-Za-z0-9._-]{3,}$/.test(v), 'ใช้ตัวอักษรอังกฤษ ตัวเลข . _ - อย่างน้อย 3 ตัว'],
-    ['usrPassword', v => v.length >= 8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร']
+    ['usrPassword', v => v.length >= 8, 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'],
+    ['usrEmail','email','รูปแบบอีเมลไม่ถูกต้อง']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
     const payload = {
       name: $('usrName').value.trim(), username: $('usrUsername').value.trim(),
-      password: $('usrPassword').value, role: $('usrRole').value
+      password: $('usrPassword').value, role: $('usrRole').value, email: $('usrEmail').value.trim()
     };
     const res = await apiPost('addUser', payload);
     if(!res.ok) return showToast(res.message, true);
     showToast('เพิ่มผู้ใช้สำเร็จ');
-    $('usrName').value=''; $('usrUsername').value=''; $('usrPassword').value='';
+    $('usrName').value=''; $('usrUsername').value=''; $('usrPassword').value=''; $('usrEmail').value='';
     loadUsers();
   });
 }
@@ -1545,10 +1678,14 @@ async function loadUsers(){
   const res = await apiGet('getUsers');
   if(!res.ok){ $('usersTableWrap').innerHTML = emptyState('lock','ไม่สามารถโหลดรายชื่อผู้ใช้'); return showToast(res.message, true); }
   const rows = res.data||[];
-  let html = '<table><thead><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th><th>สถานะ</th><th>รหัสผ่าน</th></tr></thead><tbody>';
+  const noEmail = rows.filter(u => !u.email && !(u.active === false || u.active === 'FALSE')).length;
+  let html = (noEmail ? `<div class="info-callout warn" role="note"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i><div>มีผู้ใช้ <b>${noEmail} คน</b> ที่ยังไม่มีอีเมล — จะไม่ได้รับแจ้งเตือนความคืบหน้าคำขอเบิกจ่าย</div></div>` : '')
+    + '<table><thead><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th><th>อีเมลแจ้งเตือน</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody>';
   rows.forEach(u=>{
     const active = !(u.active === false || u.active === 'FALSE');
-    html += `<tr><td>${esc(u.name)}${u.email?`<span class="sub">${esc(u.email)}</span>`:''}</td><td>${esc(u.username)}</td><td>${esc(roleLabel(u.role))}</td><td>${active?'<span class="badge badge-approved">ใช้งาน</span>':'<span class="badge badge-neutral">ปิดใช้งาน</span>'}</td><td><button class="btn btn-outline btn-sm" onclick="openPwModal('${esc(u.user_id)}','${esc(u.name)}')"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ต</button></td></tr>`;
+    const emailCell = u.email ? esc(u.email) : '<span class="badge badge-pending"><i class="bi bi-envelope-slash" aria-hidden="true"></i> ยังไม่มีอีเมล</span>';
+    html += `<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(roleLabel(u.role))}</td><td>${emailCell}</td><td>${active?'<span class="badge badge-approved">ใช้งาน</span>':'<span class="badge badge-neutral">ปิดใช้งาน</span>'}</td>
+      <td><div class="actions"><button class="btn btn-outline btn-sm" onclick="openEmailModal('${esc(u.user_id)}','${esc(u.name)}','${esc(u.email||'')}')"><i class="bi bi-envelope" aria-hidden="true"></i> อีเมล</button><button class="btn btn-outline btn-sm" onclick="openPwModal('${esc(u.user_id)}','${esc(u.name)}')"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> รีเซ็ตรหัส</button></div></td></tr>`;
   });
   $('usersTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
 }
@@ -1595,6 +1732,40 @@ async function submitLifetimeFund(btn){
   });
 }
 
+/* ---------- อีเมลรับแจ้งเตือน ---------- */
+let emailTarget = null, myEmail = null;
+async function loadMyProfile(){
+  const res = await apiPost('getMyProfile', {});
+  if(!res.ok || !res.data) return;
+  myEmail = res.data.email || '';
+  $('emailReminder').classList.toggle('hidden', !!myEmail);
+}
+function openEmailModal(userId, userName, currentEmail){
+  emailTarget = userId || null;
+  lastFocus = document.activeElement;
+  const other = !!emailTarget && emailTarget !== state.userId;
+  $('emailModalTitle').innerHTML = '<i class="bi bi-envelope" aria-hidden="true"></i> ' + (other ? 'อีเมลของ ' + esc(userName) : 'อีเมลรับแจ้งเตือนของฉัน');
+  $('emailInput').value = other ? (currentEmail || '') : (myEmail || '');
+  $('emailInput').removeAttribute('aria-invalid');
+  document.querySelectorAll('#emailModalOverlay .field-error').forEach(e=>e.remove());
+  toggleNav(false);
+  $('emailModalOverlay').classList.remove('hidden');
+  $('emailInput').focus();
+}
+function closeEmailModal(){ $('emailModalOverlay').classList.add('hidden'); emailTarget = null; if(lastFocus) lastFocus.focus(); }
+async function submitEmail(btn){
+  if(!validate([['emailInput','email','รูปแบบอีเมลไม่ถูกต้อง']])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const email = $('emailInput').value.trim();
+    const res = await apiPost('updateUserEmail', emailTarget ? { userId: emailTarget, email } : { email });
+    if(!res.ok) return showToast(res.message || 'บันทึกไม่สำเร็จ', true);
+    showToast(res.message);
+    if(!emailTarget || emailTarget === state.userId){ myEmail = email; $('emailReminder').classList.toggle('hidden', !!email); }
+    closeEmailModal();
+    if(!$('page-users').classList.contains('hidden')) loadUsers();
+  });
+}
+
 /* ---------- รหัสผ่าน: เปลี่ยนของตนเอง (ทุกบทบาท) / รีเซ็ตให้ผู้อื่น (admin) ---------- */
 let pwResetTarget = null;
 function openPwModal(userId, userName){
@@ -1632,9 +1803,9 @@ async function submitPassword(btn){
 
 /* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
 document.addEventListener('keydown', e => {
-  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay','emailModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
   if(e.key === 'Escape'){
-    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal})[openModal.id](); return; }
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal, emailModalOverlay:closeEmailModal})[openModal.id](); return; }
     if($('sidebar').classList.contains('open')) toggleNav(false);
   }
   if(e.key === 'Tab' && openModal){
