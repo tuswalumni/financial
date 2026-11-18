@@ -208,9 +208,11 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
 
 /* progress */
 .progress{height:8px;background:#eeece6;border-radius:10px;overflow:hidden;min-width:90px}
-.progress>span{display:block;height:100%;background:var(--income);border-radius:10px}
-.progress.mid>span{background:var(--warn)}
-.progress.high>span{background:var(--danger)}
+.progress{display:flex}
+.progress>span{display:block;height:100%;background:var(--income)}
+.progress>span.c{background:repeating-linear-gradient(45deg,var(--tu-gold) 0 4px,#f1dc95 4px 8px)} /* จองวงเงิน (คำขอค้าง) */
+.progress.mid>span:not(.c){background:var(--warn)}
+.progress.high>span:not(.c){background:var(--danger)}
 
 /* workflow steps */
 .steps{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);margin-top:8px}
@@ -417,6 +419,7 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
             <span class="s">บันทึกจ่ายจริง</span>
           </div>
         </div></div>
+        <div class="info-callout" role="note"><i class="bi bi-pencil-square" aria-hidden="true"></i><div>ผู้ยื่นสามารถ <b>แก้ไข</b> หรือ <b>ลบ</b> คำขอของตนเองได้ ขณะสถานะยังเป็น “รอเหรัญญิกตรวจสอบ” — เมื่อเหรัญญิกบันทึกผลแล้วจะแก้ไขไม่ได้</div></div>
         <details class="card" id="expenseFormCard">
           <summary><h2><i class="bi bi-plus-circle" aria-hidden="true"></i> ยื่นคำขอเบิกจ่ายใหม่</h2><i class="bi bi-chevron-down chev" aria-hidden="true"></i></summary>
           <div class="form-row">
@@ -441,10 +444,12 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
             <div class="chip-group" role="group" aria-label="กรองตามสถานะ" id="expFilterChips">
               <button class="chip" aria-pressed="true" data-f="">ทั้งหมด</button>
               <button class="chip" aria-pressed="false" data-f="mine">รอฉันดำเนินการ</button>
+              <button class="chip" aria-pressed="false" data-f="own">คำขอของฉัน</button>
               <button class="chip" aria-pressed="false" data-f="pending">รออนุมัติ</button>
               <button class="chip" aria-pressed="false" data-f="approved">รอจ่ายเงิน</button>
               <button class="chip" aria-pressed="false" data-f="paid">จ่ายแล้ว</button>
               <button class="chip" aria-pressed="false" data-f="rejected">ถูกปฏิเสธ</button>
+              <button class="chip" aria-pressed="false" data-f="cancelled">ลบแล้ว</button>
             </div>
           </div>
           <div id="expenseTableWrap"></div>
@@ -460,10 +465,15 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
             <div class="form-group"><label for="prjName">ชื่อโครงการ <span class="req">*</span></label><input id="prjName" required></div>
             <div class="form-group"><label for="prjBudget">งบประมาณ (บาท) <span class="req">*</span></label><input type="number" id="prjBudget" inputmode="decimal" min="0" step="0.01" required></div>
           </div>
+          <div class="form-row">
+            <div class="form-group"><label for="prjFiscalYear">ปีงบประมาณ <span class="req">*</span></label><select id="prjFiscalYear"></select><div class="help" id="prjFiscalHint"></div></div>
+          </div>
           <div class="form-actions"><button class="btn btn-primary" onclick="submitProject(this)"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกโครงการ</button></div>
         </details>
         <div class="card">
-          <div class="card-head"><h2><i class="bi bi-kanban" aria-hidden="true"></i> งบประมาณ vs ใช้จริง</h2></div>
+          <div class="card-head"><h2><i class="bi bi-kanban" aria-hidden="true"></i> งบประมาณ vs ใช้จริง</h2>
+            <select id="prjFilterFY" aria-label="กรองตามปีงบประมาณ" onchange="renderProjectsTable()" style="width:auto;min-width:170px"><option value="">ทุกปีงบประมาณ</option></select>
+          </div>
           <div id="projectsTableWrap"></div>
         </div>
       </section>
@@ -493,12 +503,12 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
 
       <!-- REPORTS -->
       <section id="page-reports" class="page hidden" aria-labelledby="h-reports">
-        <div class="page-head"><div><h1 class="page-title" id="h-reports">รายงาน</h1><p class="page-sub">สรุปรายรับ-รายจ่ายรายเดือน สำหรับที่ประชุมกรรมการ / ที่ประชุมใหญ่สามัญประจำปี</p></div></div>
+        <div class="page-head"><div><h1 class="page-title" id="h-reports">รายงาน</h1><p class="page-sub">สรุปรายรับ-รายจ่ายรายเดือนตามปีงบประมาณ (ต.ค. – ก.ย.) สำหรับที่ประชุมกรรมการ / ที่ประชุมใหญ่สามัญประจำปี</p></div></div>
         <div class="card">
           <div class="card-head">
-            <h2><i class="bi bi-calendar3" aria-hidden="true"></i> สรุปรายเดือน</h2>
+            <div><h2><i class="bi bi-calendar3" aria-hidden="true"></i> สรุปรายเดือน</h2><span class="help" id="reportRangeLabel"></span></div>
             <form class="toolbar no-print" style="margin:0" onsubmit="event.preventDefault(); loadReport(this.querySelector('button'));">
-              <label for="reportYear" style="margin:0">ปี พ.ศ.</label>
+              <label for="reportYear" style="margin:0">ปีงบประมาณ พ.ศ.</label>
               <input type="number" id="reportYear" inputmode="numeric" style="min-width:0;width:110px;flex:0 0 110px" value="">
               <button class="btn btn-outline btn-sm" type="submit">ดูรายงาน</button>
             </form>
@@ -602,6 +612,41 @@ td .sub{display:block;font-size:12px;color:var(--muted)}
   </div>
 </div>
 
+<!-- Modal: ผู้ยื่นแก้ไขคำขอเบิกจ่าย (ก่อนเหรัญญิกตรวจสอบ) -->
+<div id="editExpModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeEditExpModal()">
+  <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="editExpModalTitle" onsubmit="event.preventDefault(); confirmEditExpense(this.querySelector('button[type=submit]'));" novalidate>
+    <h2 id="editExpModalTitle"><i class="bi bi-pencil-square" aria-hidden="true"></i> แก้ไขคำขอเบิกจ่าย</h2>
+    <p class="page-sub" id="editExpSub"></p>
+    <div class="form-group" style="margin-top:14px"><label for="editExpProject">โครงการ <span class="opt">(ไม่บังคับ)</span></label><select id="editExpProject"><option value="">- ไม่ระบุโครงการ -</option></select></div>
+    <div class="form-group"><label for="editExpCategory">หมวด <span class="req">*</span></label>
+      <select id="editExpCategory">
+        <option>ค่าใช้จ่ายกิจกรรม</option><option>ค่าสวัสดิการสมาชิก</option>
+        <option>ค่าบริหารสำนักงาน</option><option>ค่าธรรมเนียมธนาคาร</option><option>ค่าใช้จ่ายอื่น</option>
+      </select>
+    </div>
+    <div class="form-group"><label for="editExpAmount">จำนวนเงิน (บาท) <span class="req">*</span></label><input type="number" id="editExpAmount" inputmode="decimal" min="0" step="0.01" oninput="updateRouteHint('editExpAmount','editExpRouteHint')"><div class="help" id="editExpRouteHint" aria-live="polite"></div></div>
+    <div class="form-group"><label for="editExpDescription">รายละเอียด <span class="req">*</span></label><input id="editExpDescription"></div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> บันทึกการแก้ไข</button>
+      <button type="button" class="btn btn-outline" onclick="closeEditExpModal()">ยกเลิก</button>
+    </div>
+  </form>
+</div>
+
+<!-- Modal: ผู้ยื่นลบคำขอเบิกจ่าย (ก่อนเหรัญญิกตรวจสอบ) -->
+<div id="deleteExpModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeDeleteExpModal()">
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="deleteExpModalTitle" aria-describedby="deleteExpDesc">
+    <h2 id="deleteExpModalTitle"><i class="bi bi-trash3" aria-hidden="true" style="color:var(--danger)"></i> ลบคำขอเบิกจ่าย</h2>
+    <p class="page-sub" id="deleteExpDesc">คำขอจะถูกยกเลิกและไม่ส่งต่อให้เหรัญญิกพิจารณา ระบบเก็บประวัติไว้เพื่อการตรวจสอบบัญชี (ดูได้ที่ตัวกรอง “ลบแล้ว”)</p>
+    <div class="modal-summary" id="deleteExpSummary"></div>
+    <div class="form-group"><label for="deleteExpReason">เหตุผล <span class="opt">(ไม่บังคับ)</span></label><input id="deleteExpReason" placeholder="เช่น ยื่นซ้ำ / ยอดเงินผิด / ยกเลิกกิจกรรม"></div>
+    <div class="form-actions">
+      <button class="btn btn-danger-outline" onclick="confirmDeleteExpense(this)"><i class="bi bi-trash3" aria-hidden="true"></i> ยืนยันลบคำขอ</button>
+      <button class="btn btn-outline" onclick="closeDeleteExpModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: เปลี่ยนรหัสผ่านของตนเอง / ผู้ดูแลรีเซ็ตรหัสผ่านให้ผู้อื่น -->
 <div id="pwModalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closePwModal()">
   <form class="modal-box" role="dialog" aria-modal="true" aria-labelledby="pwModalTitle" onsubmit="event.preventDefault(); submitPassword(this.querySelector('button[type=submit]'));" novalidate>
@@ -630,7 +675,10 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrPcJkVwgDn0o
 const COMMITTEE_APPROVAL_THRESHOLD = 5000;
 const SESSION_KEY = 'tusw_fin_session';
 
-let state = { token: null, name: '', role: '' };
+// ปีงบประมาณ ต.ค. – ก.ย. เรียกชื่อตามปีที่สิ้นสุด — ต้องตรงกับ FISCAL_YEAR_START_MONTH ใน Code.gs
+const FISCAL_YEAR_START_MONTH = 10;
+
+let state = { token: null, name: '', role: '', userId: '' };
 let cache = { income: [], expenses: [], projects: [] };
 let expFilter = '';
 
@@ -657,6 +705,20 @@ function monthYearKeys(){
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
   return { monthKey: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, yearKey: `${now.getFullYear()}` };
+}
+/* ---------- ปีงบประมาณ (พ.ศ.) ---------- */
+function fiscalYearOf(v){
+  const m = /^(\d{4})-(\d{2})/.exec(String(v||'')); if(!m) return null;
+  let y = Number(m[1]); if(y > 2400) y -= 543;
+  return (Number(m[2]) >= FISCAL_YEAR_START_MONTH ? y + 1 : y) + 543;
+}
+function currentFiscalYear(){ return fiscalYearOf(localDateStr()); }
+function fiscalRangeLabel(fy){
+  const mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const endMonth = (FISCAL_YEAR_START_MONTH + 10) % 12 + 1; // เดือนสุดท้ายของปีงบ (1-12)
+  const startBE = FISCAL_YEAR_START_MONTH === 1 ? fy : fy - 1;
+  const lastDay = new Date(fy - 543, endMonth, 0).getDate();
+  return `1 ${mo[FISCAL_YEAR_START_MONTH-1]} ${startBE} – ${lastDay} ${mo[endMonth-1]} ${fy}`;
 }
 function safeUrl(u){ return /^https:\/\//i.test(String(u||'')) ? esc(u) : ''; }
 function emptyState(icon, text){ return `<div class="empty"><i class="bi bi-${icon}" aria-hidden="true"></i>${esc(text)}</div>`; }
@@ -702,10 +764,14 @@ function validate(rules){
 }
 
 /* ---------- API helper ---------- */
+/* อ่านข้อมูล — ส่งผ่าน POST เพื่อไม่ให้ token อยู่ใน URL (ค้างใน log ของ Google, ประวัติเบราว์เซอร์, proxy) */
 async function apiGet(action, params) {
   try{
-    const qs = new URLSearchParams(Object.assign({ action, token: state.token }, params || {}));
-    const res = await fetch(APPS_SCRIPT_URL + '?' + qs.toString());
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // เลี่ยง CORS preflight ของ Apps Script
+      body: JSON.stringify({ action, token: state.token, params: params || {} })
+    });
     return handleAuthExpiry(await res.json());
   }catch(e){ return { ok:false, message:'เชื่อมต่อระบบไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่' }; }
 }
@@ -795,7 +861,7 @@ async function doLogin(btn) {
   });
 }
 function enterApp(data){
-  state.token = data.token; state.name = data.name; state.role = data.role;
+  state.token = data.token; state.name = data.name; state.role = data.role; state.userId = data.userId || '';
   authExpiredShown = false;
   try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify(state)); }catch(e){}
   $('sbUserName').textContent = data.name;
@@ -817,7 +883,7 @@ function applyRoleVisibility(){
   document.querySelectorAll('.project-writer-only').forEach(el => el.classList.toggle('hidden', !(canWrite || r === 'president')));
 }
 function doLogout(){
-  state = { token:null, name:'', role:'' };
+  state = { token:null, name:'', role:'', userId:'' };
   cache = { income: [], expenses: [], projects: [] };
   bankInfoLoaded = false;
   try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
@@ -856,13 +922,14 @@ function showPage(name){
   if(name==='expense') loadExpense();
   if(name==='projects') loadProjects();
   if(name==='assets') loadAssets();
-  if(name==='reports') { if(!$('reportYear').value) $('reportYear').value = new Date().getFullYear()+543; loadReport(); }
+  if(name==='reports') { if(!$('reportYear').value) $('reportYear').value = currentFiscalYear(); loadReport(); }
   if(name==='users') loadUsers();
   if(name==='settings') loadSettings();
 }
 
 async function initApp(){
   $('incDate').value = localDateStr();
+  initFiscalYearSelect();
   await loadProjectsIntoSelect();
   const fromHash = (location.hash||'').replace('#','');
   showPage(PAGE_TITLES[fromHash] ? fromHash : 'dashboard');
@@ -882,6 +949,8 @@ async function loadDashboard(btn){
     const [res, exp] = await Promise.all([apiGet('getDashboard'), apiGet('getExpenseRequests')]);
     if(!res.ok) { $('kpiGrid').innerHTML = emptyState('wifi-off', 'โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
     const d = res.data;
+    const fy = d.fiscalYear || currentFiscalYear();
+    const fyNote = `<div class="note">${esc(d.fiscalYearRange || fiscalRangeLabel(fy))}</div>`;
     $('kpiGrid').innerHTML = `
       <div class="kpi-section-title"><span class="kpi-section-dot"></span> สถานะเงิน</div>
       <div class="kpi-grid">
@@ -892,17 +961,17 @@ async function loadDashboard(btn){
       <div class="kpi-section-title"><span class="kpi-section-dot income"></span> รายรับ</div>
       <div class="kpi-grid">
         <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(d.incomeThisMonth)}</div></div>
-        <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(d.incomeThisYear)}</div></div>
+        <div class="kpi-card income"><div class="label">รายรับปีงบประมาณ ${esc(fy)}</div><div class="value">฿ ${money(d.incomeThisYear)}</div>${fyNote}</div>
       </div>
       <div class="kpi-section-title"><span class="kpi-section-dot expense"></span> รายจ่าย</div>
       <div class="kpi-grid">
         <div class="kpi-card expense"><div class="label">รายจ่ายเดือนนี้</div><div class="value">฿ ${money(d.expensePaidThisMonth)}</div></div>
-        <div class="kpi-card expense"><div class="label">รายจ่ายปีนี้</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div></div>
+        <div class="kpi-card expense"><div class="label">รายจ่ายปีงบประมาณ ${esc(fy)}</div><div class="value">฿ ${money(d.expensePaidThisYear)}</div>${fyNote}</div>
       </div>
     `;
     cache.expenses = exp.data || [];
     setPendingCount(cache.expenses.filter(isMyTurn).length);
-    const rows = cache.expenses.slice(0,6);
+    const rows = cache.expenses.filter(r => r.status !== 'cancelled').slice(0,6);
     $('dashRecentExpense').innerHTML = rows.length ? renderExpenseTable(rows, false) : emptyState('inbox', 'ยังไม่มีรายการ');
   });
 }
@@ -969,14 +1038,15 @@ async function loadIncome(){
   const rows = res.data||[];
   cache.income = rows;
 
-  const { monthKey, yearKey } = monthYearKeys();
+  const { monthKey } = monthYearKeys();
+  const fy = currentFiscalYear();
   const totalAll = rows.reduce((s,r)=>s+Number(r.amount||0),0);
   const totalMonth = rows.filter(r=>String(r.date).startsWith(monthKey)).reduce((s,r)=>s+Number(r.amount||0),0);
-  const totalYear = rows.filter(r=>String(r.date).startsWith(yearKey)).reduce((s,r)=>s+Number(r.amount||0),0);
+  const totalYear = rows.filter(r=>fiscalYearOf(r.date) === fy).reduce((s,r)=>s+Number(r.amount||0),0);
   $('incomeKpiGrid').innerHTML = `
     <div class="kpi-card income"><div class="label">รวมรายรับทั้งหมด</div><div class="value">฿ ${money(totalAll)}</div><div class="note">${rows.length} รายการ</div></div>
     <div class="kpi-card income"><div class="label">รายรับเดือนนี้</div><div class="value">฿ ${money(totalMonth)}</div></div>
-    <div class="kpi-card income"><div class="label">รายรับปีนี้</div><div class="value">฿ ${money(totalYear)}</div></div>
+    <div class="kpi-card income"><div class="label">รายรับปีงบประมาณ ${fy}</div><div class="value">฿ ${money(totalYear)}</div><div class="note">${fiscalRangeLabel(fy)}</div></div>
   `;
   renderIncomeTable();
 }
@@ -1013,27 +1083,37 @@ function renderIncomeTable(){
 /* ---------- Expense ---------- */
 async function loadProjectsIntoSelect(){
   const res = await apiGet('getProjects');
-  const sel = $('expProject');
-  const current = sel.value;
-  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   cache.projects = res.data || [];
-  cache.projects.forEach(p=>{
-    const opt = document.createElement('option'); opt.value=p.project_id; opt.textContent = p.name + ' (คงเหลือ ฿'+money(p.remaining_amount)+')';
+  fillProjectSelect($('expProject'));
+}
+/* เติมรายการโครงการลง select — โครงการปีงบปัจจุบันขึ้นก่อน และระบุปีงบในชื่อ */
+/* วงเงินที่ยังยื่นได้ = งบ − จ่ายแล้ว − คำขอค้าง (fallback เป็นคงเหลือแบบเดิม ถ้าหลังบ้านยังไม่อัปเดต) */
+function availableOf(p){ return p.available_amount !== undefined && p.available_amount !== '' ? Number(p.available_amount) : Number(p.remaining_amount); }
+function budgetErrorMsg(p, extra){ const a = availableOf(p) + (extra||0); return 'เกินวงเงินที่ยื่นได้ของโครงการ (ยื่นได้อีก ฿' + money(Math.max(0,a)) + ' — หักคำขอที่รออนุมัติ/รอจ่ายแล้ว)'; }
+function fillProjectSelect(sel){
+  const current = sel.value;
+  sel.querySelectorAll('option:not([value=""]),optgroup').forEach(o => o.remove());
+  const fy = currentFiscalYear();
+  const sorted = cache.projects.slice().sort((a,b) => (Number(b.fiscal_year)||0) - (Number(a.fiscal_year)||0));
+  sorted.forEach(p=>{
+    const opt = document.createElement('option'); opt.value=p.project_id;
+    opt.textContent = p.name + ' · ปีงบ ' + (p.fiscal_year||'-') + (Number(p.fiscal_year)===fy?'':' (ไม่ใช่ปีงบปัจจุบัน)') + ' — ยื่นได้อีก ฿'+money(availableOf(p));
     sel.appendChild(opt);
   });
   sel.value = current;
 }
-function updateExpenseRouteHint(){
-  const amt = Number($('expAmount').value);
-  $('expRouteHint').textContent = amt > 0
+function routeHintText(amt){
+  return amt > 0
     ? (amt <= COMMITTEE_APPROVAL_THRESHOLD ? 'เส้นทางอนุมัติ: เหรัญญิก → นายกสมาคม' : 'เกิน 5,000 บาท — เส้นทางอนุมัติ: เหรัญญิก → มติคณะกรรมการ (ข้อ 29)')
     : '';
 }
+function updateRouteHint(inputId, hintId){ $(hintId).textContent = routeHintText(Number($(inputId).value)); }
+function updateExpenseRouteHint(){ updateRouteHint('expAmount','expRouteHint'); }
 async function submitExpenseRequest(btn){
   const proj = cache.projects.find(p => p.project_id === $('expProject').value);
   if(!validate([
     ['expAmount','positive','กรุณาระบุจำนวนเงินที่มากกว่า 0'],
-    ['expAmount', v => !proj || Number(v) <= Number(proj.remaining_amount), proj ? ('เกินวงเงินคงเหลือของโครงการ (฿' + money(proj.remaining_amount) + ')') : ''],
+    ['expAmount', v => !proj || Number(v) <= availableOf(proj), proj ? budgetErrorMsg(proj) : ''],
     ['expDescription','required','กรุณาระบุรายละเอียดการเบิกจ่าย']
   ])) return;
   await withBusy(btn, 'กำลังยื่นคำขอ...', async () => {
@@ -1054,21 +1134,35 @@ function statusBadge(status){
   const map = {
     pending_treasurer:['badge-pending','hourglass-split','รอเหรัญญิกตรวจสอบ'], pending_committee:['badge-pending','people','รอมติกรรมการ'],
     pending_president:['badge-pending','person-check','รอนายกสมาคมอนุมัติ'], approved:['badge-approved','check2','อนุมัติแล้ว รอจ่ายเงิน'],
-    paid:['badge-paid','check2-all','จ่ายเงินแล้ว'], rejected:['badge-rejected','x-circle','ถูกปฏิเสธ']
+    paid:['badge-paid','check2-all','จ่ายเงินแล้ว'], rejected:['badge-rejected','x-circle','ถูกปฏิเสธ'],
+    cancelled:['badge-neutral','trash3','ผู้ยื่นลบแล้ว']
   };
   const m = map[status] || ['badge-neutral','dot', status];
   return `<span class="badge ${m[0]}"><i class="bi bi-${m[1]}" aria-hidden="true"></i> ${esc(m[2])}</span>`;
 }
 const STEP_ROLE = {pending_treasurer:'treasurer', pending_committee:'committee', pending_president:'president'};
-function isMyTurn(r){
+/* ผู้ใช้นี้พิจารณาขั้นปัจจุบันได้หรือไม่ — ผู้ยื่นห้ามพิจารณาคำขอของตนเอง (หลังบ้านบังคับซ้ำ) */
+function canDecide(r){
   const stepRole = STEP_ROLE[r.status];
-  if (stepRole && (state.role===stepRole || state.role==='admin')) return true;
+  return !!stepRole && (state.role===stepRole || state.role==='admin') && !isOwnRequest(r);
+}
+function isMyTurn(r){
+  if (canDecide(r)) return true;
   return r.status==='approved' && (state.role==='treasurer'||state.role==='admin');
 }
+/* คำขอนี้เป็นของผู้ใช้ปัจจุบันหรือไม่ (session เก่าที่ไม่มี userId เทียบด้วยชื่อ) — หลังบ้านตรวจซ้ำเสมอ */
+function isOwnRequest(r){
+  return state.userId ? String(r.requested_by_id) === String(state.userId) : r.requested_by === state.name;
+}
+function canModifyRequest(r){ return r.status === 'pending_treasurer' && isOwnRequest(r); }
+function projectName(id){ const p = cache.projects.find(x => x.project_id === id); return p ? p.name : ''; }
 function renderExpenseTable(rows, withActions){
   let html = '<table><thead><tr><th>วันที่</th><th>ผู้ยื่น</th><th>หมวด / รายละเอียด</th><th class="num">จำนวนเงิน</th><th>สถานะ</th>'+(withActions?'<th>ดำเนินการ</th>':'')+'</tr></thead><tbody>';
   rows.forEach(r=>{
-    html += `<tr><td style="white-space:nowrap">${thaiDate(r.date)}</td><td>${esc(r.requested_by)}</td><td>${esc(r.category)}<span class="sub">${esc(r.description||'')}</span></td><td class="num"><b>${money(r.amount)}</b></td><td>${statusBadge(r.status)}</td>`;
+    const prj = r.project_id ? projectName(r.project_id) : '';
+    const edited = r.updated_at ? ' <span class="badge badge-neutral" title="แก้ไขล่าสุด ' + esc(thaiDate(r.updated_at)) + '">แก้ไขแล้ว</span>' : '';
+    const cancelNote = r.status === 'cancelled' && r.cancel_reason ? `<span class="sub">เหตุผลที่ลบ: ${esc(r.cancel_reason)}</span>` : '';
+    html += `<tr><td style="white-space:nowrap">${thaiDate(r.date)}</td><td>${esc(r.requested_by)}</td><td>${esc(r.category)}${edited}<span class="sub">${esc(r.description||'')}</span>${prj?`<span class="sub"><i class="bi bi-kanban" aria-hidden="true"></i> ${esc(prj)}</span>`:''}</td><td class="num"><b>${money(r.amount)}</b></td><td>${statusBadge(r.status)}${cancelNote}</td>`;
     if(withActions) html += `<td>${expenseActionButtons(r)}</td>`;
     html += '</tr>';
   });
@@ -1077,15 +1171,87 @@ function renderExpenseTable(rows, withActions){
 function expenseActionButtons(r){
   const stepRole = STEP_ROLE[r.status];
   const id = esc(r.request_id);
-  let btns = '';
-  if (stepRole && (state.role===stepRole || state.role==='admin')) {
+  let btns = '', note = '';
+  if (canDecide(r)) {
     btns += `<button class="btn btn-primary btn-sm" onclick="doApprove('${id}','approve')"><i class="bi bi-check2" aria-hidden="true"></i> อนุมัติ</button>`;
     btns += `<button class="btn btn-danger-outline btn-sm" onclick="doApprove('${id}','reject')"><i class="bi bi-x" aria-hidden="true"></i> ปฏิเสธ</button>`;
+  } else if (stepRole && (state.role===stepRole || state.role==='admin') && isOwnRequest(r)) {
+    note = '<span class="sub" style="width:100%"><i class="bi bi-person-lock" aria-hidden="true"></i> ท่านเป็นผู้ยื่น — ต้องให้ผู้อื่นพิจารณา</span>';
   }
   if (r.status==='approved' && (state.role==='treasurer'||state.role==='admin')) {
     btns += `<button class="btn btn-gold btn-sm" onclick="doPay('${id}')"><i class="bi bi-cash-stack" aria-hidden="true"></i> บันทึกจ่ายเงิน</button>`;
   }
-  return btns ? `<div class="actions">${btns}</div>` : '<span style="color:var(--muted)">-</span>';
+  // ผู้ยื่นแก้ไข/ลบคำขอของตนเองได้ ก่อนเหรัญญิกตรวจสอบ
+  if (canModifyRequest(r)) {
+    btns += `<button class="btn btn-outline btn-sm" onclick="openEditExpense('${id}')" aria-label="แก้ไขคำขอ ${id}"><i class="bi bi-pencil" aria-hidden="true"></i> แก้ไข</button>`;
+    btns += `<button class="btn btn-danger-outline btn-sm" onclick="openDeleteExpense('${id}')" aria-label="ลบคำขอ ${id}"><i class="bi bi-trash3" aria-hidden="true"></i> ลบ</button>`;
+  }
+  if(!btns && note) return note;
+  return btns ? `<div class="actions">${btns}${note}</div>` : '<span style="color:var(--muted)">-</span>';
+}
+
+/* --- ผู้ยื่นแก้ไขคำขอ --- */
+let editExpId = null;
+function openEditExpense(requestId){
+  const r = cache.expenses.find(x => x.request_id === requestId);
+  if(!r || !canModifyRequest(r)) return showToast('คำขอนี้แก้ไขไม่ได้แล้ว (เหรัญญิกอาจตรวจสอบไปแล้ว)', true);
+  editExpId = requestId; lastFocus = document.activeElement;
+  fillProjectSelect($('editExpProject'));
+  $('editExpSub').textContent = 'เลขที่ ' + r.request_id + ' · ยื่นเมื่อ ' + thaiDate(r.date);
+  $('editExpProject').value = r.project_id || '';
+  $('editExpCategory').value = r.category;
+  $('editExpAmount').value = Number(r.amount) || '';
+  $('editExpDescription').value = r.description || '';
+  updateRouteHint('editExpAmount','editExpRouteHint');
+  document.querySelectorAll('#editExpModalOverlay .field-error').forEach(e=>e.remove());
+  ['editExpAmount','editExpDescription'].forEach(id => $(id).removeAttribute('aria-invalid'));
+  $('editExpModalOverlay').classList.remove('hidden');
+  $('editExpAmount').focus();
+}
+function closeEditExpModal(){ $('editExpModalOverlay').classList.add('hidden'); editExpId = null; if(lastFocus) lastFocus.focus(); }
+async function confirmEditExpense(btn){
+  if(!editExpId) return;
+  const proj = cache.projects.find(p => p.project_id === $('editExpProject').value);
+  // ถ้ายังอยู่โครงการเดิม ยอดเดิมของคำขอนี้ถูกนับเป็น "ค้าง" อยู่แล้ว — คืนกลับก่อนเทียบ
+  const orig = cache.expenses.find(x => x.request_id === editExpId) || {};
+  const giveBack = proj && orig.project_id === proj.project_id ? Number(orig.amount)||0 : 0;
+  if(!validate([
+    ['editExpAmount','positive','กรุณาระบุจำนวนเงินที่มากกว่า 0'],
+    ['editExpAmount', v => !proj || Number(v) <= availableOf(proj) + giveBack, proj ? budgetErrorMsg(proj, giveBack) : ''],
+    ['editExpDescription','required','กรุณาระบุรายละเอียดการเบิกจ่าย']
+  ])) return;
+  await withBusy(btn, 'กำลังบันทึก...', async () => {
+    const res = await apiPost('updateExpenseRequest', {
+      requestId: editExpId,
+      projectId: $('editExpProject').value,
+      category: $('editExpCategory').value,
+      amount: $('editExpAmount').value,
+      description: $('editExpDescription').value.trim()
+    });
+    if(!res.ok){ showToast(res.message || 'แก้ไขไม่สำเร็จ', true); loadExpense(); return; }
+    showToast(res.message); closeEditExpModal(); loadExpense();
+  });
+}
+
+/* --- ผู้ยื่นลบคำขอ --- */
+let deleteExpId = null;
+function openDeleteExpense(requestId){
+  const r = cache.expenses.find(x => x.request_id === requestId);
+  if(!r || !canModifyRequest(r)) return showToast('คำขอนี้ลบไม่ได้แล้ว (เหรัญญิกอาจตรวจสอบไปแล้ว)', true);
+  deleteExpId = requestId; lastFocus = document.activeElement;
+  $('deleteExpSummary').innerHTML = requestSummaryHtml(r) + (r.description ? `<div><span>รายละเอียด</span><b style="text-align:right">${esc(r.description)}</b></div>` : '');
+  $('deleteExpReason').value = '';
+  $('deleteExpModalOverlay').classList.remove('hidden');
+  $('deleteExpReason').focus();
+}
+function closeDeleteExpModal(){ $('deleteExpModalOverlay').classList.add('hidden'); deleteExpId = null; if(lastFocus) lastFocus.focus(); }
+async function confirmDeleteExpense(btn){
+  if(!deleteExpId) return;
+  await withBusy(btn, 'กำลังลบ...', async () => {
+    const res = await apiPost('deleteExpenseRequest', { requestId: deleteExpId, reason: $('deleteExpReason').value.trim() });
+    if(!res.ok){ showToast(res.message || 'ลบไม่สำเร็จ', true); loadExpense(); return; }
+    showToast(res.message); closeDeleteExpModal(); loadExpense();
+  });
 }
 function requestSummaryHtml(r){
   if(!r) return '';
@@ -1165,8 +1331,11 @@ document.querySelectorAll('#expFilterChips .chip').forEach(c => c.addEventListen
 function renderExpenseList(){
   const pend = ['pending_treasurer','pending_committee','pending_president'];
   const rows = cache.expenses.filter(r => {
+    // คำขอที่ผู้ยื่นลบแล้ว แสดงเฉพาะในตัวกรอง "ลบแล้ว" (เก็บไว้ให้ผู้ตรวจสอบบัญชีย้อนดูได้)
+    if(r.status === 'cancelled') return expFilter === 'cancelled';
     if(!expFilter) return true;
     if(expFilter === 'mine') return isMyTurn(r);
+    if(expFilter === 'own') return isOwnRequest(r);
     if(expFilter === 'pending') return pend.indexOf(r.status) !== -1;
     return r.status === expFilter;
   });
@@ -1216,27 +1385,50 @@ async function submitProject(btn){
     ['prjBudget','positive','กรุณาระบุงบประมาณที่มากกว่า 0']
   ])) return;
   await withBusy(btn, 'กำลังบันทึก...', async () => {
-    const payload = { name: $('prjName').value.trim(), budgetAmount: $('prjBudget').value };
+    const payload = { name: $('prjName').value.trim(), budgetAmount: $('prjBudget').value, fiscalYear: Number($('prjFiscalYear').value) };
     const res = await apiPost('addProject', payload);
     if(!res.ok) return showToast(res.message, true);
-    showToast('บันทึกโครงการสำเร็จ');
-    $('prjName').value=''; $('prjBudget').value='';
+    showToast('บันทึกโครงการสำเร็จ (ปีงบประมาณ ' + payload.fiscalYear + ')');
+    $('prjName').value=''; $('prjBudget').value=''; $('prjFiscalYear').value = currentFiscalYear(); updateFiscalHint();
     loadProjects(); loadProjectsIntoSelect();
   });
 }
+/* ตัวเลือกปีงบประมาณ: ปีก่อน / ปีปัจจุบัน (ค่าเริ่มต้น) / ปีถัดไป — ให้ตั้งโครงการล่วงหน้าหรือย้อนหลังได้ */
+function initFiscalYearSelect(){
+  const sel = $('prjFiscalYear'); const fy = currentFiscalYear();
+  sel.innerHTML = [fy-1, fy, fy+1].map(y => `<option value="${y}">${y}${y===fy?' (ปีงบปัจจุบัน)':''}</option>`).join('');
+  sel.value = fy; sel.onchange = updateFiscalHint; updateFiscalHint();
+}
+function updateFiscalHint(){ $('prjFiscalHint').textContent = fiscalRangeLabel(Number($('prjFiscalYear').value)); }
 async function loadProjects(){
   if(!$('projectsTableWrap').innerHTML) $('projectsTableWrap').innerHTML = skeleton(3);
   const res = await apiGet('getProjects');
   if(!res.ok){ $('projectsTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
-  const rows = res.data||[];
-  if(!rows.length){ $('projectsTableWrap').innerHTML = emptyState('kanban','ยังไม่มีโครงการ'); return; }
-  let html = '<table><thead><tr><th>โครงการ</th><th class="num">งบประมาณ</th><th class="num">ใช้ไปแล้ว</th><th class="num">คงเหลือ</th><th>การใช้งบ</th></tr></thead><tbody>';
+  cache.projects = res.data||[];
+  // เติมตัวกรองปีงบจากข้อมูลจริง
+  const fsel = $('prjFilterFY'), keep = fsel.value;
+  const years = Array.from(new Set(cache.projects.map(p => String(p.fiscal_year||'')).filter(Boolean))).sort().reverse();
+  fsel.innerHTML = '<option value="">ทุกปีงบประมาณ</option>' + years.map(y => `<option value="${esc(y)}">ปีงบประมาณ ${esc(y)}</option>`).join('');
+  fsel.value = years.indexOf(keep) !== -1 ? keep : '';
+  renderProjectsTable();
+}
+function renderProjectsTable(){
+  const fyFilter = $('prjFilterFY').value;
+  const rows = cache.projects.filter(p => !fyFilter || String(p.fiscal_year) === fyFilter);
+  if(!cache.projects.length){ $('projectsTableWrap').innerHTML = emptyState('kanban','ยังไม่มีโครงการ'); return; }
+  if(!rows.length){ $('projectsTableWrap').innerHTML = emptyState('funnel','ไม่มีโครงการในปีงบประมาณนี้'); return; }
+  const curFy = currentFiscalYear();
+  let html = '<table><thead><tr><th>โครงการ</th><th class="num">งบประมาณ</th><th class="num">จ่ายแล้ว</th><th class="num">คำขอค้าง<span style="display:block;font-weight:400;font-size:11.5px">รออนุมัติ/รอจ่าย</span></th><th class="num">ยื่นเพิ่มได้</th><th>การใช้งบ</th></tr></thead><tbody>';
   rows.forEach(p=>{
     const budget = Number(p.budget_amount)||0, used = Number(p.used_amount)||0;
-    const pct = budget > 0 ? Math.min(100, Math.round(used / budget * 100)) : 0;
+    const committed = Number(p.committed_amount)||0, avail = availableOf(p);
+    const pctUsed = budget > 0 ? Math.min(100, used / budget * 100) : 0;
+    const pctCommit = budget > 0 ? Math.min(100 - pctUsed, committed / budget * 100) : 0;
+    const pct = Math.round(pctUsed + pctCommit);
     const lvl = pct >= 90 ? 'high' : pct >= 70 ? 'mid' : '';
-    html += `<tr><td>${esc(p.name)}<span class="sub">ปีงบ ${esc(p.fiscal_year||'-')}</span></td><td class="num">${money(budget)}</td><td class="num">${money(used)}</td><td class="num ${Number(p.remaining_amount)<0?'neg':''}"><b>${money(p.remaining_amount)}</b></td>
-      <td style="min-width:130px"><div class="progress ${lvl}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="ใช้งบไป ${pct}%"><span style="width:${pct}%"></span></div><span class="sub">${pct}%</span></td></tr>`;
+    const fyTag = Number(p.fiscal_year) === curFy ? ' <span class="badge badge-approved">ปีงบปัจจุบัน</span>' : '';
+    html += `<tr><td>${esc(p.name)}<span class="sub">ปีงบประมาณ ${esc(p.fiscal_year||'-')}${fyTag}</span></td><td class="num">${money(budget)}</td><td class="num">${money(used)}</td><td class="num">${committed?money(committed):'<span style="color:var(--muted)">-</span>'}</td><td class="num ${avail<0?'neg':''}"><b>${money(avail)}</b></td>
+      <td style="min-width:150px"><div class="progress ${lvl}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="จ่ายแล้ว ${Math.round(pctUsed)}% และจองไว้ ${Math.round(pctCommit)}% ของงบ"><span style="width:${pctUsed}%"></span><span class="c" style="width:${pctCommit}%"></span></div><span class="sub">${pct}% (จ่ายแล้ว ${Math.round(pctUsed)}% · จองไว้ ${Math.round(pctCommit)}%)</span></td></tr>`;
   });
   $('projectsTableWrap').innerHTML = tableWrap(html + '</tbody></table>');
 }
@@ -1292,15 +1484,18 @@ async function loadReport(btn){
     if(!res.ok){ $('reportTableWrap').innerHTML = emptyState('wifi-off','โหลดข้อมูลไม่สำเร็จ'); return showToast(res.message, true); }
     const rows = res.data||[];
     const thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    // แถวเรียงตามปีงบ (ต.ค. → ก.ย.) และมี month/year มาจากหลังบ้าน — แสดงชื่อเดือนพร้อมปี พ.ศ. เพื่อไม่ให้สับสนข้ามปี
+    const monthLabel = (r,i) => r.year ? `${thMonths[Number(r.month)-1]} ${Number(r.year)+543}` : thMonths[i];
+    $('reportRangeLabel').textContent = 'ปีงบประมาณ ' + year + ' · ' + fiscalRangeLabel(Number(year));
     const max = Math.max(1, ...rows.map(r => Math.max(r.income, r.expense)));
     let ti = 0, te = 0;
     let html = '<table><thead><tr><th>เดือน</th><th class="num">รายรับ</th><th class="num">รายจ่าย</th><th class="num">สุทธิ</th><th aria-hidden="true">เปรียบเทียบ</th></tr></thead><tbody>';
     rows.forEach((r,i)=>{
       ti += Number(r.income)||0; te += Number(r.expense)||0;
-      html += `<tr><td>${thMonths[i]}</td><td class="num">${money(r.income)}</td><td class="num">${money(r.expense)}</td><td class="num ${r.net<0?'neg':r.net>0?'pos':''}"><b>${money(r.net)}</b></td>
+      html += `<tr><td style="white-space:nowrap">${monthLabel(r,i)}</td><td class="num">${money(r.income)}</td><td class="num">${money(r.expense)}</td><td class="num ${r.net<0?'neg':r.net>0?'pos':''}"><b>${money(r.net)}</b></td>
         <td aria-hidden="true"><div class="mini-bars"><span class="i" style="width:${r.income/max*100}%"></span><span class="e" style="width:${r.expense/max*100}%"></span></div></td></tr>`;
     });
-    html += `</tbody><tfoot><tr><td>รวมทั้งปี ${esc(year)}</td><td class="num">${money(ti)}</td><td class="num">${money(te)}</td><td class="num ${ti-te<0?'neg':'pos'}">${money(ti-te)}</td><td></td></tr></tfoot></table>`;
+    html += `</tbody><tfoot><tr><td>รวมปีงบประมาณ ${esc(year)}</td><td class="num">${money(ti)}</td><td class="num">${money(te)}</td><td class="num ${ti-te<0?'neg':'pos'}">${money(ti-te)}</td><td></td></tr></tfoot></table>`;
     $('reportTableWrap').innerHTML = tableWrap(html);
   });
 }
@@ -1437,9 +1632,9 @@ async function submitPassword(btn){
 
 /* ---------- Keyboard: Esc ปิด modal / เมนู + กัก focus ใน modal ---------- */
 document.addEventListener('keydown', e => {
-  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
+  const openModal = ['payModalOverlay','decisionModalOverlay','pwModalOverlay','editExpModalOverlay','deleteExpModalOverlay'].map($).find(m => !m.classList.contains('hidden'));
   if(e.key === 'Escape'){
-    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal})[openModal.id](); return; }
+    if(openModal){ ({payModalOverlay:closePayModal, decisionModalOverlay:closeDecisionModal, pwModalOverlay:closePwModal, editExpModalOverlay:closeEditExpModal, deleteExpModalOverlay:closeDeleteExpModal})[openModal.id](); return; }
     if($('sidebar').classList.contains('open')) toggleNav(false);
   }
   if(e.key === 'Tab' && openModal){
